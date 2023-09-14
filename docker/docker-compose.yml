@@ -1,0 +1,173 @@
+version: "3"
+# docker-compose up -d
+# docker-compose --host "tcp://192.168.0.22:2375" up -d
+# docker-compose --host "ssh://root@192.168.0.22" up -d
+
+services:
+  # portainer:
+  #   image: portainer/portainer-ce
+  #   container_name: portainer
+  #   restart: always
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - portainer_data:/root/portainer/data
+  #   ports:
+  #     - 8000:8000
+  #     - 9443:9000
+
+  # phpmyadmin:
+  #   image: phpmyadmin:latest
+  #   ports:
+  #     - 1234:80
+  #   environment:
+  #     - PMA_ARBITRARY=1
+
+  # mysql:
+  #   image: mysql:latest
+  #   container_name: mysql
+  #   command:
+  #     - --default_authentication_plugin=mysql_native_password
+  #     - --character-set-server=utf8mb4
+  #     - --collation-server=utf8mb4_unicode_ci
+  #   volumes:
+  #     - ~/mysql/data:/var/lib/mysql
+  #   ports:
+  #     - 3306:3306
+  #   restart: always
+  #   environment:
+  #     MYSQL_DATABASE: dx_db
+  #     MYSQL_ROOT_PASSWORD: dx111@222
+  #     MYSQL_USER: dx_db
+  #     MYSQL_PASSWORD: dx111@222
+  #   networks:
+  #     - dx-local-net
+
+  elasticsearch:
+    restart: always
+    container_name: elasticsearch
+    image: elasticsearch:7.17.6
+    environment:
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      discovery.type: single-node
+    volumes:
+      - ~/elasticsearch/data:/usr/share/elasticsearch/data
+      - ~/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ports:
+      - 9200:9200
+      - 9300:9300
+    # command: ./bin/elasticsearch-plugin install https://zsdx-test.oss-cn-hangzhou.aliyuncs.com/elasticsearch-analysis-ik-7.17.6.zip
+    networks:
+      - dx-local-net
+
+  kibana:
+    container_name: kibana
+    image: kibana:7.17.6
+    ports:
+      - 5601:5601
+    networks:
+      - dx-local-net
+    restart: always
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    restart: always
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: dx123456
+    ports:
+      - 9000:9000
+      - 9010:9010
+    volumes:
+      - ~/minio/data:/data
+      - ~/minio/config:/root/.minio
+    command: server  /data --console-address ":9010" -address ":9000"
+    networks:
+      - dx-local-net
+
+  redis:
+    container_name: redis
+    image: redis
+    restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - ~/redis/data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - dx-local-net
+
+  # redisinsight:
+  #   image: redislabs/redisinsight:latest
+  #   restart: always
+  #   ports:
+  #     - 8001:8001
+  #   volumes:
+  #     - ~/redis/insight/db:/db
+  #   depends_on:
+  #     - redis
+  #   networks:
+  #     - dx-local-net
+
+  app:
+    container_name: app
+    depends_on:
+      # - mysql
+      - elasticsearch
+      - kibana
+      - minio
+      - redis
+    image: openjdk:18.0.2.1-slim-buster
+    restart: always
+    volumes:
+      - ./DSRD_XZZYY-0.0.1-SNAPSHOT.jar:/app.jar
+    ports:
+      - 9081:8081
+      - 9082:8082
+    environment:
+      MYSQL_DB_HOST: mysql:3306
+      TZ: "Asia/Shanghai" # 指定时区
+    entrypoint: java -jar app.jar
+    networks:
+      - dx-local-net
+    # extra_hosts:
+    #   - "ids.zsdx.site:192.168.0.248"
+    #   - "a.zsdx.com.cn:172.25.64.7"
+
+  nginx:
+    container_name: nginx
+    image: nginx
+    restart: always
+    ports:
+      # - 9011:80
+      - 443:443
+    volumes:
+      - ~/nginx/html:/nginx/html
+      - ~/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ~/nginx/logs:/var/log/nginx
+    networks:
+      - dx-local-net
+    # extra_hosts:
+    #   - "ids.zsdx.site:192.168.0.248"
+
+  nginx_admin:
+    container_name: nginx_admin
+    image: nginx
+    restart: always
+    ports:
+      # - 9011:80
+      - 9012:443
+    volumes:
+      - ~/nginx_admin/html:/nginx/html
+      - ~/nginx_admin/nginx.conf:/etc/nginx/nginx.conf
+      - ~/nginx_admin/logs:/var/log/nginx
+    networks:
+      - dx-local-net
+
+networks:
+  dx-local-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.64.0/18
+          gateway: 172.25.64.1

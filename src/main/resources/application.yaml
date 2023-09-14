@@ -1,0 +1,93 @@
+server:
+  port: 8082
+  http:
+    port: 8081
+  ssl:
+    key-store: classpath:8103515_a.zsdx.com.cn.jks
+    key-store-password: wu978kxo
+    key-store-type: JKS
+    enabled: true
+
+spring:
+  profiles:
+    active: local
+
+  main:
+    allow-bean-definition-overriding: true
+
+  jackson:
+    default-property-inclusion: non-null
+    serialization:
+      write-dates-as-timestamps: true
+    date-format: yyyy-MM-dd HH:mm:ss
+
+  jpa:
+    # show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL57InnoDBDialect
+
+  data:
+    redis:
+      repositories:
+        enabled: false
+    elasticsearch:
+      repositories:
+        enabled: false
+
+api:
+  app: ZJXZ_GWJH
+  title: 舟籍学子-港湾计划
+  description: 学子、高中、大学
+  author: Davan.C, Emery.W
+  copyright: 舟山东迅信息科技有限公司
+  version: 1.0
+  default-response: java.lang.Boolean
+  servers:
+    - { url: http://dx-local-net:8081, description: 测试服务器, env: dev }
+  modules:
+#    - { name: HighSchool, description: 高中 }
+    - { name: Students, description: 学子管理 }
+    - { name: System, description: 系统管理 }
+    - { name: API, description: API }
+
+rpc:
+  ids-url: "https://ids.zsdx.site/api/Account/ZFQBi/3V+Dz7SuB4pox3mVDEJPgvGceEucRKNladtng="
+  oauth-client:
+    client-id: DX_ADMIN
+    client-secret: secret
+    scopes: ["openid"]
+    access-token-ttl: "3h"
+
+easy:
+  data-adapter: jpa
+  data: jpa
+
+storage:
+  provider: MINIO
+  buckets:
+    admin:
+      file-name: "#date('yyyyMM')+'/'+#uuid()+#ext"
+      dir-name: "'files'"
+      max-size: 10MB
+      allow-types: ["jpg", "jpeg", "png", "xls", "doc", "xlsx", "docx", "pdf"]
+    api:
+      file-name: "#date('yyyyMM')+'/'+#uuid()+#ext"
+      dir-name: "'api'"
+      max-size: 10MB
+      allow-types: ["jpg", "jpeg", "png", "xls", "doc", "xlsx", "docx", "pdf"]
+
+security:
+  # permit-all: true
+  session-ttl: "2d"
+  session-type: com.dx.zjxz_gwjh.model.RDUserSession
+  api:
+    secrets:
+      dxapp: dx1234567890
+  oauth2:
+    jwk-url: https://ids.zsdx.site/.well-known/openid-configuration/jwks
+    claim-key-id: sub
+    claim-key-name: name
+    jwt-type: at+jwt

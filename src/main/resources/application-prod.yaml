@@ -1,0 +1,56 @@
+server:
+  ssl:
+    key-store: classpath:9131178_xzzyy.daishan.gov.cn.jks
+    key-store-password: q2937e4f
+    key-store-type: JKS
+    enabled: true
+
+spring:
+  profiles: prod
+
+  datasource:
+    url: jdbc:mysql://100.171.6.22:3306/dx_db?useUnicode=true&characterEncoding=utf-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: dx111@222
+
+  redis:
+    host: redis
+    port: 6379
+
+  elasticsearch:
+    # username: elastic
+    # password: rrqgVK9DGRg43jz1YJkR
+    rest:
+      uris: elasticsearch:9200
+
+rpc:
+  resource-server: http://127.0.0.1:8081/
+  account-server: http://127.0.0.1:8081/
+  ids-url: "http://100.171.6.21:55666/api/Account/ZFQBi/3V+Dz7SuB4pox3mVDEJPgvGceEucRKNladtng="
+
+security:
+  oauth2:
+    jwk-url: http://100.171.6.21:55666/.well-known/openid-configuration/jwks
+
+easy:
+  data-adapter: jpa
+  data: jpa
+
+elasticsearch:
+  host: elasticsearch
+  port: 9200
+
+minio:
+  endpoint: https://xzzyy.daishan.gov.cn:9000
+  # endpoint: https://a.zsdx.com.cn:9000
+  access-key: minio
+  secret-key: dx123456
+  bucket: dsrd-xzzyy
+
+zwding:
+  enable: true
+  domain: openplatform-pro.ding.zj.gov.cn
+  access-key: dsrd-OOy336Cw2ER23PfDZK2eUNZZr
+  secret-key: cz25DT9xq04H20Sa3TOBBp39hH5BZYw3n4r77Qy0
+  tenant-id: 196729

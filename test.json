@@ -1,0 +1,25 @@
+{
+  "success": true,
+  "content": {
+    "data": {
+      "lastName": "李仁月",
+      "realmId": 196729,
+      "clientId": "dsrd",
+      "openid": "d0dd01b533cc47ef791684d1b3a5124a",
+      "realmName": "浙政钉租户",
+      "nickNameCn": "李仁月",
+      "tenantUserId": "196729$77560649",
+      "avatar": "$hQHNKaUCo3BuZwMGDAEN2gBARHVIdEVqcVNzNGdhYjBUbmEzZFI0cUxvYlcxdm9NS0Vtb3o4OVA4TjM4c2M5UU0xeExsUVFkalBQNFVJakZ0aA",
+      "employeeCode": "GE_414d6a97a2394604a3e2c05b42246a5d",
+      "accountId": 77560649,
+      "tenantName": "浙政钉租户",
+      "referId": "77560649",
+      "namespace": "local",
+      "tenantId": 196729,
+      "account": "sjgswzx-lry"
+    },
+    "success": true,
+    "responseMessage": "成功",
+    "responseCode": "0"
+  }
+}
