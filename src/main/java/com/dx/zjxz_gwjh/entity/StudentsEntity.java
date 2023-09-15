@@ -34,9 +34,9 @@ public class StudentsEntity extends JpaBaseEntity{
     @Column(name = "major")
     private String major;
 
-    @ApiModelProperty("省份")
-    @Column(name = "province")
-    private String province;
+    @ApiModelProperty("属地")
+    @Column(name = "area")
+    private String area;
 
     @ApiModelProperty("是否重点学子")
     @Column(name = "is_key_contact")

@@ -4,12 +4,11 @@ import com.dx.easyspringweb.core.StandardService;
 import com.dx.easyspringweb.core.exception.ServiceException;
 import com.dx.easyspringweb.core.model.PagingData;
 import com.dx.easyspringweb.core.model.QueryRequest;
+import com.dx.easyspringweb.core.utils.ObjectUtils;
 import com.dx.easyspringweb.data.jpa.SortField;
 import com.dx.easyspringweb.data.jpa.service.JpaPublicService;
-import com.dx.zjxz_gwjh.entity.QHighSchoolEntity;
-import com.dx.zjxz_gwjh.entity.QStudentsEntity;
-import com.dx.zjxz_gwjh.entity.QUniversityEntity;
-import com.dx.zjxz_gwjh.entity.StudentsEntity;
+import com.dx.zjxz_gwjh.dto.StudentsDto;
+import com.dx.zjxz_gwjh.entity.*;
 import com.dx.zjxz_gwjh.filter.StudentsFilter;
 import com.dx.zjxz_gwjh.repository.StudentsRepository;
 import com.querydsl.core.BooleanBuilder;
@@ -22,6 +21,12 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
 
     @Autowired
     private StudentsRepository repository;
+
+    @Autowired
+    private UniversityService universityService;
+
+    @Autowired
+    private HighSchoolService highSchoolService;
 
     public StudentsService(StudentsRepository repository) {
         super(repository);
@@ -77,10 +82,10 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
                 predicate.and(q.academicYear.contains(academicYear));
             }
 
-            // 省份
-            String province = filter.getProvince();
-            if (StringUtils.hasText(province)) {
-                predicate.and(q.province.contains(province));
+            // 属地
+            String area = filter.getArea();
+            if (StringUtils.hasText(area)) {
+                predicate.and(q.area.contains(area));
             }
 
             // 是否重点学子
@@ -96,5 +101,58 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
 
         return this.queryList(predicate, query.getPageInfo(), query.getSorts());
     }
+
+    @Override
+    public StudentsEntity update(StudentsEntity entity) throws ServiceException {
+        // 可以添加一些业务逻辑，比如根据entity里面的某些字段更改其他字段
+
+        // 调用父类方法进行实际的更新
+        entity = super.update(entity);
+
+        // 进一步的后续逻辑，比如如果学生信息更改后需要触发其他操作
+        if (entity.getIsKeyContact() != null && entity.getIsKeyContact()) {
+            try {
+                // 假设有一个特别的逻辑需要在重点学子更新后执行
+                // KeyContactEntity keyContact = ObjectUtils.copyEntity(entity, KeyContactEntity.class);
+                // keyContactService.create(keyContact);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return entity;
+    }
+
+    // 在StudentsService中
+    public StudentsEntity createStudent(StudentsDto dto) throws ServiceException {
+        // 先检查并获取或创建University实体
+        UniversityEntity universityEntity = universityService.findOrCreateByName(dto.getUniversityName());
+
+        // 先检查并获取或创建HighSchool实体
+        HighSchoolEntity highSchoolEntity = highSchoolService.findOrCreateByName(dto.getHighSchoolName());
+
+        // 创建或获取现有的学生实体
+        StudentsEntity entity;
+        if (dto.getId() != null) {
+            entity = this.getById(dto.getId());
+        } else {
+            entity = new StudentsEntity();
+        }
+
+        // 将DTO中的数据复制到学生实体
+        ObjectUtils.copyEntity(dto, entity);
+
+        // 设置关联的University和HighSchool
+        entity.setUniversity(universityEntity);
+        entity.setHighSchool(highSchoolEntity);
+
+        // 创建或更新学生实体
+        if (dto.getId() != null) {
+            return this.update(entity);
+        } else {
+            return this.create(entity);
+        }
+    }
+
+
 }
 

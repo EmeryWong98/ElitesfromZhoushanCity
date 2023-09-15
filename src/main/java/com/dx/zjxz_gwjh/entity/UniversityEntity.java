@@ -43,4 +43,8 @@ public class UniversityEntity extends JpaBaseEntity {
     @ApiModelProperty("纬度")
     @Column(name = "lat")
     private float lat;
+
+    @ApiModelProperty("省份")
+    @Column(name = "province")
+    private String province;
 }

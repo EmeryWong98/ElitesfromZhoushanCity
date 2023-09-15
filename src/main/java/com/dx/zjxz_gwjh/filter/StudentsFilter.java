@@ -28,8 +28,8 @@ public class StudentsFilter {
     @ApiModelProperty("学年")
     private String academicYear;
 
-    @ApiModelProperty("省份")
-    private String province;
+    @ApiModelProperty("属地")
+    private String area;
 
     @ApiModelProperty("是否重点学子")
     private Boolean isKeyContact;

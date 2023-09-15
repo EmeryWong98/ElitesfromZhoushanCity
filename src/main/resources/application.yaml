@@ -48,7 +48,8 @@ api:
   servers:
     - { url: http://dx-local-net:8081, description: 测试服务器, env: dev }
   modules:
-#    - { name: HighSchool, description: 高中 }
+    - { name: University, description: 大学管理 }
+    - { name: HighSchool, description: 高中管理 }
     - { name: Students, description: 学子管理 }
     - { name: System, description: 系统管理 }
     - { name: API, description: API }
