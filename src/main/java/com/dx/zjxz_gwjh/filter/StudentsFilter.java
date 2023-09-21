@@ -25,13 +25,19 @@ public class StudentsFilter {
     @ApiModelProperty("专业")
     private String major;
 
-    @ApiModelProperty("学年")
-    private String academicYear;
-
     @ApiModelProperty("属地")
     private String area;
 
     @ApiModelProperty("是否重点学子")
     private Boolean isKeyContact;
+
+    @ApiModelProperty("开始年份")
+    private Integer startYear;
+
+    @ApiModelProperty("结束年份")
+    private Integer endYear;
+
+    @ApiModelProperty("大学省份")
+    private String province;
 
 }

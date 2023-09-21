@@ -13,7 +13,10 @@ import com.dx.zjxz_gwjh.repository.UniversityRepository;
 import com.querydsl.core.BooleanBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;import java.util.Optional;
+import org.springframework.util.StringUtils;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UniversityService extends JpaPublicService<UniversityEntity, String> implements StandardService<UniversityEntity, UniversityFilter, String> {
@@ -61,8 +64,4 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
         }
         return universityEntity;
     }
-
-
-
-
 }

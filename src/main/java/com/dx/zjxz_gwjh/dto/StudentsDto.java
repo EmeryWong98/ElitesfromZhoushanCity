@@ -2,11 +2,17 @@ package com.dx.zjxz_gwjh.dto;
 
 import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModelProperty;
+import com.dx.zjxz_gwjh.entity.HighSchoolEntity;
+import com.dx.zjxz_gwjh.entity.UniversityEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.persistence.Column;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
+import java.sql.Date;
+import java.util.List;
 
 @Data
 @ApiModel("学子")
@@ -16,6 +22,9 @@ public class StudentsDto extends BaseEventDto {
     @NotNull(message = "学生姓名不能为空")
     @ApiModelProperty("学生姓名")
     private String name;
+
+    @ApiModelProperty("用户ID")
+    private String userId;
 
     @ApiModelProperty("专业")
     private String major;
@@ -27,7 +36,7 @@ public class StudentsDto extends BaseEventDto {
     private Boolean isKeyContact;
 
     @ApiModelProperty("学年")
-    private String academicYear;
+    private int academicYear;
 
     @ApiModelProperty("住址")
     private String address;
@@ -41,15 +50,47 @@ public class StudentsDto extends BaseEventDto {
     @ApiModelProperty("性别")
     private String sex;
 
+    @NotNull(message = "身份证号不能为空")
     @ApiModelProperty("身份证号")
     private String idCard;
 
     @ApiModelProperty("联系电话")
     private String phone;
 
+    @ApiModelProperty("生日")
+    private Date dob;
+
+    @ApiModelProperty("省份")
+    private String province;
+
+    @ApiModelProperty("学历")
+    private String degree;
+
+    @ApiModelProperty("家庭联系人")
+    private String familyContactor;
+
+    @ApiModelProperty("家庭联系人电话")
+    private String familyContactorMobile;
+
+    @ApiModelProperty("所属毕业班")
+    private String undergraduateClass;
+
+    @ApiModelProperty("联系老师")
+    private String headTeacher;
+
+    @ApiModelProperty("联系老师电话")
+    private String headTeacherMobile;
+
     @ApiModelProperty("大学名称")
-    private String universityName;  // 这里使用大学名称而不是ID
+    private String universityName;
 
     @ApiModelProperty("高中名称")
-    private String highSchoolName;  // 这里使用高中名称而不是ID
+    private String highSchoolName;
+
+    @ApiModelProperty("所属的三个网格名称")
+    private List<NetNameDto> netNames;
+
+    @ApiModelProperty("是否双一流")
+    private Boolean isSupreme;
+
 }
