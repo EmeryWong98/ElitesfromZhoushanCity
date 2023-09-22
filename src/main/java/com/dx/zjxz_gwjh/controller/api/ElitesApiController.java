@@ -36,25 +36,22 @@ public class ElitesApiController {
     @BindResource("elites:api:countbyareaandprovince")
     @Action("根据属地和省份统计重点学子数量和高校数量")
     @PostMapping("/elites-count-by-area-and-province")
-    public ResponseEntity<Map<String, Map<String, Map<String, Integer>>>> getKeyContactCountByAreaAndProvince() {
-        Map<String, Map<String, Map<String, Integer>>> countMap = studentsService.getKeyContactCountByAreaProvinceAndUniversity();
-        return new ResponseEntity<>(countMap, HttpStatus.OK);
+    public Map<String, Map<String, Map<String, Integer>>> getKeyContactCountByAreaAndProvince() {
+         return studentsService.getKeyContactCountByAreaProvinceAndUniversity();
     }
 
     @BindResource("elites:api:countbyacademicyear")
     @Action("根据学年和属地统计重点学子数量")
     @PostMapping("/elite-count-by-academic-year")
-    public ResponseEntity<Map<String, Integer>> getKeyContactCountByAcademicYear(@Valid @RequestBody AcademicYearDto academicYearDto) throws ServiceException {
-        Map<String, Integer> countMap = studentsService.getKeyContactCountByAcademicYearAndArea(academicYearDto);
-        return new ResponseEntity<>(countMap, HttpStatus.OK);
+    public Map<String, Integer> getKeyContactCountByAcademicYear(@Valid @RequestBody AcademicYearDto academicYearDto) throws ServiceException {
+        return studentsService.getKeyContactCountByAcademicYearAndArea(academicYearDto);
     }
 
     @BindResource("elites:api:keyContactCountByAreaAndYear")
     @Action("根据学年和属地统计重点学子数量")
     @PostMapping("/key-contact-count-by-area-and-year")
-    public ResponseEntity<Map<String, Map<String, Object>>> getKeyContactCountByAreaAndYear() {
-        Map<String, Map<String, Object>> countMap = studentsService.getKeyContactCountByAreaAndAcademicYear();
-        return new ResponseEntity<>(countMap, HttpStatus.OK);
+    public Map<String, Map<String, Object>> getKeyContactCountByAreaAndYear() {
+        return studentsService.getKeyContactCountByAreaAndAcademicYear();
     }
 
 }

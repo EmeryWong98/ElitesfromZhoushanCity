@@ -37,31 +37,28 @@ public class StudentsApiController {
     @BindResource("students:api:countbyareaandprovince")
     @Action("根据属地和省份统计学生数量")
     @PostMapping("/student-count-by-area-and-province")
-    public ResponseEntity<Map<String, Map<String, Integer>>> getStudentCountByAreaAndProvince() {
-        Map<String, Map<String, Integer>> countMap = studentsService.getStudentCountByAreaAndProvince();
-        return new ResponseEntity<>(countMap, HttpStatus.OK);
+    public Map<String, Map<String, Integer>> getStudentCountByAreaAndProvince() {
+        return studentsService.getStudentCountByAreaAndProvince();
     }
 
     @BindResource("students:api:countbyacademicyear")
     @Action("根据学年和属地统计学生数量")
     @PostMapping("/student-count-by-academic-year")
-    public ResponseEntity<Map<String, Integer>> getStudentCountByAcademicYear(@Valid @RequestBody AcademicYearDto academicYearDto) throws ServiceException {
-        Map<String, Integer> countMap = studentsService.getStudentCountByAcademicYearAndArea(academicYearDto);
-        return new ResponseEntity<>(countMap, HttpStatus.OK);
+    public Map<String, Integer> getStudentCountByAcademicYear(@Valid @RequestBody AcademicYearDto academicYearDto) throws ServiceException {
+        return studentsService.getStudentCountByAcademicYearAndArea(academicYearDto);
     }
 
     @BindResource("students:api:keyContactCountByAreaAndYear")
     @Action("根据学年和属地统计重点学子数量")
     @PostMapping("/key-contact-count-by-area-and-year")
-    public ResponseEntity<Map<String, Map<String, Object>>> getKeyContactCountByAreaAndYear() {
-        Map<String, Map<String, Object>> countMap = studentsService.getKeyContactCountByAreaAndAcademicYear();
-        return new ResponseEntity<>(countMap, HttpStatus.OK);
+    public Map<String, Map<String, Object>> getKeyContactCountByAreaAndYear() {
+        return studentsService.getKeyContactCountByAreaAndAcademicYear();
     }
 
     @BindResource(value = "students:api:list")
     @Action(value = "查询学生列表", type = Action.ActionType.QUERY_LIST)
     @PostMapping("/list")
-    public ResponseEntity<Map<String, Object>> list(@Session RDUserSession user, @RequestBody QueryRequest<StudentsFilter> query)
+    public Map<String, Object> list(@Session RDUserSession user, @RequestBody QueryRequest<StudentsFilter> query)
             throws ServiceException {
         if (query == null) {
             query = QueryRequest.create(null);
@@ -87,7 +84,7 @@ public class StudentsApiController {
         responseData.put("pagingData", voResult);
         responseData.put("proportion", proportion);
 
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
+        return responseData;
     }
 
 

@@ -3,13 +3,16 @@ package com.dx.zjxz_gwjh.entity;
 import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModelProperty;
 import com.dx.easyspringweb.data.jpa.entity.JpaBaseEntity;
+import com.dx.zjxz_gwjh.dto.NetNameDto;
 import com.dx.zjxz_gwjh.enums.EliteType;
 import com.dx.zjxz_gwjh.enums.NetType;
 import lombok.*;
 import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.sql.Date;
+import java.util.List;
 
 @Data
 @Entity
@@ -30,6 +33,7 @@ public class StudentsEntity extends JpaBaseEntity{
 
     @ApiModelProperty("学生姓名")
     @Column(name = "name")
+    @NotNull(message = "学生姓名不能为空")
     private String name;
 
     @ApiModelProperty("用户ID")
@@ -70,6 +74,7 @@ public class StudentsEntity extends JpaBaseEntity{
 
     @ApiModelProperty("身份证号")
     @Column(name = "id_card")
+    @NotNull(message = "身份证号不能为空")
     private String idCard;
 
     @ApiModelProperty("联系电话")
