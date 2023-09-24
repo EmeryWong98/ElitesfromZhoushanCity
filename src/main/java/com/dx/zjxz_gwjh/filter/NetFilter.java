@@ -12,7 +12,4 @@ public class NetFilter {
 
     @ApiModelProperty("名称")
     private String name;
-
-    @ApiModelProperty("网格类型")
-    private String type;
 }

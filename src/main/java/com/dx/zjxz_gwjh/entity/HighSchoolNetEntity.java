@@ -12,16 +12,16 @@ import javax.persistence.*;
 @Data
 @Entity
 @Proxy(lazy = false)
-@Table(name = "biz_net", indexes = {
+@Table(name = "biz_high_school_net", indexes = {
         @Index(columnList = "id")
 })
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
-@ApiModel("网格")
+@ApiModel("高中网格")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NetEntity extends JpaBaseEntity {
+public class HighSchoolNetEntity extends JpaBaseEntity {
     @ApiModelProperty("网格名称")
     @Column(name = "name")
     private String name;
@@ -34,18 +34,19 @@ public class NetEntity extends JpaBaseEntity {
     @Column(name = "user_id")
     private String userId;
 
-    @ApiModelProperty("种类")
-    @Enumerated(EnumType.STRING)
-    private NetType type;
-
     @ApiModelProperty("联系人电话")
-    @Column(name = "phone_number")
+    @Column(name = "phone")
     private String phoneNumber;
 
     @ApiModelProperty("网格属地")
     @Column(name = "area_code")
     private String areaCode;
 
+    @ApiModelProperty("网格位置")
+    @Column(name = "location")
+    private String location;
 
-
+    @ApiModelProperty("活跃度")
+    @Column(name = "score")
+    private Float score;
 }

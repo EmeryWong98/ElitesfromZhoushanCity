@@ -11,6 +11,7 @@ import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.core.utils.ObjectUtils;
 import com.dx.zjxz_gwjh.dto.NetNameDto;
 import com.dx.zjxz_gwjh.dto.StudentsDto;
+import com.dx.zjxz_gwjh.dto.StudentsImportDto;
 import com.dx.zjxz_gwjh.entity.StudentsEntity;
 import com.dx.zjxz_gwjh.enums.NetType;
 import com.dx.zjxz_gwjh.filter.StudentsFilter;
@@ -113,9 +114,9 @@ public class StudentsManagementController {
             return ResponseEntity.badRequest().body("文件不能为空");
         }
         try {
-            List<StudentsDto> studentsList = parseExcelFile(file);
-            for (StudentsDto student : studentsList) {
-                studentsService.createStudent(student);
+            List<StudentsImportDto> studentsList = parseExcelFile(file);
+            for (StudentsImportDto student : studentsList) {
+                studentsService.MassiveCreateStudent(student);
             }
             return ResponseEntity.ok("导入成功");
         } catch (Exception e) {
@@ -123,22 +124,22 @@ public class StudentsManagementController {
         }
     }
 
-    private List<StudentsDto> parseExcelFile(MultipartFile file) throws IOException {
-        List<StudentsDto> studentsList = new ArrayList<>();
+    private List<StudentsImportDto> parseExcelFile(MultipartFile file) throws IOException {
+        List<StudentsImportDto> studentsList = new ArrayList<>();
         try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                StudentsDto dto = convertRowToDto(row);
+                StudentsImportDto dto = convertRowToDto(row);
                 studentsList.add(dto);
             }
         }
         return studentsList;
     }
 
-    private StudentsDto convertRowToDto(Row row) {
+    private StudentsImportDto convertRowToDto(Row row) {
         DataFormatter dataFormatter = new DataFormatter();
-        StudentsDto dto = new StudentsDto();
+        StudentsImportDto dto = new StudentsImportDto();
 
         dto.setAcademicYear(Integer.parseInt(dataFormatter.formatCellValue(row.getCell(1)))); // 从第二列开始
         dto.setName(dataFormatter.formatCellValue(row.getCell(2)));
@@ -163,38 +164,33 @@ public class StudentsManagementController {
         dto.setHeadTeacher(dataFormatter.formatCellValue(row.getCell(17)));
         dto.setHeadTeacherMobile(dataFormatter.formatCellValue(row.getCell(18)));
 
-        List<NetNameDto> netNames = new ArrayList<>();
-
         if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(19)))) {
-            NetNameDto net1 = new NetNameDto();
-            net1.setName(dataFormatter.formatCellValue(row.getCell(19)));
-            net1.setUserName(dataFormatter.formatCellValue(row.getCell(20)));
-            net1.setPhoneNumber(dataFormatter.formatCellValue(row.getCell(21)));
-            net1.setType(NetType.HIGH_SCHOOL_NET);
-            net1.setAreaCode(areaCodeService.getAreaCodeByName(dataFormatter.formatCellValue(row.getCell(12))));
-            netNames.add(net1);
+            dto.setHighSchoolNetName(dataFormatter.formatCellValue(row.getCell(19)));
+            dto.setHighSchoolNetContactor(dataFormatter.formatCellValue(row.getCell(20)));
+            dto.setHighSchoolNetContactorMobile(dataFormatter.formatCellValue(row.getCell(21)));
+            dto.setHighSchoolNetAreaCode(areaCodeService.getAreaCodeByName(dataFormatter.formatCellValue(row.getCell(12))));
+            dto.setHighSchoolNetLocation(dataFormatter.formatCellValue(row.getCell(9)));
         }
 
         if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(22)))) {
-            NetNameDto net2 = new NetNameDto();
-            net2.setName(dataFormatter.formatCellValue(row.getCell(22)));
-            net2.setUserName(dataFormatter.formatCellValue(row.getCell(23)));
-            net2.setPhoneNumber(dataFormatter.formatCellValue(row.getCell(24)));
-            net2.setType(NetType.AREA_NET);
-            net2.setAreaCode(areaCodeService.getAreaCodeByName(dataFormatter.formatCellValue(row.getCell(12))));
-            netNames.add(net2);
+            dto.setAreaNetName(dataFormatter.formatCellValue(row.getCell(22)));
+            dto.setAreaNetContactor(dataFormatter.formatCellValue(row.getCell(23)));
+            dto.setAreaNetContactorMobile(dataFormatter.formatCellValue(row.getCell(24)));
+            dto.setAreaNetAreaCode(areaCodeService.getAreaCodeByName(dataFormatter.formatCellValue(row.getCell(12))));
+            dto.setAreaNetLocation(dataFormatter.formatCellValue(row.getCell(12)));
         }
 
-        if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(26)))) {
-            NetNameDto net3 = new NetNameDto();
-            net3.setName(dataFormatter.formatCellValue(row.getCell(26)));
-            net3.setUserName(dataFormatter.formatCellValue(row.getCell(25)));
-            net3.setType(NetType.OFFICER_NET);
-            net3.setAreaCode(areaCodeService.getAreaCodeByName(dataFormatter.formatCellValue(row.getCell(12))));
-            netNames.add(net3);
+        if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(25)))) {
+            dto.setOfficerNetName(dataFormatter.formatCellValue(row.getCell(25)));
+            dto.setOfficerNetPosition(dataFormatter.formatCellValue(row.getCell(26)));
         }
 
-        dto.setNetNames(netNames);
+        if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(27)))) {
+            dto.setUnionNetName(dataFormatter.formatCellValue(row.getCell(27)));
+            dto.setUnionNetContactor(dataFormatter.formatCellValue(row.getCell(28)));
+            dto.setUnionNetContactorMobile(dataFormatter.formatCellValue(row.getCell(29)));
+            dto.setUnionNetLocation(dataFormatter.formatCellValue(row.getCell(5)));
+        }
 
         return dto;
     }

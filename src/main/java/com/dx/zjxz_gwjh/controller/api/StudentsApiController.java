@@ -56,45 +56,14 @@ public class StudentsApiController {
     }
 
 
-    @BindResource("students:api:keyContactCountByAreaAndYear")
+    @BindResource("students:api:countbyyear")
     @Action("查询每年的学子数量")
-    @PostMapping("/key-contact-count-by-area-and-year")
+    @PostMapping("/count-by-year")
     public List<YearlyStudentCountDto> getYearlyStudentCount(@RequestBody AcademicYearAndAreaDto academicYearAndAreaDto) throws ServiceException {
         return studentsService.getYearlyStudentCount(academicYearAndAreaDto);
     }
 
-//    @BindResource(value = "students:api:list")
-//    @Action(value = "查询学生列表", type = Action.ActionType.QUERY_LIST)
-//    @PostMapping("/list")
-//    public Map<String, Object> list(@Session RDUserSession user, @RequestBody QueryRequest<StudentsFilter> query)
-//            throws ServiceException {
-//        if (query == null) {
-//            query = QueryRequest.create(null);
-//        }
-//
-//        PagingData<StudentsEntity> result = studentsService.queryList(query);
-//        long totalCount = studentsService.getTotalCount(); // 获取总学生数
-//        double proportion = (double) result.getPageInfo().getDataCount() / totalCount; // 计算占比
-//
-//        // 在这里进行转换并填充 universityName
-//        PagingData<StudentsVO> voResult = result.map((entity) -> {
-//            StudentsVO vo = ObjectUtils.copyEntity(entity, StudentsVO.class);
-//
-//            if (entity.getUniversity() != null) {
-//                vo.setUniversityName(entity.getUniversity().getName());
-//            }
-//
-//            return vo;
-//        });
-//
-//        // 构造返回数据
-//        Map<String, Object> responseData = new HashMap<>();
-//        responseData.put("pagingData", voResult);
-//        responseData.put("proportion", proportion);
-//
-//        return responseData;
-//    }
-    @BindResource(value = "students:api:list")
+    @BindResource("students:api:list")
     @Action(value = "查询学生列表", type = Action.ActionType.QUERY_LIST)
     @PostMapping("/list")
     public PagingData<StudentsVO> list(@Session RDUserSession user, @RequestBody QueryRequest<StudentsFilter> query)

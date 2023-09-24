@@ -2,22 +2,16 @@ package com.dx.zjxz_gwjh.dto;
 
 import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModelProperty;
-import com.dx.zjxz_gwjh.entity.HighSchoolEntity;
-import com.dx.zjxz_gwjh.entity.UniversityEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.persistence.Column;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import java.sql.Date;
-import java.util.List;
 
 @Data
-@ApiModel("学子")
+@ApiModel("学子批量上传")
 @EqualsAndHashCode(callSuper = false)
-public class StudentsDto extends BaseEventDto {
+public class StudentsImportDto extends BaseEventDto {
 
     @NotNull(message = "学生姓名不能为空")
     @ApiModelProperty("学生姓名")
@@ -93,12 +87,48 @@ public class StudentsDto extends BaseEventDto {
     @ApiModelProperty("高中网格名称")
     private String highSchoolNetName;
 
+    @ApiModelProperty("高中网格联系人")
+    private String highSchoolNetContactor;
+
+    @ApiModelProperty("高中网格位置")
+    private String highSchoolNetLocation;
+
+    @ApiModelProperty("高中网格区域编码")
+    private String highSchoolNetAreaCode;
+
+    @ApiModelProperty("高中网格联系人电话")
+    private String highSchoolNetContactorMobile;
+
     @ApiModelProperty("地区网格名称")
     private String areaNetName;
+
+    @ApiModelProperty("地区网格联系人")
+    private String areaNetContactor;
+
+    @ApiModelProperty("地区网格位置")
+    private String areaNetLocation;
+
+    @ApiModelProperty("地区网格区域编码")
+    private String areaNetAreaCode;
+
+    @ApiModelProperty("地区网格联系人电话")
+    private String areaNetContactorMobile;
 
     @ApiModelProperty("党政领导名字")
     private String OfficerNetName;
 
+    @ApiModelProperty("党政领导职位")
+    private String OfficerNetPosition;
+
     @ApiModelProperty("学联网格名称")
     private String UnionNetName;
+
+    @ApiModelProperty("学联网格联系人")
+    private String UnionNetContactor;
+
+    @ApiModelProperty("学联网格位置")
+    private String UnionNetLocation;
+
+    @ApiModelProperty("学联网格联系人电话")
+    private String UnionNetContactorMobile;
 }

@@ -37,10 +37,13 @@ public class StudentsFilter {
     @ApiModelProperty("结束年份")
     private Integer endYear;
 
-    @ApiModelProperty("大学省份")
+    @ApiModelProperty("省份")
     private String province;
 
     @ApiModelProperty("属地ID")
     private String areaId;
+
+    @ApiModelProperty("大学省份")
+    private String universityProvince;
 
 }

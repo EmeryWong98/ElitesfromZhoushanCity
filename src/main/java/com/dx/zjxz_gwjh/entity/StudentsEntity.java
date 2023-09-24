@@ -134,12 +134,86 @@ public class StudentsEntity extends JpaBaseEntity{
     @Column(name = "university_province")
     private String universityProvince;
 
-    @ApiModelProperty("网格列表")
-    @ManyToMany
-    @JoinTable(
-            name = "biz_student_net_binding",
-            joinColumns = @JoinColumn(name = "student_id"),
-            inverseJoinColumns = @JoinColumn(name = "net_id")
-    )
-    private List<NetEntity> netNames;
+    @ApiModelProperty("高中名称")
+    @Column(name = "high_school_name")
+    private String highSchoolName;
+
+    @ApiModelProperty("高中网格ID")
+    @Column(name = "high_school_net_id", insertable = false, updatable = false)
+    private String highSchoolNetId;
+
+    @ApiModelProperty("高中网格名称")
+    @Column(name = "high_school_net_name")
+    private String highSchoolNetName;
+
+    @ApiModelProperty("高中网格联系人")
+    @Column(name = "high_school_net_contactor")
+    private String highSchoolNetContactor;
+
+    @ApiModelProperty("高中网格位置")
+    @Column(name = "high_school_net_location")
+    private String highSchoolNetLocation;
+
+    @ApiModelProperty("属地网格ID")
+    @Column(name = "area_net_id", insertable = false, updatable = false)
+    private String areaNetId;
+
+    @ApiModelProperty("属地网格名称")
+    @Column(name = "area_net_name")
+    private String areaNetName;
+
+    @ApiModelProperty("属地网格联系人")
+    @Column(name = "area_net_contactor")
+    private String areaNetContactor;
+
+    @ApiModelProperty("属地网格位置")
+    @Column(name = "area_net_location")
+    private String areaNetLocation;
+
+    @ApiModelProperty("领导网格ID")
+    @Column(name = "officer_net_id", insertable = false, updatable = false)
+    private String officerNetId;
+
+    @ApiModelProperty("领导名字")
+    @Column(name = "officer_net_name")
+    private String officerNetName;
+
+    @ApiModelProperty("领导职务")
+    @Column(name = "officer_net_title")
+    private String officerNetTitle;
+
+    @ApiModelProperty("学联网格ID")
+    @Column(name = "union_net_id", insertable = false, updatable = false)
+    private String unionNetId;
+
+    @ApiModelProperty("学联网格名称")
+    @Column(name = "union_net_name")
+    private String unionNetName;
+
+    @ApiModelProperty("学联网格联系人")
+    @Column(name = "union_net_contactor")
+    private String unionNetContactor;
+
+    @ApiModelProperty("学联网格位置")
+    @Column(name = "union_net_location")
+    private String unionNetLocation;
+
+    @ManyToOne
+    @JoinColumn(name="high_school_net_id", referencedColumnName = "id")
+    private HighSchoolNetEntity highSchoolNet;
+
+    @ManyToOne
+    @JoinColumn(name="area_net_id", referencedColumnName = "id")
+    private AreaNetEntity areaNet;
+
+    @ManyToOne
+    @JoinColumn(name="officer_net_id", referencedColumnName = "id")
+    private OfficerNetEntity officerNet;
+
+    @ManyToOne
+    @JoinColumn(name="union_net_id", referencedColumnName = "id")
+    private UnionNetEntity unionNet;
+
+
+
 }
