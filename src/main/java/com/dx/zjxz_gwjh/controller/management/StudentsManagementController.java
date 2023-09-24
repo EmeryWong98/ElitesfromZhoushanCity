@@ -54,14 +54,9 @@ public class StudentsManagementController {
         }
 
         PagingData<StudentsEntity> result = studentsService.queryList(query);
-        // 在这里进行转换并填充 universityName
+
         return result.map((entity) -> {
             StudentsVO vo = ObjectUtils.copyEntity(entity, StudentsVO.class);
-
-            if (entity.getUniversity() != null) {
-                vo.setUniversityName(entity.getUniversity().getName());
-            }
-
             return vo;
         });
     }
@@ -149,52 +144,53 @@ public class StudentsManagementController {
         dto.setName(dataFormatter.formatCellValue(row.getCell(2)));
         dto.setProvince(dataFormatter.formatCellValue(row.getCell(3)));
         dto.setUniversityName(dataFormatter.formatCellValue(row.getCell(4)));
-        dto.setMajor(dataFormatter.formatCellValue(row.getCell(5)));
-        dto.setDegree(dataFormatter.formatCellValue(row.getCell(6)));
-        dto.setIdCard(dataFormatter.formatCellValue(row.getCell(7)));
-        dto.setHighSchoolName(dataFormatter.formatCellValue(row.getCell(8)));
+        dto.setUniversityProvince(dataFormatter.formatCellValue(row.getCell(5)));
+        dto.setMajor(dataFormatter.formatCellValue(row.getCell(6)));
+        dto.setDegree(dataFormatter.formatCellValue(row.getCell(7)));
+        dto.setIdCard(dataFormatter.formatCellValue(row.getCell(8)));
+        dto.setHighSchoolName(dataFormatter.formatCellValue(row.getCell(9)));
 
-        String isKeyContact = dataFormatter.formatCellValue(row.getCell(9));
+        String isKeyContact = dataFormatter.formatCellValue(row.getCell(10));
         dto.setIsKeyContact(!"否".equals(isKeyContact));
         dto.setIsSupreme("是（双一流）".equals(isKeyContact));
 
-        dto.setPhone(dataFormatter.formatCellValue(row.getCell(10)));
-        dto.setArea(dataFormatter.formatCellValue(row.getCell(11)));
-        dto.setAddress(dataFormatter.formatCellValue(row.getCell(12)));
-        dto.setFamilyContactor(dataFormatter.formatCellValue(row.getCell(13)));
-        dto.setFamilyContactorMobile(dataFormatter.formatCellValue(row.getCell(14)));
-        dto.setUndergraduateClass(dataFormatter.formatCellValue(row.getCell(15)));
-        dto.setHeadTeacher(dataFormatter.formatCellValue(row.getCell(16)));
-        dto.setHeadTeacherMobile(dataFormatter.formatCellValue(row.getCell(17)));
+        dto.setPhone(dataFormatter.formatCellValue(row.getCell(11)));
+        dto.setArea(dataFormatter.formatCellValue(row.getCell(12)));
+        dto.setAddress(dataFormatter.formatCellValue(row.getCell(13)));
+        dto.setFamilyContactor(dataFormatter.formatCellValue(row.getCell(14)));
+        dto.setFamilyContactorMobile(dataFormatter.formatCellValue(row.getCell(15)));
+        dto.setUndergraduateClass(dataFormatter.formatCellValue(row.getCell(16)));
+        dto.setHeadTeacher(dataFormatter.formatCellValue(row.getCell(17)));
+        dto.setHeadTeacherMobile(dataFormatter.formatCellValue(row.getCell(18)));
 
         List<NetNameDto> netNames = new ArrayList<>();
 
-        if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(18)))) {
+        if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(19)))) {
             NetNameDto net1 = new NetNameDto();
-            net1.setName(dataFormatter.formatCellValue(row.getCell(18)));
-            net1.setUserName(dataFormatter.formatCellValue(row.getCell(19)));
-            net1.setPhoneNumber(dataFormatter.formatCellValue(row.getCell(20)));
+            net1.setName(dataFormatter.formatCellValue(row.getCell(19)));
+            net1.setUserName(dataFormatter.formatCellValue(row.getCell(20)));
+            net1.setPhoneNumber(dataFormatter.formatCellValue(row.getCell(21)));
             net1.setType(NetType.HIGH_SCHOOL_NET);
-            net1.setAreaCode(areaCodeService.getAreaCodeByName(dataFormatter.formatCellValue(row.getCell(11))));
+            net1.setAreaCode(areaCodeService.getAreaCodeByName(dataFormatter.formatCellValue(row.getCell(12))));
             netNames.add(net1);
         }
 
-        if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(21)))) {
+        if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(22)))) {
             NetNameDto net2 = new NetNameDto();
-            net2.setName(dataFormatter.formatCellValue(row.getCell(21)));
-            net2.setUserName(dataFormatter.formatCellValue(row.getCell(22)));
-            net2.setPhoneNumber(dataFormatter.formatCellValue(row.getCell(23)));
+            net2.setName(dataFormatter.formatCellValue(row.getCell(22)));
+            net2.setUserName(dataFormatter.formatCellValue(row.getCell(23)));
+            net2.setPhoneNumber(dataFormatter.formatCellValue(row.getCell(24)));
             net2.setType(NetType.AREA_NET);
-            net2.setAreaCode(areaCodeService.getAreaCodeByName(dataFormatter.formatCellValue(row.getCell(11))));
+            net2.setAreaCode(areaCodeService.getAreaCodeByName(dataFormatter.formatCellValue(row.getCell(12))));
             netNames.add(net2);
         }
 
-        if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(25)))) {
+        if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(26)))) {
             NetNameDto net3 = new NetNameDto();
-            net3.setName(dataFormatter.formatCellValue(row.getCell(25)));
-            net3.setUserName(dataFormatter.formatCellValue(row.getCell(24)));
+            net3.setName(dataFormatter.formatCellValue(row.getCell(26)));
+            net3.setUserName(dataFormatter.formatCellValue(row.getCell(25)));
             net3.setType(NetType.OFFICER_NET);
-            net3.setAreaCode(areaCodeService.getAreaCodeByName(dataFormatter.formatCellValue(row.getCell(11))));
+            net3.setAreaCode(areaCodeService.getAreaCodeByName(dataFormatter.formatCellValue(row.getCell(12))));
             netNames.add(net3);
         }
 

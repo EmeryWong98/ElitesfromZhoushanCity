@@ -27,9 +27,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentsEntity extends JpaBaseEntity{
-    @ApiModelProperty("学生ID")
-    @Column(name = "id", insertable = false, updatable = false)
-    private String studentId;
 
     @ApiModelProperty("学生姓名")
     @Column(name = "name")
@@ -128,4 +125,21 @@ public class StudentsEntity extends JpaBaseEntity{
     @ApiModelProperty("是否双一流")
     @Column(name = "is_supreme")
     private Boolean isSupreme;
+
+    @ApiModelProperty("大学名称")
+    @Column(name = "university_name")
+    private String universityName;
+
+    @ApiModelProperty("大学省份")
+    @Column(name = "university_province")
+    private String universityProvince;
+
+    @ApiModelProperty("网格列表")
+    @ManyToMany
+    @JoinTable(
+            name = "biz_student_net_binding",
+            joinColumns = @JoinColumn(name = "student_id"),
+            inverseJoinColumns = @JoinColumn(name = "net_id")
+    )
+    private List<NetEntity> netNames;
 }

@@ -50,18 +50,21 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
         return this.queryList(predicate, query.getPageInfo(), query.getSorts());
     }
 
-    public UniversityEntity findOrCreateByName(String name) {
-        UniversityEntity universityEntity = universityRepository.findByName(name);
+    public UniversityEntity findOrCreateByNameAndProvince(String name, String province) throws ServiceException {
+        UniversityEntity universityEntity = universityRepository.findByNameAndProvince(name, province);
         if (universityEntity == null) {
             // 如果没有找到，创建一个新的大学实体
             universityEntity = new UniversityEntity();
             universityEntity.setName(name);
-            // 设置其他需要初始化的字段
-            // ...
+            universityEntity.setProvince(province);
 
             // 保存到数据库
             universityRepository.save(universityEntity);
         }
         return universityEntity;
+    }
+
+    public int count() {
+        return (int) universityRepository.count();
     }
 }

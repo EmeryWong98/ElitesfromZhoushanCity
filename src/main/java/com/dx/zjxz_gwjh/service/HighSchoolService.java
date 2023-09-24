@@ -61,4 +61,7 @@ public class HighSchoolService extends JpaPublicService<HighSchoolEntity, String
         return highSchoolEntity;
     }
 
+    public int count() {
+        return (int) highSchoolRepository.count();
+    }
 }

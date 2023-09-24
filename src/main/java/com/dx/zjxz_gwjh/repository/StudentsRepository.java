@@ -3,6 +3,7 @@ package com.dx.zjxz_gwjh.repository;
 import com.dx.easyspringweb.data.jpa.JpaCommonRepository;
 import com.dx.zjxz_gwjh.entity.StudentsEntity;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
@@ -23,6 +24,32 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
     Collection<Object> findByAcademicYearBetweenAndAreaAndIsKeyContactTrue(int startYear, int endYear, String area);
 
     StudentsEntity findByIdCard(String idCard);
+
+    int countByAcademicYearBetweenAndArea(int startYear, int endYear, String area);
+
+    @Query("SELECT DISTINCT s.universityProvince FROM StudentsEntity s " +
+            "WHERE s.area IN :areaNames " +
+            "AND s.academicYear BETWEEN :startYear AND :endYear")
+    List<String> findProvincesByAreaNamesAndYearRange(@Param("areaNames") List<String> areaNames,
+                                                      @Param("startYear") int startYear,
+                                                      @Param("endYear") int endYear);
+
+    @Query("SELECT COUNT(DISTINCT s) FROM StudentsEntity s " +
+            "WHERE s.universityProvince = :province " +
+            "AND s.academicYear BETWEEN :startYear AND :endYear " +
+            "AND s.area IN :selectedAreaNames")
+    int countStudentsByProvinceAndYearRange(@Param("province") String province,
+                                            @Param("startYear") int startYear,
+                                            @Param("endYear") int endYear,
+                                            @Param("selectedAreaNames") List<String> selectedAreaNames);
+
+    @Query("SELECT COUNT(DISTINCT s.university) FROM StudentsEntity s WHERE s.university.province = :province AND s.area IN :areaNames AND s.academicYear BETWEEN :startYear AND :endYear")
+    int countSchoolsByProvinceAndYearRange(@Param("province") String province, @Param("startYear") int startYear, @Param("endYear") int endYear, @Param("areaNames") List<String> areaNames);
+
+    @Query("SELECT COUNT(s) FROM StudentsEntity s WHERE s.academicYear = :year AND s.area IN :areas")
+    int countStudentsByYearAndAreas(@Param("year") int year, @Param("areas") List<String> areas);
+
+
 
     // 自定义的查询和操作可以放在这里
 }

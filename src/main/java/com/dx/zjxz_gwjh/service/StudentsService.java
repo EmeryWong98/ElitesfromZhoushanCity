@@ -1,5 +1,6 @@
 package com.dx.zjxz_gwjh.service;
 
+import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.core.StandardService;
 import com.dx.easyspringweb.core.exception.ServiceException;
 import com.dx.easyspringweb.core.model.PagingData;
@@ -7,23 +8,23 @@ import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.core.utils.ObjectUtils;
 import com.dx.easyspringweb.data.jpa.SortField;
 import com.dx.easyspringweb.data.jpa.service.JpaPublicService;
-import com.dx.zjxz_gwjh.dto.AcademicYearDto;
-import com.dx.zjxz_gwjh.dto.StudentsDto;
+import com.dx.zjxz_gwjh.dto.*;
 import com.dx.zjxz_gwjh.entity.*;
 import com.dx.zjxz_gwjh.filter.StudentsFilter;
+import com.dx.zjxz_gwjh.repository.AreaCodeRepository;
 import com.dx.zjxz_gwjh.repository.StudentsRepository;
 import com.dx.zjxz_gwjh.repository.UniversityRepository;
 import com.dx.zjxz_gwjh.util.IdCardInfo;
-import com.dx.zjxz_gwjh.vo.StudentsVO;
 import com.querydsl.core.BooleanBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.sql.CallableStatement;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class StudentsService extends JpaPublicService<StudentsEntity, String> implements StandardService<StudentsEntity, StudentsFilter, String> {
@@ -45,6 +46,9 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
 
     @Autowired
     private AreaCodeService areaCodeService;
+
+    @Autowired
+    private AreaCodeRepository areaCodeRepository;
 
     public StudentsService(StudentsRepository repository) {
         super(repository);
@@ -94,17 +98,22 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
                 predicate.and(q.major.contains(major));
             }
 
-            // 属地
-            String area = filter.getArea();
-            if (StringUtils.hasText(area)) {
-                predicate.and(q.area.contains(area));
-            }
-
             // 省份
             String province = filter.getProvince();
             if (StringUtils.hasText(province)) {
                 predicate.and(q.province.eq(province));
             }
+
+            // 属地ID
+            String areaId = filter.getAreaId();
+            if (StringUtils.hasText(areaId)) {
+                // 通过属地ID获取属地名称
+                String areaName = areaCodeService.findNameById(areaId); // 根据您的服务或存储库来调整
+                if (StringUtils.hasText(areaName)) {
+                    predicate.and(q.area.eq(areaName));
+                }
+            }
+
 
 //            // 是否重点学子
 //            Boolean isKeyContact = filter.getIsKeyContact();
@@ -151,7 +160,7 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         }
 
         // 先检查并获取或创建University实体
-        UniversityEntity universityEntity = universityService.findOrCreateByName(dto.getUniversityName());
+        UniversityEntity universityEntity = universityService.findOrCreateByNameAndProvince(dto.getUniversityName(), dto.getUniversityProvince());
 
         // 先检查并获取或创建HighSchool实体
         HighSchoolEntity highSchoolEntity = highSchoolService.findOrCreateByName(dto.getHighSchoolName());
@@ -234,31 +243,244 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         return areaProvinceCountMap;
     }
 
-    public Map<String, Integer> getStudentCountByAcademicYearAndArea(AcademicYearDto academicYearDto) throws ServiceException {
-        int startYear = academicYearDto.getStartYear();
-        int endYear = academicYearDto.getEndYear();
+    public List<StudentCountDto> getStudentCountByAcademicYearAndArea(AcademicYearAndAreaDto academicYearAndAreaDto) throws ServiceException {
+        int startYear = academicYearAndAreaDto.getStartYear();
+        int endYear = academicYearAndAreaDto.getEndYear();
+        String areaId = academicYearAndAreaDto.getAreaId();
 
-        // 检查年份有效性
         if (endYear < startYear) {
             throw new ServiceException("结束年份不能小于开始年份");
         }
 
-        // 获取所有可能的属地
-        List<String> allAreas = studentsRepository.findAllDistinctAreas();
+        List<AreaCodeDto> allAreas = areaCodeService.getAreaCodeList();
+        List<AreaCodeDto> selectedAreas = findSelectedAndChildAreas(allAreas, areaId);
 
-        Map<String, Integer> areaCountMap = new HashMap<>();
-
-        for (String area : allAreas) {
-            int count = studentsRepository.findByAcademicYearBetweenAndArea(startYear, endYear, area).size();
-            areaCountMap.put(area, count);
+        List<StudentCountDto> result = new ArrayList<>();
+        for (AreaCodeDto area : selectedAreas) {
+            int count = calculateAreaCount(area, startYear, endYear);
+            StudentCountDto dto = new StudentCountDto();
+            dto.setId(area.getId());
+            dto.setName(area.getName());
+            dto.setCount(count);
+            result.add(dto);
         }
 
-        // 计算所有属地的总数
-        int totalCount = areaCountMap.values().stream().mapToInt(Integer::intValue).sum();
-        areaCountMap.put("舟山市", totalCount);
-
-        return areaCountMap;
+        return result;
     }
+
+    public List<StudentCountDto> getStudentCountByAcademicYearAndAreaDefault(AcademicYearAndAreaDto academicYearAndAreaDto) throws ServiceException {
+        int startYear = academicYearAndAreaDto.getStartYear();
+        int endYear = academicYearAndAreaDto.getEndYear();
+        String areaId = academicYearAndAreaDto.getAreaId();
+
+        if (endYear < startYear) {
+            throw new ServiceException("结束年份不能小于开始年份");
+        }
+
+        Map<String, List<String>> idMap = new HashMap<>();
+        idMap.put("f181ebd982654dc9a05d064d3197b0d0", Arrays.asList("6f84ef6994a74ad4b7bd24d014409565", "1f68bea42eae4d039d664328f560729c", "a31c792dbc504609ae275229ea1239f6", "cbd46108d05c4c3393e5319edde692a9"));
+        idMap.put("6f84ef6994a74ad4b7bd24d014409565", Arrays.asList("6f84ef6994a74ad4b7bd24d014409565", "1f68bea42eae4d039d664328f560729c", "a31c792dbc504609ae275229ea1239f6", "cbd46108d05c4c3393e5319edde692a9"));
+        idMap.put("1f68bea42eae4d039d664328f560729c", Arrays.asList("6f84ef6994a74ad4b7bd24d014409565", "1f68bea42eae4d039d664328f560729c", "a31c792dbc504609ae275229ea1239f6", "cbd46108d05c4c3393e5319edde692a9"));
+        idMap.put("a31c792dbc504609ae275229ea1239f6", Arrays.asList("6f84ef6994a74ad4b7bd24d014409565", "1f68bea42eae4d039d664328f560729c", "a31c792dbc504609ae275229ea1239f6", "cbd46108d05c4c3393e5319edde692a9"));
+        idMap.put("cbd46108d05c4c3393e5319edde692a9", Arrays.asList("6f84ef6994a74ad4b7bd24d014409565", "1f68bea42eae4d039d664328f560729c", "a31c792dbc504609ae275229ea1239f6", "cbd46108d05c4c3393e5319edde692a9"));
+        idMap.put("e9230ab250b34136bb8032ce653905a8", Arrays.asList("e9230ab250b34136bb8032ce653905a8", "e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
+        idMap.put("e9230ab250b34137bb8032ce653905a7", Arrays.asList("e9230ab250b34136bb8032ce653905a8", "e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
+        idMap.put("e9230ab250b34136bb9132ce653905a7", Arrays.asList("e9230ab250b34136bb8032ce653905a8", "e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
+        idMap.put("e9230ab250b34149bb8032ce653905a7", Arrays.asList("e9230ab250b34136bb8032ce653905a8", "e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
+        idMap.put("e9230ab250b34136bb9032ce653905b7", Arrays.asList("e9230ab250b34136bb8032ce653905a8", "e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
+
+        List<String> areaIds = idMap.getOrDefault(areaId, Collections.singletonList(areaId));
+        List<AreaCodeDto> allAreas = areaCodeService.getAreaCodeList();
+
+        List<StudentCountDto> result = new ArrayList<>();
+        for (String id : areaIds) {
+            List<AreaCodeDto> selectedAreas = findSelectedAndChildAreas(allAreas, id);
+            for (AreaCodeDto area : selectedAreas) {
+                int count = calculateAreaCount(area, startYear, endYear);
+                StudentCountDto dto = new StudentCountDto();
+                dto.setId(area.getId());
+                dto.setName(area.getName());
+                dto.setCount(count);
+                result.add(dto);
+            }
+        }
+
+        return result;
+    }
+
+    public List<MapCountDto> getMapCountByAcademicYearAndArea(AcademicYearAndAreaDto academicYearAndAreaDto) throws ServiceException {
+        int startYear = academicYearAndAreaDto.getStartYear();
+        int endYear = academicYearAndAreaDto.getEndYear();
+        List<MapCountDto> result = new ArrayList<>();
+
+        if (endYear < startYear) {
+            throw new ServiceException("结束年份不能小于开始年份");
+        }
+
+        // 步骤1: 获取选定区域和其子区域
+        List<AreaCodeDto> allAreas = areaCodeService.getAreaCodeList();
+        List<AreaCodeDto> selectedAreas = findSelectedAndChildAreas(allAreas, academicYearAndAreaDto.getAreaId());
+
+
+
+        for (AreaCodeDto area : selectedAreas) {
+            MapCountDto mapCountDto = new MapCountDto();
+            mapCountDto.setId(area.getId());
+            mapCountDto.setName(area.getName());
+
+            int totalStudentCountInAllProvinces = 0; // 初始化总学子数
+            List<String> selectedAreaNames = getAreaNames(area); // 获取选定区域的名字集合
+
+            // 步骤2: 获取区域内所有省份
+            List<String> provinces = getProvincesInAreaAndYearRange(area, academicYearAndAreaDto.getStartYear(), academicYearAndAreaDto.getEndYear());
+
+            // 步骤3: 统计每个省份的数据
+            List<ProvinceCountDto> provinceCountList = new ArrayList<>();
+            for (String province : provinces) {
+                ProvinceCountDto provinceCountDto = new ProvinceCountDto();
+                provinceCountDto.setName(province);
+
+                // 计算学子总数
+                int studentCount = studentsRepository.countStudentsByProvinceAndYearRange(
+                        province, startYear, endYear, selectedAreaNames
+                );
+                provinceCountDto.setCount(studentCount);
+                totalStudentCountInAllProvinces += studentCount; // 计算总学子数
+
+                // 计算学校数量
+                int schoolCount = studentsRepository.countSchoolsByProvinceAndYearRange(
+                        province, startYear, endYear, selectedAreaNames
+                );
+                provinceCountDto.setSchoolCount(schoolCount);
+
+                provinceCountList.add(provinceCountDto);
+            }
+
+            for (ProvinceCountDto provinceCountDto : provinceCountList) {
+                double percentage;
+                if (totalStudentCountInAllProvinces > 0) {
+                    percentage = (double) provinceCountDto.getCount() / totalStudentCountInAllProvinces * 100;
+                } else {
+                    percentage = 0;
+                }
+                provinceCountDto.setPercentage(String.format("%.2f%%", percentage));
+
+                // 根据百分比计算rateLevel
+                if (percentage <= 1) {
+                    provinceCountDto.setRateLevel("0");
+                } else if (percentage <= 5) {
+                    provinceCountDto.setRateLevel("1");
+                } else if (percentage <= 10) {
+                    provinceCountDto.setRateLevel("2");
+                } else {
+                    provinceCountDto.setRateLevel("3");
+                }
+            }
+
+            mapCountDto.setProvinceCountList(provinceCountList);
+            result.add(mapCountDto);
+        }
+
+        // 步骤5: 返回结果
+        return result;
+    }
+
+    public List<YearlyStudentCountDto> getYearlyStudentCount(AcademicYearAndAreaDto academicYearAndAreaDto) throws ServiceException {
+        int startYear = academicYearAndAreaDto.getStartYear();
+        int endYear = academicYearAndAreaDto.getEndYear();
+        List<YearlyStudentCountDto> result = new ArrayList<>();
+
+        if (endYear < startYear) {
+            throw new ServiceException("结束年份不能小于开始年份");
+        }
+
+        List<AreaCodeDto> allAreas = areaCodeService.getAreaCodeList();
+        List<AreaCodeDto> selectedAreas = findSelectedAndChildAreas(allAreas, academicYearAndAreaDto.getAreaId());
+
+        List<String> areaNames = selectedAreas.stream()
+                .map(AreaCodeDto::getName) // 或者 getId，取决于您想传递什么给查询
+                .collect(Collectors.toList());
+
+
+        for (int year = startYear; year <= endYear; year++) {
+            YearlyStudentCountDto yearlyCount = new YearlyStudentCountDto();
+            yearlyCount.setYear(year);
+
+            int count = studentsRepository.countStudentsByYearAndAreas(year, areaNames);
+            yearlyCount.setCount(count);
+
+            result.add(yearlyCount);
+        }
+
+        return result;
+    }
+
+
+    private List<String> getAreaNames(AreaCodeDto area) {
+        List<String> names = new ArrayList<>();
+        names.add(area.getName()); // 添加当前区域的名字
+
+        // 如果有子区域，则递归地获取其名字
+        for (AreaCodeDto childArea : area.getChildren()) {
+            names.addAll(getAreaNames(childArea));
+        }
+
+        return names;
+    }
+
+    private List<String> getProvincesInAreaAndYearRange(AreaCodeDto area, int startYear, int endYear) {
+        // 步骤1: 收集区域IDs
+        List<String> areaIds = collectAreaIds(area);
+
+        // 步骤2: 查询数据库
+        List<String> areaNames = areaCodeService.findNamesByIds(areaIds);
+        List<String> provinces = studentsRepository.findProvincesByAreaNamesAndYearRange(areaNames, startYear, endYear);
+
+        // 返回省份列表
+        return provinces;
+    }
+
+    private List<String> collectAreaIds(AreaCodeDto area) {
+        List<String> ids = new ArrayList<>();
+        ids.add(area.getId()); // 添加自己的ID
+        for(AreaCodeDto child : area.getChildren()) {
+            ids.addAll(collectAreaIds(child)); // 递归添加子区域的ID
+        }
+        return ids;
+    }
+
+    private List<AreaCodeDto> findSelectedAndChildAreas(List<AreaCodeDto> allAreas, String areaId) {
+        for (AreaCodeDto area : allAreas) {
+            if (area.getId().equals(areaId)) {
+                return findAllChildren(area);
+            }
+        }
+        return new ArrayList<>();
+    }
+
+    private List<AreaCodeDto> findAllChildren(AreaCodeDto parentArea) {
+        List<AreaCodeDto> children = new ArrayList<>();
+        children.add(parentArea); // 添加父区域本身
+        for (AreaCodeDto child : parentArea.getChildren()) {
+            children.addAll(findAllChildren(child)); // 递归添加所有子区域
+        }
+        return children;
+    }
+
+    private int calculateAreaCount(AreaCodeDto area, int startYear, int endYear) {
+        int count = studentsRepository.countByAcademicYearBetweenAndArea(startYear, endYear, area.getName());
+        for (AreaCodeDto child : area.getChildren()) {
+            count += calculateAreaCount(child, startYear, endYear); // 递归计算所有子区域的学生总数
+        }
+        return count;
+    }
+
+
+
+
+
+
+
 
     public Map<String, Map<String, Object>> getKeyContactCountByAreaAndAcademicYear() {
         List<String> allAreas = studentsRepository.findAllDistinctAreas();
@@ -406,4 +628,7 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
     }
 
 
+    public int count() {
+        return (int) studentsRepository.count();
+    }
 }

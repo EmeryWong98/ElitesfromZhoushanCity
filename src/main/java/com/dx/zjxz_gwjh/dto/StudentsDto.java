@@ -93,4 +93,7 @@ public class StudentsDto extends BaseEventDto {
     @ApiModelProperty("是否双一流")
     private Boolean isSupreme;
 
+    @ApiModelProperty("大学省份")
+    private String universityProvince;
+
 }

@@ -8,9 +8,10 @@ import java.util.List;
 
 @Repository
 public interface UniversityRepository extends JpaCommonRepository<UniversityEntity, String> {
-    UniversityEntity findByName(String universityName);
+    UniversityEntity findByNameAndProvince(String name, String province);
 
     List<UniversityEntity> findByProvince(String province);
+
 
     // 自定义的查询和操作可以放在这里
 }

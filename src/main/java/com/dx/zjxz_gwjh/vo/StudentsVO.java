@@ -38,4 +38,7 @@ public class StudentsVO {
     @ApiModelProperty("是否重点学子")
     private Boolean isKeyContact;
 
+    @ApiModelProperty("毕业高中")
+    private String highSchoolName;
+
 }

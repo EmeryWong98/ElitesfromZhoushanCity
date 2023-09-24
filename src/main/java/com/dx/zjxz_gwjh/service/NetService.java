@@ -87,4 +87,8 @@ public class NetService extends JpaPublicService<NetEntity, String> implements S
             }
         }
 }
+
+    public int count() {
+        return (int) netRepository.count();
+    }
 }

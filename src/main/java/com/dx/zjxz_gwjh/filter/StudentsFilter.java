@@ -40,4 +40,7 @@ public class StudentsFilter {
     @ApiModelProperty("大学省份")
     private String province;
 
+    @ApiModelProperty("属地ID")
+    private String areaId;
+
 }

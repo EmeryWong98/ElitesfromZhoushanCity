@@ -1,7 +1,7 @@
 server:
-  port: 8086
+  port: 8082
   http:
-    port: 8085
+    port: 8081
   ssl:
     key-store: classpath:8103515_a.zsdx.com.cn.jks
     key-store-password: wu978kxo
@@ -48,6 +48,7 @@ api:
   servers:
     - { url: http://dx-local-net:8081, description: 测试服务器, env: dev }
   modules:
+    - { name: Index, description: 首页 }
     - { name: Net, description: 网格管理 }
     - { name: University, description: 大学名单 }
     - { name: HighSchool, description: 高中名单 }
