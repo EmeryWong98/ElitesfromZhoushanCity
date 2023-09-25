@@ -309,63 +309,70 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
 
 
 
+        MapCountDto mapCountDto = null;
         for (AreaCodeDto area : selectedAreas) {
-            MapCountDto mapCountDto = new MapCountDto();
-            mapCountDto.setId(area.getId());
-            mapCountDto.setName(area.getName());
+            if(area.getId().equals(academicYearAndAreaDto.getAreaId())) {
+                mapCountDto = new MapCountDto();
+                mapCountDto.setId(area.getId());
+                mapCountDto.setName(area.getName());
 
-            int totalStudentCountInAllProvinces = 0; // 初始化总学子数
-            List<String> selectedAreaNames = getAreaNames(area); // 获取选定区域的名字集合
+                int totalStudentCountInAllProvinces = 0; // 初始化总学子数
+                List<String> selectedAreaNames = getAreaNames(area); // 获取选定区域的名字集合
 
-            // 步骤2: 获取区域内所有省份
-            List<String> provinces = getProvincesInAreaAndYearRange(area, academicYearAndAreaDto.getStartYear(), academicYearAndAreaDto.getEndYear());
+                // 步骤2: 获取区域内所有省份
+                List<String> provinces = getProvincesInAreaAndYearRange(area, academicYearAndAreaDto.getStartYear(), academicYearAndAreaDto.getEndYear());
 
-            // 步骤3: 统计每个省份的数据
-            List<ProvinceCountDto> provinceCountList = new ArrayList<>();
-            for (String province : provinces) {
-                ProvinceCountDto provinceCountDto = new ProvinceCountDto();
-                provinceCountDto.setName(province);
+                // 步骤3: 统计每个省份的数据
+                List<ProvinceCountDto> provinceCountList = new ArrayList<>();
+                for (String province : provinces) {
+                    ProvinceCountDto provinceCountDto = new ProvinceCountDto();
+                    provinceCountDto.setName(province);
 
-                // 计算学子总数
-                int studentCount = studentsRepository.countStudentsByProvinceAndYearRange(
-                        province, startYear, endYear, selectedAreaNames
-                );
-                provinceCountDto.setCount(studentCount);
-                totalStudentCountInAllProvinces += studentCount; // 计算总学子数
+                    // 计算学子总数
+                    int studentCount = studentsRepository.countStudentsByProvinceAndYearRange(
+                            province, startYear, endYear, selectedAreaNames
+                    );
+                    provinceCountDto.setCount(studentCount);
+                    totalStudentCountInAllProvinces += studentCount; // 计算总学子数
 
-                // 计算学校数量
-                int schoolCount = studentsRepository.countSchoolsByProvinceAndYearRange(
-                        province, startYear, endYear, selectedAreaNames
-                );
-                provinceCountDto.setSchoolCount(schoolCount);
+                    // 计算学校数量
+                    int schoolCount = studentsRepository.countSchoolsByProvinceAndYearRange(
+                            province, startYear, endYear, selectedAreaNames
+                    );
+                    provinceCountDto.setSchoolCount(schoolCount);
 
-                provinceCountList.add(provinceCountDto);
-            }
-
-            for (ProvinceCountDto provinceCountDto : provinceCountList) {
-                double percentage;
-                if (totalStudentCountInAllProvinces > 0) {
-                    percentage = (double) provinceCountDto.getCount() / totalStudentCountInAllProvinces * 100;
-                } else {
-                    percentage = 0;
+                    provinceCountList.add(provinceCountDto);
                 }
-                provinceCountDto.setPercentage(String.format("%.2f%%", percentage));
 
-                // 根据百分比计算rateLevel
-                if (percentage <= 1) {
-                    provinceCountDto.setRateLevel("0");
-                } else if (percentage <= 5) {
-                    provinceCountDto.setRateLevel("1");
-                } else if (percentage <= 10) {
-                    provinceCountDto.setRateLevel("2");
-                } else {
-                    provinceCountDto.setRateLevel("3");
+                for (ProvinceCountDto provinceCountDto : provinceCountList) {
+                    double percentage;
+                    if (totalStudentCountInAllProvinces > 0) {
+                        percentage = (double) provinceCountDto.getCount() / totalStudentCountInAllProvinces * 100;
+                    } else {
+                        percentage = 0;
+                    }
+                    provinceCountDto.setPercentage(String.format("%.2f%%", percentage));
+
+                    // 根据百分比计算rateLevel
+                    if (percentage <= 1) {
+                        provinceCountDto.setRateLevel("0");
+                    } else if (percentage <= 5) {
+                        provinceCountDto.setRateLevel("1");
+                    } else if (percentage <= 10) {
+                        provinceCountDto.setRateLevel("2");
+                    } else {
+                        provinceCountDto.setRateLevel("3");
+                    }
                 }
-            }
 
-            mapCountDto.setProvinceCountList(provinceCountList);
-            result.add(mapCountDto);
+                mapCountDto.setProvinceCountList(provinceCountList);
+                result.add(mapCountDto);
+            }
         }
+
+            if(mapCountDto == null) {
+                throw new ServiceException("无法找到匹配的区域");
+            }
 
         // 步骤5: 返回结果
         return result;
@@ -579,64 +586,70 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
 
 
 
+        MapCountDto mapCountDto = null;
         for (AreaCodeDto area : selectedAreas) {
-            MapCountDto mapCountDto = new MapCountDto();
-            mapCountDto.setId(area.getId());
-            mapCountDto.setName(area.getName());
+            if(area.getId().equals(academicYearAndAreaDto.getAreaId())) {
+                mapCountDto = new MapCountDto();
+                mapCountDto.setId(area.getId());
+                mapCountDto.setName(area.getName());
 
-            int totalStudentCountInAllProvinces = 0; // 初始化总学子数
-            List<String> selectedAreaNames = getAreaNames(area); // 获取选定区域的名字集合
+                int totalStudentCountInAllProvinces = 0; // 初始化总学子数
+                List<String> selectedAreaNames = getAreaNames(area); // 获取选定区域的名字集合
 
-            // 步骤2: 获取区域内所有省份
-            List<String> provinces = getProvincesInAreaAndYearRange(area, academicYearAndAreaDto.getStartYear(), academicYearAndAreaDto.getEndYear());
+                // 步骤2: 获取区域内所有省份
+                List<String> provinces = getProvincesInAreaAndYearRange(area, academicYearAndAreaDto.getStartYear(), academicYearAndAreaDto.getEndYear());
 
-            // 步骤3: 统计每个省份的数据
-            List<ProvinceCountDto> provinceCountList = new ArrayList<>();
-            for (String province : provinces) {
-                ProvinceCountDto provinceCountDto = new ProvinceCountDto();
-                provinceCountDto.setName(province);
+                // 步骤3: 统计每个省份的数据
+                List<ProvinceCountDto> provinceCountList = new ArrayList<>();
+                for (String province : provinces) {
+                    ProvinceCountDto provinceCountDto = new ProvinceCountDto();
+                    provinceCountDto.setName(province);
 
-                // 计算学子总数
-                int studentCount = studentsRepository.countKeyStudentsByProvinceAndYearRange(
-                        province, startYear, endYear, selectedAreaNames, true
-                );
-                provinceCountDto.setCount(studentCount);
-                totalStudentCountInAllProvinces += studentCount; // 计算总学子数
+                    // 计算学子总数
+                    int studentCount = studentsRepository.countKeyStudentsByProvinceAndYearRange(
+                            province, startYear, endYear, selectedAreaNames, true
+                    );
+                    provinceCountDto.setCount(studentCount);
+                    totalStudentCountInAllProvinces += studentCount; // 计算总学子数
 
-                // 计算学校数量
-                int schoolCount = studentsRepository.countKeySchoolsByProvinceAndYearRange(
-                        province, startYear, endYear, selectedAreaNames, true
-                );
-                provinceCountDto.setSchoolCount(schoolCount);
+                    // 计算学校数量
+                    int schoolCount = studentsRepository.countKeySchoolsByProvinceAndYearRange(
+                            province, startYear, endYear, selectedAreaNames, true
+                    );
+                    provinceCountDto.setSchoolCount(schoolCount);
 
-                provinceCountList.add(provinceCountDto);
-            }
-
-            for (ProvinceCountDto provinceCountDto : provinceCountList) {
-                double percentage;
-                if (totalStudentCountInAllProvinces > 0) {
-                    percentage = (double) provinceCountDto.getCount() / totalStudentCountInAllProvinces * 100;
-                } else {
-                    percentage = 0;
+                    provinceCountList.add(provinceCountDto);
                 }
-                provinceCountDto.setPercentage(String.format("%.2f%%", percentage));
 
-                // 根据百分比计算rateLevel
-                if (percentage <= 1) {
-                    provinceCountDto.setRateLevel("0");
-                } else if (percentage <= 5) {
-                    provinceCountDto.setRateLevel("1");
-                } else if (percentage <= 10) {
-                    provinceCountDto.setRateLevel("2");
-                } else {
-                    provinceCountDto.setRateLevel("3");
+                for (ProvinceCountDto provinceCountDto : provinceCountList) {
+                    double percentage;
+                    if (totalStudentCountInAllProvinces > 0) {
+                        percentage = (double) provinceCountDto.getCount() / totalStudentCountInAllProvinces * 100;
+                    } else {
+                        percentage = 0;
+                    }
+                    provinceCountDto.setPercentage(String.format("%.2f%%", percentage));
+
+                    // 根据百分比计算rateLevel
+                    if (percentage <= 1) {
+                        provinceCountDto.setRateLevel("0");
+                    } else if (percentage <= 5) {
+                        provinceCountDto.setRateLevel("1");
+                    } else if (percentage <= 10) {
+                        provinceCountDto.setRateLevel("2");
+                    } else {
+                        provinceCountDto.setRateLevel("3");
+                    }
                 }
-            }
 
-            mapCountDto.setProvinceCountList(provinceCountList);
-            result.add(mapCountDto);
+                mapCountDto.setProvinceCountList(provinceCountList);
+                result.add(mapCountDto);
+            }
         }
 
+        if(mapCountDto == null) {
+            throw new ServiceException("无法找到匹配的区域");
+        }
         // 步骤5: 返回结果
         return result;
     }

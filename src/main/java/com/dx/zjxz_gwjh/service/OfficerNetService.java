@@ -12,6 +12,10 @@ public class OfficerNetService {
     OfficerNetRepository officerNetRepository;
 
     public OfficerNetEntity findOrCreateByName(String officerNetName) {
+        if (StringUtils.isBlank(officerNetName)) {
+            return null;
+        }
+
         OfficerNetEntity officerNetEntity = officerNetRepository.findByUserName(officerNetName);
         if (officerNetEntity == null) {
             officerNetEntity = new OfficerNetEntity();

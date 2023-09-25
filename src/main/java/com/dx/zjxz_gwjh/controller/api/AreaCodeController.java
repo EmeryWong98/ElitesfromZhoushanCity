@@ -5,6 +5,7 @@ import com.dx.easyspringweb.api.annotation.ApiModule;
 import com.dx.easyspringweb.core.annotation.Action;
 import com.dx.easyspringweb.core.annotation.BindResource;
 import com.dx.zjxz_gwjh.dto.AreaCodeDto;
+import com.dx.zjxz_gwjh.dto.StaticAreaCodeDto;
 import com.dx.zjxz_gwjh.service.AreaCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +26,7 @@ public class AreaCodeController {
     @BindResource("areacode:api:list")
     @Action("查询属地列表")
     @PostMapping("/list")
-    public List<AreaCodeDto> getAreaCodeList() {
-        return areaCodeService.getAreaCodeListSingle();
+    public List<StaticAreaCodeDto> getAreaCodeListStatic() {
+        return areaCodeService.getAreaCodeListStatic();
     }
 }

@@ -13,6 +13,10 @@ public class UnionNetService {
     UnionNetRepository unionNetRepository;
 
     public UnionNetEntity findOrCreateByName(String unionNetName) {
+        if (StringUtils.isBlank(unionNetName)) {
+            return null;
+        }
+
         UnionNetEntity unionNetEntity = unionNetRepository.findByName(unionNetName);
         if (unionNetEntity == null) {
             unionNetEntity = new UnionNetEntity();

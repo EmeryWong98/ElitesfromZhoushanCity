@@ -4,14 +4,16 @@ import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModelProperty;
 import com.dx.zjxz_gwjh.entity.HighSchoolEntity;
 import com.dx.zjxz_gwjh.entity.UniversityEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Column;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -42,6 +44,8 @@ public class StudentsDto extends BaseEventDto {
     private Boolean isBack;
 
     @ApiModelProperty("回舟时间")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date backTime;
 
     @ApiModelProperty("性别")

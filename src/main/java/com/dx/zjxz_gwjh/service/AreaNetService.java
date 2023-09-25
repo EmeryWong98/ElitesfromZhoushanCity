@@ -50,6 +50,10 @@ public class AreaNetService extends JpaPublicService<AreaNetEntity, String> impl
     }
 
     public AreaNetEntity findOrCreateByName(String name) {
+        if (StringUtils.isBlank(name)) {
+            return null;
+        }
+
         AreaNetEntity areaNetEntity = areaNetRepository.findByName(name);
         if (areaNetEntity == null) {
             areaNetEntity = new AreaNetEntity();

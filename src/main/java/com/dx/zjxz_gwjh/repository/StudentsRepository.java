@@ -2,6 +2,7 @@ package com.dx.zjxz_gwjh.repository;
 
 import com.dx.easyspringweb.data.jpa.JpaCommonRepository;
 import com.dx.zjxz_gwjh.dto.HighSchoolNetOverviewDto;
+import com.dx.zjxz_gwjh.dto.HighSchoolNetSimpleOverviewDto;
 import com.dx.zjxz_gwjh.entity.StudentsEntity;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -82,11 +83,35 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
     int countKeyStudentsByYearAndAreas(@Param("year") int year, @Param("areas") List<String> areas);
 
     @Query("SELECT new com.dx.zjxz_gwjh.dto.HighSchoolNetOverviewDto(" +
-            "s.highSchoolNetLocation, COUNT(DISTINCT s.highSchoolNetId), " +
-            "SUM(CASE WHEN s.isKeyContact = true THEN 1 ELSE 0 END), COUNT(s)) " +
+            "s.highSchoolName, s.highSchoolId, COUNT(DISTINCT s.highSchoolNetId), " +
+            "COUNT(s), SUM(CASE WHEN s.isKeyContact = true THEN 1 ELSE 0 END)) " +
             "FROM StudentsEntity s " +
-            "GROUP BY s.highSchoolNetLocation, s.highSchoolNetId")
+            "WHERE s.highSchoolName IS NOT NULL " +
+            "GROUP BY s.highSchoolName, s.highSchoolId")
+
     List<HighSchoolNetOverviewDto> findHighSchoolNetOverview();
+
+    @Query("SELECT new com.dx.zjxz_gwjh.dto.HighSchoolNetSimpleOverviewDto(" +
+            "s.highSchoolId, s.highSchoolName, COUNT(DISTINCT s.highSchoolNetId), COUNT(s)) " +
+            "FROM StudentsEntity s " +
+            "GROUP BY s.highSchoolId, s.highSchoolName " +
+            "ORDER BY COUNT(s) DESC")
+    List<HighSchoolNetSimpleOverviewDto> findHighSchoolNetSimpleOverview();
+
+    @Query("SELECT s.highSchoolNetId, s.highSchoolNetContactor, s.id, s.name " +
+            "FROM StudentsEntity s " +
+            "WHERE s.highSchoolId = :highSchoolId " +
+            "AND s.highSchoolNetId IS NOT NULL " +
+            "AND (:netId IS NULL OR s.highSchoolNetId = :netId) " +
+            "AND (:graduationYear IS NULL OR s.academicYear = :graduationYear) " +
+            "ORDER BY s.highSchoolNetContactor, s.id")
+    List<Object[]> findTeachersAndStudents(@Param("highSchoolId") String highSchoolId, @Param("graduationYear") Integer graduationYear, @Param("netId") String netId);
+
+
+
+
+
+
 
 
     // 自定义的查询和操作可以放在这里

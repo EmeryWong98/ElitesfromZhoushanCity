@@ -6,15 +6,18 @@ import lombok.Data;
 @Data
 @ApiModel("高中网格概况Dto")
 public class HighSchoolNetOverviewDto {
-    private String highSchoolName; // 中学名称
-    private Long netCount; // 网格数量
-    private Long keyContactCount; // 重点联络学子数量
-    private Long studentCount; // 学子数量
+    private String highSchoolId;
+    private String highSchoolName;
+    private long netCount;
+    private long studentCount;
+    private long eliteStudentCount;
 
-    public HighSchoolNetOverviewDto(String highSchoolName, long netCount, long keyContactCount, long studentCount) {
+    public HighSchoolNetOverviewDto(String highSchoolName, String highSchoolId, long netCount, long studentCount, long eliteStudentCount) {
+        this.highSchoolId = highSchoolId;
         this.highSchoolName = highSchoolName;
         this.netCount = netCount;
-        this.keyContactCount = keyContactCount;
         this.studentCount = studentCount;
+        this.eliteStudentCount = eliteStudentCount;
     }
 }
+

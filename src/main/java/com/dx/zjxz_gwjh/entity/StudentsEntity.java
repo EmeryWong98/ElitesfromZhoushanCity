@@ -6,12 +6,14 @@ import com.dx.easyspringweb.data.jpa.entity.JpaBaseEntity;
 import com.dx.zjxz_gwjh.dto.NetNameDto;
 import com.dx.zjxz_gwjh.enums.EliteType;
 import com.dx.zjxz_gwjh.enums.NetType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.hibernate.annotations.Proxy;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -63,6 +65,8 @@ public class StudentsEntity extends JpaBaseEntity{
 
     @ApiModelProperty("回舟时间")
     @Column(name = "back_time")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date backTime;
 
     @ApiModelProperty("性别")
@@ -87,7 +91,7 @@ public class StudentsEntity extends JpaBaseEntity{
     private UniversityEntity university;
 
     @ManyToOne
-    @JoinColumn(name="highSchool_id", referencedColumnName = "id")
+    @JoinColumn(name="high_School_id", referencedColumnName = "id")
     private HighSchoolEntity highSchool;
 
     @ApiModelProperty("省份")
@@ -133,6 +137,10 @@ public class StudentsEntity extends JpaBaseEntity{
     @ApiModelProperty("大学省份")
     @Column(name = "university_province")
     private String universityProvince;
+
+    @ApiModelProperty("高中ID")
+    @Column(name = "high_school_id", insertable = false, updatable = false)
+    private String highSchoolId;
 
     @ApiModelProperty("高中名称")
     @Column(name = "high_school_name")

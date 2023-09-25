@@ -6,7 +6,7 @@ import com.dx.easyspringweb.core.model.PagingData;
 import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.data.jpa.SortField;
 import com.dx.easyspringweb.data.jpa.service.JpaPublicService;
-import com.dx.zjxz_gwjh.dto.HighSchoolNetOverviewDto;
+import com.dx.zjxz_gwjh.dto.*;
 import com.dx.zjxz_gwjh.entity.HighSchoolNetEntity;
 import com.dx.zjxz_gwjh.entity.QHighSchoolNetEntity;
 import com.dx.zjxz_gwjh.filter.NetFilter;
@@ -17,7 +17,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, String> implements StandardService<HighSchoolNetEntity, NetFilter, String> {
@@ -55,6 +58,10 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
     }
 
     public HighSchoolNetEntity findOrCreateByName(String name) {
+        if (StringUtils.isBlank(name)) {
+            return null;
+        }
+
         HighSchoolNetEntity highSchoolNetEntity = highSchoolNetRepository.findByName(name);
         if (highSchoolNetEntity == null) {
             highSchoolNetEntity = new HighSchoolNetEntity();
@@ -92,4 +99,62 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
     public List<HighSchoolNetOverviewDto> getHighSchoolNetOverview() {
         return studentsRepository.findHighSchoolNetOverview();
     }
+
+    public List<HighSchoolNetActivityDto> getHighSchoolNetActivityRanking() {
+        return highSchoolNetRepository.findHighSchoolNetActivityRanking();
+    }
+
+    public List<HighSchoolNetSimpleOverviewDto> getHighSchoolNetSimpleOverview() {
+        return studentsRepository.findHighSchoolNetSimpleOverview();
+    }
+
+//    public List<TeacherStudentDto> getTeachersAndStudents(HighSchoolRequestDto highSchoolRequestDto) {
+//        List<Object[]> results = studentsRepository.findTeachersAndStudents(highSchoolRequestDto.getHighSchoolId(), highSchoolRequestDto.getGraduationYear(), highSchoolRequestDto.getNetId());
+//
+//        Map<String, TeacherStudentDto> teacherStudentMap = new HashMap<>();
+//        for (Object[] result : results) {
+//            String teacherName = (String) result[0];
+//            String studentId = (String) result[1];
+//            String studentName = (String) result[2];
+//
+//            TeacherStudentDto teacherStudentDto = teacherStudentMap.get(teacherName);
+//            if (teacherStudentDto == null) {
+//                teacherStudentDto = new TeacherStudentDto(teacherName, new ArrayList<>());
+//                teacherStudentMap.put(teacherName, teacherStudentDto);
+//            }
+//
+//            StudentDto studentDto = new StudentDto(studentId, studentName);
+//            teacherStudentDto.getStudentList().add(studentDto);
+//        }
+//
+//        return new ArrayList<>(teacherStudentMap.values());
+//    }
+
+    public List<TeacherStudentDto> getTeachersAndStudents(HighSchoolRequestDto highSchoolRequestDto) {
+        List<Object[]> results = studentsRepository.findTeachersAndStudents(highSchoolRequestDto.getHighSchoolId(), highSchoolRequestDto.getGraduationYear(), highSchoolRequestDto.getNetId());
+
+        Map<String, TeacherStudentDto> teacherStudentMap = new HashMap<>();
+        for (Object[] result : results) {
+            String netId = (String) result[0]; // 假设 result[0] 包含 high_school_net_id
+            String teacherName = (String) result[1]; // 假设 result[1] 包含老师名称
+            String studentId = (String) result[2];
+            String studentName = (String) result[3];
+
+            // 使用 netId 和 teacherName 结合作为键
+            String key = netId + "_" + teacherName;
+
+            TeacherStudentDto teacherStudentDto = teacherStudentMap.get(key);
+            if (teacherStudentDto == null) {
+                teacherStudentDto = new TeacherStudentDto(teacherName, new ArrayList<>());
+                teacherStudentMap.put(key, teacherStudentDto);
+            }
+
+            StudentDto studentDto = new StudentDto(studentId, studentName);
+            teacherStudentDto.getStudentList().add(studentDto);
+        }
+
+        return new ArrayList<>(teacherStudentMap.values());
+    }
+
+
 }
