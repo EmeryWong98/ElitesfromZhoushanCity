@@ -2,10 +2,14 @@ package com.dx.zjxz_gwjh.dto;
 
 import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModelProperty;
+import com.dx.easyspringweb.storage.models.StorageObject;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.Type;
 
+import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 @ApiModel("大学")
@@ -16,7 +20,7 @@ public class UniversityDto extends BaseEventDto{
     private String name;
 
     @ApiModelProperty("图标")
-    private String logo;
+    private List<StorageObject> files;
 
     @ApiModelProperty("经度")
     private float lon;

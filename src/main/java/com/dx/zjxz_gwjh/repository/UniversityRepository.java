@@ -14,6 +14,10 @@ public interface UniversityRepository extends JpaCommonRepository<UniversityEnti
 
     UniversityEntity findByName(String name);
 
+    List<UniversityEntity> findByIsSupremeAndProvince(boolean b, String province);
+
+    List<UniversityEntity> findByIsKeyMajorAndProvince(boolean b, String province);
+
 
     // 自定义的查询和操作可以放在这里
 }

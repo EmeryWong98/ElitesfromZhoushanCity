@@ -7,6 +7,7 @@ import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.core.utils.ObjectUtils;
 import com.dx.easyspringweb.data.jpa.SortField;
 import com.dx.easyspringweb.data.jpa.service.JpaPublicService;
+import com.dx.easyspringweb.storage.models.StorageObject;
 import com.dx.zjxz_gwjh.dto.EliteMajorDto;
 import com.dx.zjxz_gwjh.dto.EliteUniversityDto;
 import com.dx.zjxz_gwjh.dto.EliteUniversityListDto;
@@ -16,8 +17,11 @@ import com.dx.zjxz_gwjh.entity.StudentsEntity;
 import com.dx.zjxz_gwjh.entity.UniversityEntity;
 import com.dx.zjxz_gwjh.filter.StudentsFilter;
 import com.dx.zjxz_gwjh.filter.UniversityFilter;
+import com.dx.zjxz_gwjh.repository.StudentsRepository;
 import com.dx.zjxz_gwjh.repository.UniversityRepository;
+import com.dx.zjxz_gwjh.util.UniversityMajorDictionary;
 import com.querydsl.core.BooleanBuilder;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -25,6 +29,7 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class UniversityService extends JpaPublicService<UniversityEntity, String> implements StandardService<UniversityEntity, UniversityFilter, String> {
@@ -33,6 +38,9 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
 
     @Autowired
     private StudentsService studentsService;
+
+    @Autowired
+    private StudentsRepository studentsRepository;
 
     public UniversityService(UniversityRepository repository) {
         super(repository);
@@ -76,59 +84,144 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
         return universityEntity;
     }
 
+//    public EliteUniversityListDto getEliteUniversityList(StudentsFilter filter) throws ServiceException {
+//        EliteUniversityListDto result = new EliteUniversityListDto();
+//
+//        // 设置 filter 以获取重点学生
+//        filter.setIsKeyContact(true);
+//
+//        QueryRequest<StudentsFilter> queryRequest = new QueryRequest<>();
+//        queryRequest.setFilter(filter);
+//
+//        // 从学生服务中获取符合条件的学生实体列表
+//        PagingData<StudentsEntity> students = studentsService.queryList(queryRequest);
+//
+//        List<StudentsEntity> supremeStudents = students.getData().stream()
+//                .filter(s -> Boolean.TRUE.equals(s.getIsSupreme()))
+//                .collect(Collectors.toList());
+//
+//        List<StudentsEntity> majorStudents = students.getData().stream()
+//                .filter(s -> Boolean.FALSE.equals(s.getIsSupreme()))
+//                .collect(Collectors.toList());
+//
+//        // 填充 eliteUniversities 列表
+//        List<EliteUniversityDto> eliteUniversities = supremeStudents.stream()
+//                .collect(Collectors.groupingBy(s -> s.getUniversity().getName()))
+//                .entrySet()
+//                .stream()
+//                .map(e -> {
+//                    EliteUniversityDto dto = new EliteUniversityDto();
+//                    dto.setUniversityName(e.getKey());
+//                    dto.setKeyContactCount(e.getValue().size());
+//                    return dto;
+//                })
+//                .collect(Collectors.toList());
+//
+//        result.setEliteUniversities(eliteUniversities);
+//
+//        // 填充 eliteMajor 列表
+//        List<EliteMajorDto> eliteMajors = majorStudents.stream()
+//                .collect(Collectors.groupingBy(s -> new AbstractMap.SimpleEntry<>(s.getUniversity().getName(), s.getMajor())))
+//                .entrySet()
+//                .stream()
+//                .map(e -> {
+//                    EliteMajorDto dto = new EliteMajorDto();
+//                    dto.setUniversityName(e.getKey().getKey());
+//                    dto.setKeyContactCount(e.getValue().size());
+//                    dto.setMajorName(e.getKey().getValue());
+//                    return dto;
+//                })
+//                .collect(Collectors.toList());
+//
+//        result.setEliteMajors(eliteMajors);
+//
+//        return result;
+//    }
+
+//    public EliteUniversityListDto getEliteUniversityList(StudentsFilter filter) throws ServiceException {
+//        EliteUniversityListDto result = new EliteUniversityListDto();
+//
+//        // 获取符合条件的重点大学列表
+//        List<UniversityEntity> supremeUniversities = universityRepository.findByIsSupremeAndProvince(true, filter.getProvince());
+//        List<EliteUniversityDto> eliteUniversities = supremeUniversities.stream().map(university -> {
+//            EliteUniversityDto dto = new EliteUniversityDto();
+//            dto.setUniversityName(university.getName());
+//            // 计算每个大学的学生总数
+//            int studentCount = studentsRepository.countByUniversityId(university.getId());
+//            dto.setKeyContactCount(studentCount);
+//            return dto;
+//        }).collect(Collectors.toList());
+//        result.setEliteUniversities(eliteUniversities);
+//
+//        // 获取符合条件的重点专业大学列表
+//        List<UniversityEntity> keyMajorUniversities = universityRepository.findByIsKeyMajorAndProvince(true, filter.getProvince());
+//        Map<String, List<String>> majorNameDictionary = UniversityMajorDictionary.MAJOR_DICTIONARY; // 这里您需要使用您实际定义的字典变量名
+//
+//        List<EliteMajorDto> eliteMajors = keyMajorUniversities.stream().flatMap(university -> {
+//            List<String> majors = majorNameDictionary.get(university.getName());
+//            if (majors != null) {
+//                return majors.stream().map(major -> {
+//                    EliteMajorDto dto = new EliteMajorDto();
+//                    dto.setUniversityName(university.getName());
+//                    // 计算每个大学、每个专业的关键联系人人数
+//                    int keyContactCount = studentsRepository.countByUniversityIdAndIsSupremeAndIsKeyContact(university.getId(), false, true);
+//                    dto.setKeyContactCount(keyContactCount);
+//                    dto.setMajorName(major);
+//                    return dto;
+//                });
+//            } else {
+//                return Stream.empty();
+//            }
+//        }).collect(Collectors.toList());
+//        result.setEliteMajors(eliteMajors);
+//
+//        return result;
+//    }
+
     public EliteUniversityListDto getEliteUniversityList(StudentsFilter filter) throws ServiceException {
         EliteUniversityListDto result = new EliteUniversityListDto();
 
-        // 设置 filter 以获取重点学生
-        filter.setIsKeyContact(true);
-
-        QueryRequest<StudentsFilter> queryRequest = new QueryRequest<>();
-        queryRequest.setFilter(filter);
-
-        // 从学生服务中获取符合条件的学生实体列表
-        PagingData<StudentsEntity> students = studentsService.queryList(queryRequest);
-
-        List<StudentsEntity> supremeStudents = students.getData().stream()
-                .filter(s -> Boolean.TRUE.equals(s.getIsSupreme()))
-                .collect(Collectors.toList());
-
-        List<StudentsEntity> majorStudents = students.getData().stream()
-                .filter(s -> Boolean.FALSE.equals(s.getIsSupreme()))
-                .collect(Collectors.toList());
-
-        // 填充 eliteUniversities 列表
-        List<EliteUniversityDto> eliteUniversities = supremeStudents.stream()
-                .collect(Collectors.groupingBy(s -> s.getUniversity().getName()))
-                .entrySet()
-                .stream()
-                .map(e -> {
-                    EliteUniversityDto dto = new EliteUniversityDto();
-                    dto.setUniversityName(e.getKey());
-                    dto.setKeyContactCount(e.getValue().size());
-                    return dto;
-                })
-                .collect(Collectors.toList());
-
+        // 获取符合条件的重点大学列表
+        List<UniversityEntity> supremeUniversities = universityRepository.findByIsSupremeAndProvince(true, filter.getProvince());
+        List<EliteUniversityDto> eliteUniversities = supremeUniversities.stream().map(university -> {
+            EliteUniversityDto dto = new EliteUniversityDto();
+            dto.setUniversityName(university.getName());
+            // 计算每个大学的学生总数
+            int studentCount = studentsRepository.countByUniversityIdAndAcademicYearBetween(university.getId(), filter.getStartYear(), filter.getEndYear());
+            dto.setKeyContactCount(studentCount);
+            return dto;
+        }).collect(Collectors.toList());
         result.setEliteUniversities(eliteUniversities);
 
-        // 填充 eliteMajor 列表
-        List<EliteMajorDto> eliteMajors = majorStudents.stream()
-                .collect(Collectors.groupingBy(s -> new AbstractMap.SimpleEntry<>(s.getUniversity().getName(), s.getMajor())))
-                .entrySet()
-                .stream()
-                .map(e -> {
-                    EliteMajorDto dto = new EliteMajorDto();
-                    dto.setUniversityName(e.getKey().getKey());
-                    dto.setKeyContactCount(e.getValue().size());
-                    dto.setMajorName(e.getKey().getValue());
-                    return dto;
-                })
-                .collect(Collectors.toList());
+        // 获取符合条件的重点专业大学列表
+        List<UniversityEntity> keyMajorUniversities = universityRepository.findByIsKeyMajorAndProvince(true, filter.getProvince());
+        Map<String, List<String>> majorNameDictionary = UniversityMajorDictionary.MAJOR_DICTIONARY;
 
+        List<EliteMajorDto> eliteMajors = keyMajorUniversities.stream().flatMap(university -> {
+            List<String> majors = majorNameDictionary.get(university.getName());
+            if (majors != null) {
+                return majors.stream().map(major -> {
+                    EliteMajorDto dto = new EliteMajorDto();
+                    dto.setUniversityName(university.getName());
+                    // 计算每个大学、每个专业的关键联系人人数
+                    int keyContactCount = studentsRepository.countByUniversityIdAndMajorAndIsSupremeAndIsKeyContactAndAcademicYearBetween(
+                            university.getId(), major, false, true, filter.getStartYear(), filter.getEndYear()
+                    );
+                    dto.setKeyContactCount(keyContactCount);
+                    dto.setMajorName(major);
+                    return dto;
+                });
+            } else {
+                return Stream.empty();
+            }
+        }).collect(Collectors.toList());
         result.setEliteMajors(eliteMajors);
 
         return result;
     }
+
+
+
 
 
 

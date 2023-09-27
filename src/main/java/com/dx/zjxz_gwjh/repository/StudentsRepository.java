@@ -107,11 +107,13 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
             "ORDER BY s.highSchoolNetContactor, s.id")
     List<Object[]> findTeachersAndStudents(@Param("highSchoolId") String highSchoolId, @Param("graduationYear") Integer graduationYear, @Param("netId") String netId);
 
+    int countByUniversityId(String id);
 
+    int countByUniversityIdAndIsSupremeAndIsKeyContact(String id, boolean b, boolean b1);
 
+    int countByUniversityIdAndAcademicYearBetween(String id, Integer startYear, Integer endYear);
 
-
-
+    int countByUniversityIdAndMajorAndIsSupremeAndIsKeyContactAndAcademicYearBetween(String id, String major, boolean b, boolean b1, Integer startYear, Integer endYear);
 
 
     // 自定义的查询和操作可以放在这里

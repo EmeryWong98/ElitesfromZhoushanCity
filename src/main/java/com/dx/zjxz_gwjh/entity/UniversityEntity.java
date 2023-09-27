@@ -3,13 +3,16 @@ package com.dx.zjxz_gwjh.entity;
 import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModelProperty;
 import com.dx.easyspringweb.data.jpa.entity.JpaBaseEntity;
+import com.dx.easyspringweb.storage.models.StorageObject;
 import lombok.*;
 import org.hibernate.annotations.Proxy;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
+import java.util.List;
 
 @Data
 @Entity
@@ -33,8 +36,9 @@ public class UniversityEntity extends JpaBaseEntity {
     private String name;
 
     @ApiModelProperty("图标")
-    @Column(name = "logo")
-    private String logo;
+    @Column(name = "logo", columnDefinition = "json")
+    @Type(type = "json")
+    private List<StorageObject> files;
 
     @ApiModelProperty("经度")
     @Column(name = "lon")
