@@ -5,6 +5,7 @@ import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModule;
 import com.dx.easyspringweb.core.annotation.Action;
 import com.dx.easyspringweb.core.annotation.BindResource;
+import com.dx.easyspringweb.core.annotation.PermitAll;
 import com.dx.easyspringweb.core.annotation.Session;
 import com.dx.easyspringweb.core.exception.ServiceException;
 import com.dx.easyspringweb.core.model.QueryRequest;

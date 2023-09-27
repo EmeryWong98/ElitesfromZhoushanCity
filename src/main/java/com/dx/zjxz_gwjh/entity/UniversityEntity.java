@@ -4,9 +4,11 @@ import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModelProperty;
 import com.dx.easyspringweb.data.jpa.entity.JpaBaseEntity;
 import com.dx.easyspringweb.storage.models.StorageObject;
+import com.vladmihalcea.hibernate.type.json.JsonType;
 import lombok.*;
 import org.hibernate.annotations.Proxy;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,6 +28,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@TypeDef(name = "json", typeClass = JsonType.class)
 public class UniversityEntity extends JpaBaseEntity {
     @ApiModelProperty("大学ID")
     @Column(name = "id",insertable = false, updatable = false)
