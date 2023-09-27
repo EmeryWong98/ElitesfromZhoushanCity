@@ -47,4 +47,13 @@ public class UniversityEntity extends JpaBaseEntity {
     @ApiModelProperty("省份")
     @Column(name = "province")
     private String province;
+
+    @ApiModelProperty("是否双一流")
+    @Column(name = "is_supreme")
+    private Boolean isSupreme;
+
+    @ApiModelProperty("是否一流专业")
+    @Column(name = "is_key_major")
+    private Boolean isKeyMajor;
+
 }

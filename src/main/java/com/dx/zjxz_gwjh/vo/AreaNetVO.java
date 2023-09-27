@@ -3,7 +3,9 @@ package com.dx.zjxz_gwjh.vo;
 import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModelProperty;
 import com.dx.zjxz_gwjh.entity.AreaNetEntity;
+import lombok.Data;
 
+@Data
 @ApiModel("属地网格VO")
 public class AreaNetVO extends AreaNetEntity {
     @ApiModelProperty("网格ID")

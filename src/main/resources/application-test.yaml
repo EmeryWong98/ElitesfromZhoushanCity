@@ -32,10 +32,3 @@ minio:
   access-key: minio
   secret-key: dx123456
   bucket: dsrd-xzzyy
-
-zwding:
-  enable: true
-  domain: openplatform-pro.ding.zj.gov.cn
-  access-key: dsrd-OOy336Cw2ER23PfDZK2eUNZZr
-  secret-key: cz25DT9xq04H20Sa3TOBBp39hH5BZYw3n4r77Qy0
-  tenant-id: 196729

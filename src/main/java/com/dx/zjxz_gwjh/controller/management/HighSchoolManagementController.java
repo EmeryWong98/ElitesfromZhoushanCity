@@ -83,4 +83,6 @@ public class HighSchoolManagementController {
         // 更新高中实体
         highSchoolService.update(entity);
     }
+
+
 }

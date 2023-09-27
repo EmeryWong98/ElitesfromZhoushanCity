@@ -3,9 +3,11 @@ package com.dx.zjxz_gwjh.vo;
 import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModelProperty;
 import com.dx.zjxz_gwjh.entity.HighSchoolNetEntity;
+import lombok.Data;
 
 import javax.persistence.Column;
 
+@Data
 @ApiModel("高中网格VO")
 public class HighSchoolNetVO {
     @ApiModelProperty("网格ID")

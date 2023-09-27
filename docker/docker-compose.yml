@@ -130,39 +130,39 @@ services:
     entrypoint: java -jar app.jar
     networks:
       - dx-local-net
-    # extra_hosts:
-    #   - "ids.zsdx.site:192.168.0.248"
+#     extra_hosts:
+#       - "ids.zsdx.site:192.168.0.248"
     #   - "a.zsdx.com.cn:172.25.64.7"
 
-  nginx:
-    container_name: nginx
-    image: nginx
-    restart: always
-    ports:
-      # - 9011:80
-      - 443:443
-    volumes:
-      - ~/nginx/html:/nginx/html
-      - ~/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ~/nginx/logs:/var/log/nginx
-    networks:
-      - dx-local-net
-    # extra_hosts:
-    #   - "ids.zsdx.site:192.168.0.248"
+#  nginx:
+#    container_name: nginx
+#    image: nginx
+#    restart: always
+#    ports:
+#      # - 9011:80
+#      - 443:443
+#    volumes:
+#      - ~/nginx/html:/nginx/html
+#      - ~/nginx/nginx.conf:/etc/nginx/nginx.conf
+#      - ~/nginx/logs:/var/log/nginx
+#    networks:
+#      - dx-local-net
+#    # extra_hosts:
+#    #   - "ids.zsdx.site:192.168.0.248"
 
-  nginx_admin:
-    container_name: nginx_admin
-    image: nginx
-    restart: always
-    ports:
-      # - 9011:80
-      - 9012:443
-    volumes:
-      - ~/nginx_admin/html:/nginx/html
-      - ~/nginx_admin/nginx.conf:/etc/nginx/nginx.conf
-      - ~/nginx_admin/logs:/var/log/nginx
-    networks:
-      - dx-local-net
+#  nginx_admin:
+#    container_name: nginx_admin
+#    image: nginx
+#    restart: always
+#    ports:
+#      # - 9011:80
+#      - 9012:443
+#    volumes:
+#      - ~/nginx_admin/html:/nginx/html
+#      - ~/nginx_admin/nginx.conf:/etc/nginx/nginx.conf
+#      - ~/nginx_admin/logs:/var/log/nginx
+#    networks:
+#      - dx-local-net
 
 networks:
   dx-local-net:

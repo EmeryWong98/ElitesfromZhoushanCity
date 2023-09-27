@@ -77,6 +77,12 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
                         .or(q.major.contains(keyword)));
             }
 
+            // 学生姓名
+            String name = filter.getName();
+            if (StringUtils.hasText(name)) {
+                predicate.and(q.name.contains(name));
+            }
+
             // 性别
             String sex = filter.getSex();
             if (StringUtils.hasText(sex)) {
@@ -111,6 +117,18 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
             String universityProvince = filter.getUniversityProvince();
             if (StringUtils.hasText(universityProvince)) {
                 predicate.and(q.universityProvince.eq(universityProvince));
+            }
+
+            // 学年
+            Integer academicYear = filter.getAcademicYear();
+            if (academicYear != null) {
+                predicate.and(q.academicYear.eq(academicYear));
+            }
+
+            // 学历
+            String degree = filter.getDegree();
+            if (StringUtils.hasText(degree)) {
+                predicate.and(q.degree.eq(degree)); // 假设您的StudentsEntity中有一个名为degree的字段来存储学历
             }
 
             // 属地ID
@@ -229,6 +247,30 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         return studentEntity;
     }
 
+//    public List<StudentCountDto> getStudentCountByAcademicYearAndArea(AcademicYearAndAreaDto academicYearAndAreaDto) throws ServiceException {
+//        int startYear = academicYearAndAreaDto.getStartYear();
+//        int endYear = academicYearAndAreaDto.getEndYear();
+//        String areaId = academicYearAndAreaDto.getAreaId();
+//
+//        if (endYear < startYear) {
+//            throw new ServiceException("结束年份不能小于开始年份");
+//        }
+//
+//        List<AreaCodeDto> allAreas = areaCodeService.getAreaCodeList();
+//        List<AreaCodeDto> selectedAreas = findSelectedAndChildAreas(allAreas, areaId);
+//
+//        List<StudentCountDto> result = new ArrayList<>();
+//        for (AreaCodeDto area : selectedAreas) {
+//            int count = calculateAreaCount(area, startYear, endYear);
+//            StudentCountDto dto = new StudentCountDto();
+//            dto.setId(area.getId());
+//            dto.setName(area.getName());
+//            dto.setCount(count);
+//            result.add(dto);
+//        }
+//
+//        return result;
+//    }
     public List<StudentCountDto> getStudentCountByAcademicYearAndArea(AcademicYearAndAreaDto academicYearAndAreaDto) throws ServiceException {
         int startYear = academicYearAndAreaDto.getStartYear();
         int endYear = academicYearAndAreaDto.getEndYear();
@@ -241,18 +283,25 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         List<AreaCodeDto> allAreas = areaCodeService.getAreaCodeList();
         List<AreaCodeDto> selectedAreas = findSelectedAndChildAreas(allAreas, areaId);
 
-        List<StudentCountDto> result = new ArrayList<>();
+        StudentCountDto studentCountDto = null;
         for (AreaCodeDto area : selectedAreas) {
-            int count = calculateAreaCount(area, startYear, endYear);
-            StudentCountDto dto = new StudentCountDto();
-            dto.setId(area.getId());
-            dto.setName(area.getName());
-            dto.setCount(count);
-            result.add(dto);
+            if(area.getId().equals(areaId)) {
+                int count = calculateAreaCount(area, startYear, endYear);
+                studentCountDto = new StudentCountDto();
+                studentCountDto.setId(area.getId());
+                studentCountDto.setName(area.getName());
+                studentCountDto.setCount(count);
+                break; // Once we found the matching area, no need to continue the loop.
+            }
         }
 
-        return result;
+        if(studentCountDto == null) {
+            return Collections.emptyList();
+        }
+
+        return Collections.singletonList(studentCountDto);
     }
+
 
     public List<StudentCountDto> getStudentCountByAcademicYearAndAreaDefault(AcademicYearAndAreaDto academicYearAndAreaDto) throws ServiceException {
         int startYear = academicYearAndAreaDto.getStartYear();
@@ -278,20 +327,47 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         List<String> areaIds = idMap.getOrDefault(areaId, Collections.singletonList(areaId));
         List<AreaCodeDto> allAreas = areaCodeService.getAreaCodeList();
 
+//        List<StudentCountDto> result = new ArrayList<>();
+//        for (String id : areaIds) {
+//            List<AreaCodeDto> selectedAreas = findSelectedAndChildAreas(allAreas, id);
+//            for (AreaCodeDto area : selectedAreas) {
+//                int count = calculateAreaCount(area, startYear, endYear);
+//                StudentCountDto dto = new StudentCountDto();
+//                dto.setId(area.getId());
+//                dto.setName(area.getName());
+//                dto.setCount(count);
+//                result.add(dto);
+//            }
+//        }
+//
+//        return result;
+//    }
+
+
         List<StudentCountDto> result = new ArrayList<>();
         for (String id : areaIds) {
-            List<AreaCodeDto> selectedAreas = findSelectedAndChildAreas(allAreas, id);
-            for (AreaCodeDto area : selectedAreas) {
-                int count = calculateAreaCount(area, startYear, endYear);
+            // 对于idMap中的每个id，只计算这个区域本身的计数，不再计算其子区域的计数
+            AreaCodeDto selectedArea = findAreaById(allAreas, id);
+            if(selectedArea != null) {
+                int count = calculateAreaCount(selectedArea, startYear, endYear);
                 StudentCountDto dto = new StudentCountDto();
-                dto.setId(area.getId());
-                dto.setName(area.getName());
+                dto.setId(selectedArea.getId());
+                dto.setName(selectedArea.getName());
                 dto.setCount(count);
                 result.add(dto);
             }
         }
 
         return result;
+    }
+
+    private AreaCodeDto findAreaById(List<AreaCodeDto> areas, String id) {
+        for (AreaCodeDto area : areas) {
+            if(area.getId().equals(id)) {
+                return area;
+            }
+        }
+        return null;
     }
 
     public List<MapCountDto> getMapCountByAcademicYearAndArea(AcademicYearAndAreaDto academicYearAndAreaDto) throws ServiceException {
@@ -356,12 +432,10 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
                     // 根据百分比计算rateLevel
                     if (percentage <= 1) {
                         provinceCountDto.setRateLevel("0");
-                    } else if (percentage <= 5) {
-                        provinceCountDto.setRateLevel("1");
                     } else if (percentage <= 10) {
+                        provinceCountDto.setRateLevel("1");
+                    } else  {
                         provinceCountDto.setRateLevel("2");
-                    } else {
-                        provinceCountDto.setRateLevel("3");
                     }
                 }
 
@@ -510,21 +584,44 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         List<AreaCodeDto> allAreas = areaCodeService.getAreaCodeList();
         List<AreaCodeDto> selectedAreas = findSelectedAndChildAreas(allAreas, areaId);
 
-        List<EliteCountDto> result = new ArrayList<>();
+//        List<EliteCountDto> result = new ArrayList<>();
+//        for (AreaCodeDto area : selectedAreas) {
+//            int count = calculateAreaCountForElite(area, startYear, endYear, true); // 重点学子数量
+//            int scount = calculateAreaCountForDegree(area, startYear, endYear, "硕士研究生", true); // 硕士数量
+//            int bcount = calculateAreaCountForDegree(area, startYear, endYear, "博士研究生", true); // 博士数量
+//            EliteCountDto dto = new EliteCountDto();
+//            dto.setId(area.getId());
+//            dto.setName(area.getName());
+//            dto.setCount(count);
+//            dto.setScount(scount);
+//            dto.setBcount(bcount);
+//            result.add(dto);
+//        }
+//
+//        return result;
+//    }
+
+        EliteCountDto eliteCountDto = null;
         for (AreaCodeDto area : selectedAreas) {
-            int count = calculateAreaCountForElite(area, startYear, endYear, true); // 重点学子数量
-            int scount = calculateAreaCountForDegree(area, startYear, endYear, "硕士研究生", true); // 硕士数量
-            int bcount = calculateAreaCountForDegree(area, startYear, endYear, "博士研究生", true); // 博士数量
-            EliteCountDto dto = new EliteCountDto();
-            dto.setId(area.getId());
-            dto.setName(area.getName());
-            dto.setCount(count);
-            dto.setScount(scount);
-            dto.setBcount(bcount);
-            result.add(dto);
+            if(area.getId().equals(areaId)) {
+                int count = calculateAreaCountForElite(area, startYear, endYear, true); // 重点学子数量
+                int scount = calculateAreaCountForDegree(area, startYear, endYear, "硕士研究生", true); // 硕士数量
+                int bcount = calculateAreaCountForDegree(area, startYear, endYear, "博士研究生", true); // 博士数量
+                eliteCountDto = new EliteCountDto();
+                eliteCountDto.setId(area.getId());
+                eliteCountDto.setName(area.getName());
+                eliteCountDto.setCount(count);
+                eliteCountDto.setScount(scount);
+                eliteCountDto.setBcount(bcount);
+                break; // 一旦我们找到了匹配的区域，就不需要继续循环了。
+            }
         }
 
-        return result;
+        if(eliteCountDto == null) {
+            return Collections.emptyList();
+        }
+
+        return Collections.singletonList(eliteCountDto);
     }
 
     public List<EliteCountDto> getKeyStudentCountByAcademicYearAndAreaDefault(AcademicYearAndAreaDto academicYearAndAreaDto) throws ServiceException {
@@ -551,10 +648,31 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         List<String> areaIds = idMap.getOrDefault(areaId, Collections.singletonList(areaId));
         List<AreaCodeDto> allAreas = areaCodeService.getAreaCodeList();
 
+//        List<EliteCountDto> result = new ArrayList<>();
+//        for (String id : areaIds) {
+//            List<AreaCodeDto> selectedAreas = findSelectedAndChildAreas(allAreas, id);
+//            for (AreaCodeDto area : selectedAreas) {
+//                int count = calculateAreaCountForElite(area, startYear, endYear, true); // 重点学子数量
+//                int scount = calculateAreaCountForDegree(area, startYear, endYear, "硕士研究生", true); // 硕士数量
+//                int bcount = calculateAreaCountForDegree(area, startYear, endYear, "博士研究生", true); // 博士数量
+//                EliteCountDto dto = new EliteCountDto();
+//                dto.setId(area.getId());
+//                dto.setName(area.getName());
+//                dto.setCount(count);
+//                dto.setScount(scount);
+//                dto.setBcount(bcount);
+//                result.add(dto);
+//            }
+//        }
+//
+//        return result;
+//    }
+
         List<EliteCountDto> result = new ArrayList<>();
         for (String id : areaIds) {
-            List<AreaCodeDto> selectedAreas = findSelectedAndChildAreas(allAreas, id);
-            for (AreaCodeDto area : selectedAreas) {
+            Optional<AreaCodeDto> optionalArea = allAreas.stream().filter(area -> area.getId().equals(id)).findFirst();
+            if(optionalArea.isPresent()) {
+                AreaCodeDto area = optionalArea.get();
                 int count = calculateAreaCountForElite(area, startYear, endYear, true); // 重点学子数量
                 int scount = calculateAreaCountForDegree(area, startYear, endYear, "硕士研究生", true); // 硕士数量
                 int bcount = calculateAreaCountForDegree(area, startYear, endYear, "博士研究生", true); // 博士数量

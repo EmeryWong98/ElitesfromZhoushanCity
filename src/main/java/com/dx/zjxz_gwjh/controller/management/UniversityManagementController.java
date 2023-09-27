@@ -9,15 +9,26 @@ import com.dx.easyspringweb.core.annotation.Session;
 import com.dx.easyspringweb.core.exception.ServiceException;
 import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.core.utils.ObjectUtils;
+import com.dx.zjxz_gwjh.dto.UniversitiesImportDto;
 import com.dx.zjxz_gwjh.dto.UniversityDto;
 import com.dx.zjxz_gwjh.entity.UniversityEntity;
 import com.dx.zjxz_gwjh.filter.UniversityFilter;
 import com.dx.zjxz_gwjh.model.RDUserSession;
 import com.dx.zjxz_gwjh.service.UniversityService;
 import com.dx.zjxz_gwjh.vo.UniversityVO;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.dx.easyspringweb.core.model.PagingData;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @ApiModule("University")
 @Api(name = "UniversityManagement", description = "大学管理")
@@ -84,5 +95,47 @@ public class UniversityManagementController {
 
         universityService.update(entity);
     }
+
+    @BindResource("universities:management:import")
+    @Action(value = "导入大学信息", type = Action.ActionType.CREATE)
+    @PostMapping("/import")
+    public ResponseEntity<String> importUniversities(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("文件不能为空");
+        }
+        try {
+            List<UniversitiesImportDto> universitiesList = parseExcelFile(file);
+            for (UniversitiesImportDto university : universitiesList) {
+                universityService.massiveCreateUniversity(university);
+            }
+            return ResponseEntity.ok("导入成功");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("导入失败: " + e.getMessage());
+        }
+    }
+
+    private List<UniversitiesImportDto> parseExcelFile(MultipartFile file) throws IOException {
+        List<UniversitiesImportDto> universitiesList = new ArrayList<>();
+        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                UniversitiesImportDto dto = convertRowToDto(row);
+                universitiesList.add(dto);
+            }
+        }
+        return universitiesList;
+    }
+
+    private UniversitiesImportDto convertRowToDto(Row row) {
+        UniversitiesImportDto dto = new UniversitiesImportDto();
+        dto.setName(row.getCell(0).getStringCellValue());
+        dto.setProvince(row.getCell(1).getStringCellValue());
+        dto.setIsSupreme("是".equals(row.getCell(2).getStringCellValue()));
+        dto.setIsKeyMajor("是".equals(row.getCell(3).getStringCellValue()));
+        return dto;
+    }
+
+
 
 }

@@ -74,17 +74,7 @@ public class StudentsApiController {
 
         PagingData<StudentsEntity> result = studentsService.queryList(query);
 
-
-        return result.map((entity) -> {
-            StudentsVO vo = ObjectUtils.copyEntity(entity, StudentsVO.class);
-
-            if (entity.getHighSchool() != null) {
-                vo.setHighSchoolName(entity.getHighSchool().getName());
-            }
-
-            return vo;
-        });
-
+        return result.map((entity) -> ObjectUtils.copyEntity(entity, StudentsVO.class));
     }
 
     @BindResource("students:api:details")

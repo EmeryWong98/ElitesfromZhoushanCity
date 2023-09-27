@@ -46,4 +46,9 @@ public class StudentsFilter {
     @ApiModelProperty("大学省份")
     private String universityProvince;
 
+    @ApiModelProperty("学年")
+    private Integer academicYear;
+
+    @ApiModelProperty("学历")
+    private String degree;
 }

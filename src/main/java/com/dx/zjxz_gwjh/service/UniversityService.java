@@ -4,11 +4,13 @@ import com.dx.easyspringweb.core.StandardService;
 import com.dx.easyspringweb.core.exception.ServiceException;
 import com.dx.easyspringweb.core.model.PagingData;
 import com.dx.easyspringweb.core.model.QueryRequest;
+import com.dx.easyspringweb.core.utils.ObjectUtils;
 import com.dx.easyspringweb.data.jpa.SortField;
 import com.dx.easyspringweb.data.jpa.service.JpaPublicService;
 import com.dx.zjxz_gwjh.dto.EliteMajorDto;
 import com.dx.zjxz_gwjh.dto.EliteUniversityDto;
 import com.dx.zjxz_gwjh.dto.EliteUniversityListDto;
+import com.dx.zjxz_gwjh.dto.UniversitiesImportDto;
 import com.dx.zjxz_gwjh.entity.QUniversityEntity;
 import com.dx.zjxz_gwjh.entity.StudentsEntity;
 import com.dx.zjxz_gwjh.entity.UniversityEntity;
@@ -134,5 +136,31 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
         return (int) universityRepository.count();
     }
 
+
+    public UniversityEntity massiveCreateUniversity(UniversitiesImportDto dto) throws ServiceException {
+        // 检查大学名称的唯一性
+        UniversityEntity existingUniversity = universityRepository.findByName(dto.getName());
+
+        // 创建或获取现有的大学实体
+        UniversityEntity entity;
+        if (existingUniversity != null) { // 如果存在同名大学，则进行更新
+            entity = existingUniversity;
+        } else { // 否则创建新的实体
+            entity = new UniversityEntity();
+        }
+
+        // 将DTO中的数据复制到大学实体
+        ObjectUtils.copyEntity(dto, entity);
+
+        // 创建或更新大学实体
+        UniversityEntity universityEntity;
+        if (existingUniversity != null) { // 如果存在同名大学，则进行更新
+            universityEntity = this.update(entity); // 假设的更新方法，您需要实现它
+        } else { // 否则进行创建
+            universityEntity = this.create(entity); // 假设的创建方法，您需要实现它
+        }
+
+        return universityEntity;
+    }
 
 }
