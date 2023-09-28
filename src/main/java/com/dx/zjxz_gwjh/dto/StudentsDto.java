@@ -105,4 +105,6 @@ public class StudentsDto extends BaseEventDto {
 
     @ApiModelProperty("学联网格名称")
     private String UnionNetName;
+
+
 }

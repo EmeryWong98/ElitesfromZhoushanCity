@@ -22,11 +22,11 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.dx.easyspringweb.core.model.PagingData;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +56,7 @@ public class UniversityManagementController {
     @BindResource(value = "university:management:create")
     @Action(value = "创建大学信息", type = Action.ActionType.CREATE)
     @PostMapping("/create")
-    public UniversityEntity create(@Session RDUserSession user, @RequestBody UniversityDto dto)
+    public UniversityEntity create(@Valid @Session RDUserSession user, @RequestBody UniversityDto dto)
             throws ServiceException {
 
         UniversityEntity entity = universityService.newEntity(dto);
@@ -87,7 +87,7 @@ public class UniversityManagementController {
     @BindResource(value = "university:management:update")
     @Action(value = "更新大学信息", type = Action.ActionType.UPDATE)
     @PostMapping("/update")
-    public void update(@RequestBody UniversityDto dto)
+    public void update(@Valid @RequestBody UniversityDto dto)
             throws ServiceException {
 
         UniversityEntity entity = universityService.getById(dto.getId());
@@ -100,18 +100,18 @@ public class UniversityManagementController {
     @BindResource("universities:management:import")
     @Action(value = "导入大学信息", type = Action.ActionType.CREATE)
     @PostMapping("/import")
-    public ResponseEntity<String> importUniversities(@RequestParam("file") MultipartFile file) {
+    public String importUniversities(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body("文件不能为空");
+            return "请选择文件";
         }
         try {
             List<UniversitiesImportDto> universitiesList = parseExcelFile(file);
             for (UniversitiesImportDto university : universitiesList) {
                 universityService.massiveCreateUniversity(university);
             }
-            return ResponseEntity.ok("导入成功");
+            return "导入成功";
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("导入失败: " + e.getMessage());
+            return "导入失败：" + e.getMessage();
         }
     }
 

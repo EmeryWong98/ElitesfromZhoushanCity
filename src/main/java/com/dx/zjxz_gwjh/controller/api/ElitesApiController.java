@@ -17,11 +17,11 @@ import com.dx.zjxz_gwjh.filter.UniversityFilter;
 import com.dx.zjxz_gwjh.model.RDUserSession;
 import com.dx.zjxz_gwjh.service.StudentsService;
 import com.dx.zjxz_gwjh.service.UniversityService;
+import com.dx.zjxz_gwjh.vo.ElitesVO;
 import com.dx.zjxz_gwjh.vo.StudentsVO;
 import com.dx.zjxz_gwjh.vo.UniversityVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -83,7 +83,7 @@ public class ElitesApiController {
     @BindResource("elites:api:studentslist")
     @Action(value = "查询学生列表", type = Action.ActionType.QUERY_LIST)
     @PostMapping("/studentslist")
-    public PagingData<StudentsVO> list(@Session RDUserSession user, @RequestBody QueryRequest<StudentsFilter> query)
+    public PagingData<ElitesVO> list(@Session RDUserSession user, @RequestBody QueryRequest<StudentsFilter> query)
             throws ServiceException {
         if (query == null) {
             query = QueryRequest.create(null);
@@ -99,11 +99,7 @@ public class ElitesApiController {
         PagingData<StudentsEntity> result = studentsService.queryList(query);
 
         return result.map((entity) -> {
-            StudentsVO vo = ObjectUtils.copyEntity(entity, StudentsVO.class);
-
-            if (entity.getHighSchool() != null) {
-                vo.setHighSchoolName(entity.getHighSchool().getName());
-            }
+            ElitesVO vo = ObjectUtils.copyEntity(entity, ElitesVO.class);
 
             return vo;
         });

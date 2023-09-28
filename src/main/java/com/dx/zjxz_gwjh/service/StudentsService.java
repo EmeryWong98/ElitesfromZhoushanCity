@@ -16,6 +16,7 @@ import com.dx.zjxz_gwjh.repository.StudentsRepository;
 import com.dx.zjxz_gwjh.repository.UniversityRepository;
 import com.dx.zjxz_gwjh.util.IdCardInfo;
 import com.querydsl.core.BooleanBuilder;
+import org.elasticsearch.cluster.metadata.AliasAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -181,70 +182,59 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
 
     public StudentsEntity createStudent(StudentsDto dto) throws ServiceException {
         // 如果是新创建的学生（ID 为 null），检查 idCard 的唯一性
+        StudentsEntity entity = new StudentsEntity();
         if (dto.getId() == null) {
             StudentsEntity existingStudent = studentsRepository.findByIdCard(dto.getIdCard());
             if (existingStudent != null) {
                 throw new ServiceException("学生重复");
             }
-        }
-
-        // 先检查并获取或创建University实体
-        UniversityEntity universityEntity = universityService.findOrCreateByNameAndProvince(dto.getUniversityName(), dto.getUniversityProvince());
-
-        // 先检查并获取或创建HighSchool实体
-        HighSchoolEntity highSchoolEntity = highSchoolService.findOrCreateByName(dto.getHighSchoolName());
-
-        // 先检查并获取或创建highSchoolNet实体
-        HighSchoolNetEntity highSchoolNetEntity = highSchoolNetService.findOrCreateByName(dto.getHighSchoolNetName());
-
-        // 先检查并获取或创建AreaNet实体
-        AreaNetEntity areaNetEntity = areaNetService.findOrCreateByName(dto.getAreaNetName());
-
-        // 先检查并获取或创建OfficerNet实体
-        OfficerNetEntity officerNetEntity = officerNetService.findOrCreateByName(dto.getOfficerNetName());
-
-        // 先检查并获取或创建UnionNet实体
-        UnionNetEntity unionNetEntity = UnionNetService.findOrCreateByName(dto.getUnionNetName());
-
-        // 创建或获取现有的学生实体
-        StudentsEntity entity = new StudentsEntity();
-        if (dto.getId() != null) {
-            entity = this.getById(dto.getId());
-        }
-
-        // 将DTO中的数据复制到学生实体
-        ObjectUtils.copyEntity(dto, entity);
-
-        // 设置关联的University和HighSchool
-        entity.setUniversity(universityEntity);
-        entity.setHighSchool(highSchoolEntity);
-        entity.setHighSchoolNet(highSchoolNetEntity);
-        entity.setAreaNet(areaNetEntity);
-        entity.setOfficerNet(officerNetEntity);
-        entity.setUnionNet(unionNetEntity);
-
-
-        // 从身份证中提取出生日期和性别
-        try {
-            java.util.Date birthDate = IdCardInfo.getBirthDate(dto.getIdCard()); // 假设 IdCardInfo 类存在
-            java.sql.Date sqlBirthDate = new java.sql.Date(birthDate.getTime());  // 转换为 java.sql.Date
-            String gender = IdCardInfo.getGender(dto.getIdCard());     // 假设 IdCardInfo 类存在
-
-            entity.setDob(sqlBirthDate); // 假设您的 StudentsEntity 有一个叫做 'dob' 的字段
-            entity.setSex(gender); // 假设您的 StudentsEntity 有一个叫做 'gender' 的字段
-        } catch (ParseException e) {
-            throw new ServiceException("身份证格式错误");
-        }
-
-        // 创建或更新学生实体
-        StudentsEntity studentEntity;
-        if (dto.getId() != null) {
-            studentEntity = this.update(entity); // 假设的更新方法，您需要实现它
         } else {
-            studentEntity = this.create(entity); // 假设的创建方法，您需要实现它
+
+                // 先检查并获取或创建University实体
+                UniversityEntity universityEntity = universityService.findOrCreateByNameAndProvince(dto.getUniversityName(), dto.getUniversityProvince());
+
+                // 先检查并获取或创建HighSchool实体
+                HighSchoolEntity highSchoolEntity = highSchoolService.findOrCreateByName(dto.getHighSchoolName());
+
+                // 先检查并获取或创建highSchoolNet实体
+                HighSchoolNetEntity highSchoolNetEntity = highSchoolNetService.findOrCreateByName(dto.getHighSchoolNetName());
+
+                // 先检查并获取或创建AreaNet实体
+                AreaNetEntity areaNetEntity = areaNetService.findOrCreateByName(dto.getAreaNetName());
+
+                // 先检查并获取或创建OfficerNet实体
+                OfficerNetEntity officerNetEntity = officerNetService.findOrCreateByName(dto.getOfficerNetName());
+
+                // 先检查并获取或创建UnionNet实体
+                UnionNetEntity unionNetEntity = UnionNetService.findOrCreateByName(dto.getUnionNetName());
+
+                // 将DTO中的数据复制到学生实体
+                ObjectUtils.copyEntity(dto, entity);
+                // 设置关联的University和HighSchool
+                entity.setUniversity(universityEntity);
+                entity.setHighSchool(highSchoolEntity);
+                entity.setHighSchoolNet(highSchoolNetEntity);
+                entity.setAreaNet(areaNetEntity);
+                entity.setOfficerNet(officerNetEntity);
+                entity.setUnionNet(unionNetEntity);
+
+            // 从身份证中提取出生日期和性别
+            try {
+                java.util.Date birthDate = IdCardInfo.getBirthDate(dto.getIdCard()); // 假设 IdCardInfo 类存在
+                java.sql.Date sqlBirthDate = new java.sql.Date(birthDate.getTime());  // 转换为 java.sql.Date
+                String gender = IdCardInfo.getGender(dto.getIdCard());     // 假设 IdCardInfo 类存在
+
+                entity.setDob(sqlBirthDate); // 假设您的 StudentsEntity 有一个叫做 'dob' 的字段
+                entity.setSex(gender); // 假设您的 StudentsEntity 有一个叫做 'gender' 的字段
+            } catch (ParseException e) {
+                throw new ServiceException("身份证格式错误");
+            }
         }
 
-        return studentEntity;
+        // 保存学生实体到数据库
+        studentsRepository.save(entity);
+
+        return entity;
     }
 
 //    public List<StudentCountDto> getStudentCountByAcademicYearAndArea(AcademicYearAndAreaDto academicYearAndAreaDto) throws ServiceException {

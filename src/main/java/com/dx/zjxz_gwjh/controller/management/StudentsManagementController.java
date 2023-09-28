@@ -21,7 +21,6 @@ import com.dx.zjxz_gwjh.service.StudentsService;
 import com.dx.zjxz_gwjh.vo.StudentsVO;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.apache.commons.lang3.StringUtils;
@@ -109,18 +108,18 @@ public class StudentsManagementController {
     @BindResource("students:management:import")
     @Action(value = "导入学生信息", type = Action.ActionType.CREATE)
     @PostMapping("/import")
-    public ResponseEntity<String> importStudents(@RequestParam("file") MultipartFile file) {
+    public String importStudents(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body("文件不能为空");
+            return "请选择文件";
         }
         try {
             List<StudentsImportDto> studentsList = parseExcelFile(file);
             for (StudentsImportDto student : studentsList) {
                 studentsService.MassiveCreateStudent(student);
             }
-            return ResponseEntity.ok("导入成功");
+            return "导入成功";
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("导入失败: " + e.getMessage());
+            return "导入失败：" + e.getMessage();
         }
     }
 

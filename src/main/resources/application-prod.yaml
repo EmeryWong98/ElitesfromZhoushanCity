@@ -9,14 +9,15 @@ spring:
   profiles: prod
 
   datasource:
-    url: jdbc:mysql://mysql:3306/zjxz_gwjh?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://10.25.3.84:3306/zjxz_gwjh?useUnicode=true&characterEncoding=utf-8
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: dx111@222
+    username: gwjh
+    password: Dx2263!!!
 
   redis:
     host: redis
     port: 6379
+    password: dx2263111
 
   elasticsearch:
     # username: elastic
@@ -27,11 +28,11 @@ spring:
 rpc:
   resource-server: http://127.0.0.1:8081/
   account-server: http://127.0.0.1:8081/
-  ids-url: "https://ids.zsdx.site/api/Account/ZFQBi/3V+Dz7SuB4pox3mVDEJPgvGceEucRKNladtng="
+  ids-url: "http://60.163.159.240:10001/api/Account/ZFQBi/3V+Dz7SuB4pox3mVDEJPgvGceEucRKNladtng="
 
-#security:
-#  oauth2:
-#    jwk-url: http://100.171.6.21:55666/.well-known/openid-configuration/jwks
+security:
+  oauth2:
+    jwk-url: http://60.163.159.240:10001/.well-known/openid-configuration/jwks
 
 easy:
   data-adapter: jpa

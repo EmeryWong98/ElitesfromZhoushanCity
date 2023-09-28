@@ -15,4 +15,11 @@ public class UniversityFilter {
 
     @ApiModelProperty("省份")
     private String province;
+
+    @ApiModelProperty("是否双一流")
+    private Boolean isSupreme;
+
+    @ApiModelProperty("是否重点专业")
+    private Boolean isKeyMajor;
+
 }

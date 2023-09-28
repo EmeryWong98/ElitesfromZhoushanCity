@@ -1,8 +1,15 @@
+server:
+  ssl:
+    key-store: classpath:9131178_xzzyy.daishan.gov.cn.jks
+    key-store-password: q2937e4f
+    key-store-type: JKS
+    enabled: true
+
 spring:
   profiles: test
 
   datasource:
-    url: jdbc:mysql://mysql:3306/dx_db?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://mysql:3306/zjxz_gwjh?useUnicode=true&characterEncoding=utf-8
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: dx111@222
@@ -12,12 +19,19 @@ spring:
     port: 6379
 
   elasticsearch:
+    # username: elastic
+    # password: rrqgVK9DGRg43jz1YJkR
     rest:
       uris: elasticsearch:9200
 
 rpc:
   resource-server: http://127.0.0.1:8081/
   account-server: http://127.0.0.1:8081/
+  ids-url: "https://ids.zsdx.site/api/Account/ZFQBi/3V+Dz7SuB4pox3mVDEJPgvGceEucRKNladtng="
+
+#security:
+#  oauth2:
+#    jwk-url: http://100.171.6.21:55666/.well-known/openid-configuration/jwks
 
 easy:
   data-adapter: jpa
@@ -28,7 +42,8 @@ elasticsearch:
   port: 9200
 
 minio:
-  endpoint: https://a.zsdx.com.cn:9000
+  endpoint: http://minio:9000
+  # endpoint: https://a.zsdx.com.cn:9000
   access-key: minio
   secret-key: dx123456
-  bucket: dsrd-xzzyy
+  bucket: zjxz-gwjh

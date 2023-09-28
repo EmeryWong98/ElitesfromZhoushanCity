@@ -61,6 +61,24 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
                 predicate.and(q.name.contains(keyword)
                         .or(q.province.contains(keyword)));
             }
+
+            // 省份搜索
+            String province = filter.getProvince();
+            if (StringUtils.hasText(province)) {
+                predicate.and(q.province.eq(province));
+            }
+
+            // 是否重点大学搜索
+            Boolean isSupreme = filter.getIsSupreme();
+            if (isSupreme != null) {
+                predicate.and(q.isSupreme.eq(isSupreme));
+            }
+
+            // 是否重点专业搜索
+            Boolean isKeyMajor = filter.getIsKeyMajor();
+            if (isKeyMajor != null) {
+                predicate.and(q.isKeyMajor.eq(isKeyMajor));
+            }
         }
 
         if (query.getSorts() == null) {
@@ -77,6 +95,8 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
             universityEntity = new UniversityEntity();
             universityEntity.setName(name);
             universityEntity.setProvince(province);
+            universityEntity.setIsSupreme(false);
+            universityEntity.setIsKeyMajor(false);
 
             // 保存到数据库
             universityRepository.save(universityEntity);
@@ -178,6 +198,48 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
 //        return result;
 //    }
 
+//    public EliteUniversityListDto getEliteUniversityList(StudentsFilter filter) throws ServiceException {
+//        EliteUniversityListDto result = new EliteUniversityListDto();
+//
+//        // 获取符合条件的重点大学列表
+//        List<UniversityEntity> supremeUniversities = universityRepository.findByIsSupremeAndProvince(true, filter.getProvince());
+//        List<EliteUniversityDto> eliteUniversities = supremeUniversities.stream().map(university -> {
+//            EliteUniversityDto dto = new EliteUniversityDto();
+//            dto.setUniversityName(university.getName());
+//            // 计算每个大学的学生总数
+//            int studentCount = studentsRepository.countByUniversityIdAndAcademicYearBetween(university.getId(), filter.getStartYear(), filter.getEndYear());
+//            dto.setKeyContactCount(studentCount);
+//            return dto;
+//        }).collect(Collectors.toList());
+//        result.setEliteUniversities(eliteUniversities);
+//
+//        // 获取符合条件的重点专业大学列表
+//        List<UniversityEntity> keyMajorUniversities = universityRepository.findByIsKeyMajorAndProvince(true, filter.getProvince());
+//        Map<String, List<String>> majorNameDictionary = UniversityMajorDictionary.MAJOR_DICTIONARY;
+//
+//        List<EliteMajorDto> eliteMajors = keyMajorUniversities.stream().flatMap(university -> {
+//            List<String> majors = majorNameDictionary.get(university.getName());
+//            if (majors != null) {
+//                return majors.stream().map(major -> {
+//                    EliteMajorDto dto = new EliteMajorDto();
+//                    dto.setUniversityName(university.getName());
+//                    // 计算每个大学、每个专业的关键联系人人数
+//                    int keyContactCount = studentsRepository.countByUniversityIdAndMajorAndIsSupremeAndIsKeyContactAndAcademicYearBetween(
+//                            university.getId(), major, false, true, filter.getStartYear(), filter.getEndYear()
+//                    );
+//                    dto.setKeyContactCount(keyContactCount);
+//                    dto.setMajorName(major);
+//                    return dto;
+//                });
+//            } else {
+//                return Stream.empty();
+//            }
+//        }).collect(Collectors.toList());
+//        result.setEliteMajors(eliteMajors);
+//
+//        return result;
+//    }
+
     public EliteUniversityListDto getEliteUniversityList(StudentsFilter filter) throws ServiceException {
         EliteUniversityListDto result = new EliteUniversityListDto();
 
@@ -186,6 +248,7 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
         List<EliteUniversityDto> eliteUniversities = supremeUniversities.stream().map(university -> {
             EliteUniversityDto dto = new EliteUniversityDto();
             dto.setUniversityName(university.getName());
+            dto.setLogo(university.getFiles()); // 设置 logo
             // 计算每个大学的学生总数
             int studentCount = studentsRepository.countByUniversityIdAndAcademicYearBetween(university.getId(), filter.getStartYear(), filter.getEndYear());
             dto.setKeyContactCount(studentCount);
@@ -203,6 +266,7 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
                 return majors.stream().map(major -> {
                     EliteMajorDto dto = new EliteMajorDto();
                     dto.setUniversityName(university.getName());
+                    dto.setLogo(university.getFiles()); // 设置 logo
                     // 计算每个大学、每个专业的关键联系人人数
                     int keyContactCount = studentsRepository.countByUniversityIdAndMajorAndIsSupremeAndIsKeyContactAndAcademicYearBetween(
                             university.getId(), major, false, true, filter.getStartYear(), filter.getEndYear()
@@ -219,6 +283,7 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
 
         return result;
     }
+
 
 
 
