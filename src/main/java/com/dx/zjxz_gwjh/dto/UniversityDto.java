@@ -30,4 +30,12 @@ public class UniversityDto extends BaseEventDto{
 
     @ApiModelProperty("省份")
     private String province;
+
+    @ApiModelProperty("是否双一流")
+    @NotNull(message = "是否双一流不能为空")
+    private Boolean isSupreme;
+
+    @ApiModelProperty("重点专业")
+    @NotNull(message = "重点专业不能为空")
+    private Boolean isKeyMajor;
 }
