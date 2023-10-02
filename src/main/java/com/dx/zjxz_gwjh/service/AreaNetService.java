@@ -6,6 +6,7 @@ import com.dx.easyspringweb.core.model.PagingData;
 import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.data.jpa.SortField;
 import com.dx.easyspringweb.data.jpa.service.JpaPublicService;
+import com.dx.zjxz_gwjh.dto.*;
 import com.dx.zjxz_gwjh.entity.AreaNetEntity;
 import com.dx.zjxz_gwjh.entity.HighSchoolNetEntity;
 import com.dx.zjxz_gwjh.entity.QAreaNetEntity;
@@ -16,6 +17,11 @@ import com.querydsl.core.BooleanBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class AreaNetService extends JpaPublicService<AreaNetEntity, String> implements StandardService<AreaNetEntity, NetFilter, String> {
@@ -49,43 +55,86 @@ public class AreaNetService extends JpaPublicService<AreaNetEntity, String> impl
         return this.queryList(predicate, query.getPageInfo(), query.getSorts());
     }
 
-    public AreaNetEntity findOrCreateByName(String name) {
+    public AreaNetEntity findByName(String name) throws ServiceException {
         if (StringUtils.isBlank(name)) {
             return null;
         }
 
         AreaNetEntity areaNetEntity = areaNetRepository.findByName(name);
         if (areaNetEntity == null) {
-            areaNetEntity = new AreaNetEntity();
-            areaNetEntity.setName(name);
-            areaNetEntity = areaNetRepository.save(areaNetEntity);
+            throw new ServiceException("该属地网格不存在，请先添加或修改属地网格信息");
         }
         return areaNetEntity;
 
     }
 
-    public AreaNetEntity findOrCreateByNameAndContactorAndPhoneAndAreaCodeAndLocation(String areaNetName, String areaNetContactor, String areaNetContactorMobile, String areaNetAreaCode, String areaNetLocation) {
-        if (StringUtils.isBlank(areaNetName)) {
+    public String findNameById(String areaNetId) {
+        if (StringUtils.isBlank(areaNetId)) {
             return null;
         }
-        AreaNetEntity areaNetEntity = areaNetRepository.findByName(areaNetName);
-        if (areaNetEntity != null) {
-            areaNetEntity.setName(areaNetName);
-            areaNetEntity.setUserName(areaNetContactor) ;
-            areaNetEntity.setPhoneNumber(areaNetContactorMobile);
-            areaNetEntity.setAreaCode(areaNetAreaCode);
-            areaNetEntity.setLocation(areaNetLocation);
-            areaNetEntity = areaNetRepository.save(areaNetEntity);
-        } else {
-            areaNetEntity = new AreaNetEntity();
-            areaNetEntity.setName(areaNetName);
-            areaNetEntity.setUserName(areaNetContactor) ;
-            areaNetEntity.setPhoneNumber(areaNetContactorMobile);
-            areaNetEntity.setAreaCode(areaNetAreaCode);
-            areaNetEntity.setLocation(areaNetLocation);
-            areaNetEntity = areaNetRepository.save(areaNetEntity);
+        AreaNetEntity areaNetEntity = areaNetRepository.findById(areaNetId).orElse(null);
+        if (areaNetEntity == null) {
+            return null;
         }
-        areaNetEntity = areaNetRepository.save(areaNetEntity); // 保存或更新实体
-        return areaNetEntity;
+        return areaNetEntity.getName();
     }
+
+    public List<NetActivityDto> getAreaNetActivityRanking() {
+        return areaNetRepository.findAreaNetActivityRanking();
+    }
+
+    public List<AreaNetOverviewDto> getAreaNetOverview() {
+        return areaNetRepository.findAreaNetOverview();
+    }
+
+    public List<TeacherStudentDto> getTeachersAndStudents(AreaRequestDto areaRequestDto) {
+        List<Object[]> results = areaNetRepository.findTeachersAndStudents(areaRequestDto.getAreaId(), areaRequestDto.getGraduationYear(), areaRequestDto.getNetId());
+
+        Map<String, TeacherStudentDto> teacherStudentMap = new HashMap<>();
+        for (Object[] result : results) {
+            String netId = (String) result[0]; // 假设 result[0] 包含 high_school_net_id
+            String teacherName = (String) result[1]; // 假设 result[1] 包含老师名称
+            String studentId = (String) result[2];
+            String studentName = (String) result[3];
+
+            // 使用 netId 和 teacherName 结合作为键
+            String key = netId + "_" + teacherName;
+
+            TeacherStudentDto teacherStudentDto = teacherStudentMap.get(key);
+            if (teacherStudentDto == null) {
+                teacherStudentDto = new TeacherStudentDto(teacherName, new ArrayList<>());
+                teacherStudentMap.put(key, teacherStudentDto);
+            }
+
+            StudentDto studentDto = new StudentDto(studentId, studentName);
+            teacherStudentDto.getStudentList().add(studentDto);
+        }
+
+        return new ArrayList<>(teacherStudentMap.values());
+    }
+
+//    public AreaNetEntity findOrCreateByNameAndContactorAndPhoneAndAreaCodeAndLocation(String areaNetName, String areaNetContactor, String areaNetContactorMobile, String areaNetAreaCode, String areaNetLocation) {
+//        if (StringUtils.isBlank(areaNetName)) {
+//            return null;
+//        }
+//        AreaNetEntity areaNetEntity = areaNetRepository.findByName(areaNetName);
+//        if (areaNetEntity != null) {
+//            areaNetEntity.setName(areaNetName);
+//            areaNetEntity.setUserName(areaNetContactor) ;
+//            areaNetEntity.setPhoneNumber(areaNetContactorMobile);
+//            areaNetEntity.setAreaCode(areaNetAreaCode);
+//            areaNetEntity.setLocation(areaNetLocation);
+//            areaNetEntity = areaNetRepository.save(areaNetEntity);
+//        } else {
+//            areaNetEntity = new AreaNetEntity();
+//            areaNetEntity.setName(areaNetName);
+//            areaNetEntity.setUserName(areaNetContactor) ;
+//            areaNetEntity.setPhoneNumber(areaNetContactorMobile);
+//            areaNetEntity.setAreaCode(areaNetAreaCode);
+//            areaNetEntity.setLocation(areaNetLocation);
+//            areaNetEntity = areaNetRepository.save(areaNetEntity);
+//        }
+//        areaNetEntity = areaNetRepository.save(areaNetEntity); // 保存或更新实体
+//        return areaNetEntity;
+//    }
 }

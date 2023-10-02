@@ -3,10 +3,8 @@ package com.dx.zjxz_gwjh.entity;
 import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModelProperty;
 import com.dx.easyspringweb.data.jpa.entity.JpaBaseEntity;
-import com.dx.zjxz_gwjh.dto.NetNameDto;
-import com.dx.zjxz_gwjh.enums.EliteType;
-import com.dx.zjxz_gwjh.enums.NetType;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.Proxy;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,7 +12,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 @Data
 @Entity
@@ -38,10 +36,6 @@ public class StudentsEntity extends JpaBaseEntity{
     @ApiModelProperty("用户ID")
     @Column(name = "user_id")
     private String userId;
-
-    @ApiModelProperty("专业")
-    @Column(name = "major")
-    private String major;
 
     @ApiModelProperty("属地")
     @Column(name = "area")
@@ -87,20 +81,12 @@ public class StudentsEntity extends JpaBaseEntity{
     private Date dob;
 
     @ManyToOne
-    @JoinColumn(name="university_id", referencedColumnName = "id")
-    private UniversityEntity university;
-
-    @ManyToOne
     @JoinColumn(name="high_School_id", referencedColumnName = "id")
     private HighSchoolEntity highSchool;
 
     @ApiModelProperty("省份")
     @Column(name = "province")
     private String province;
-
-    @ApiModelProperty("学历")
-    @Column(name = "degree")
-    private String degree;
 
     @ApiModelProperty("家庭联系人")
     @Column(name = "family_contactor")
@@ -122,89 +108,29 @@ public class StudentsEntity extends JpaBaseEntity{
     @Column(name = "head_teacher_mobile")
     private String headTeacherMobile;
 
-    @ApiModelProperty("大学ID")
-    @Column(name = "university_id", insertable = false, updatable = false)
-    private String universityId;
-
     @ApiModelProperty("是否双一流")
     @Column(name = "is_supreme")
     private Boolean isSupreme;
-
-    @ApiModelProperty("大学名称")
-    @Column(name = "university_name")
-    private String universityName;
-
-    @ApiModelProperty("大学省份")
-    @Column(name = "university_province")
-    private String universityProvince;
 
     @ApiModelProperty("高中ID")
     @Column(name = "high_school_id", insertable = false, updatable = false)
     private String highSchoolId;
 
-    @ApiModelProperty("高中名称")
-    @Column(name = "high_school_name")
-    private String highSchoolName;
-
     @ApiModelProperty("高中网格ID")
     @Column(name = "high_school_net_id", insertable = false, updatable = false)
     private String highSchoolNetId;
-
-    @ApiModelProperty("高中网格名称")
-    @Column(name = "high_school_net_name")
-    private String highSchoolNetName;
-
-    @ApiModelProperty("高中网格联系人")
-    @Column(name = "high_school_net_contactor")
-    private String highSchoolNetContactor;
-
-    @ApiModelProperty("高中网格位置")
-    @Column(name = "high_school_net_location")
-    private String highSchoolNetLocation;
 
     @ApiModelProperty("属地网格ID")
     @Column(name = "area_net_id", insertable = false, updatable = false)
     private String areaNetId;
 
-    @ApiModelProperty("属地网格名称")
-    @Column(name = "area_net_name")
-    private String areaNetName;
-
-    @ApiModelProperty("属地网格联系人")
-    @Column(name = "area_net_contactor")
-    private String areaNetContactor;
-
-    @ApiModelProperty("属地网格位置")
-    @Column(name = "area_net_location")
-    private String areaNetLocation;
-
     @ApiModelProperty("领导网格ID")
     @Column(name = "officer_net_id", insertable = false, updatable = false)
     private String officerNetId;
 
-    @ApiModelProperty("领导名字")
-    @Column(name = "officer_net_name")
-    private String officerNetName;
-
-    @ApiModelProperty("领导职务")
-    @Column(name = "officer_net_title")
-    private String officerNetTitle;
-
     @ApiModelProperty("学联网格ID")
     @Column(name = "union_net_id", insertable = false, updatable = false)
     private String unionNetId;
-
-    @ApiModelProperty("学联网格名称")
-    @Column(name = "union_net_name")
-    private String unionNetName;
-
-    @ApiModelProperty("学联网格联系人")
-    @Column(name = "union_net_contactor")
-    private String unionNetContactor;
-
-    @ApiModelProperty("学联网格位置")
-    @Column(name = "union_net_location")
-    private String unionNetLocation;
 
     @ManyToOne
     @JoinColumn(name="high_school_net_id", referencedColumnName = "id")
@@ -222,6 +148,12 @@ public class StudentsEntity extends JpaBaseEntity{
     @JoinColumn(name="union_net_id", referencedColumnName = "id")
     private UnionNetEntity unionNet;
 
-
+    @ManyToMany
+    @JoinTable(
+            name = "biz_degree_binding",
+            joinColumns = @JoinColumn(name = "student_id"),
+            inverseJoinColumns = @JoinColumn(name = "university_id"))
+    @JsonIgnore
+    private Set<UniversityEntity> universities;
 
 }

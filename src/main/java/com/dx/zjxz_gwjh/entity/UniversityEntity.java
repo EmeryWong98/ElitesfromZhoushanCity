@@ -4,17 +4,16 @@ import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModelProperty;
 import com.dx.easyspringweb.data.jpa.entity.JpaBaseEntity;
 import com.dx.easyspringweb.storage.models.StorageObject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import lombok.*;
 import org.hibernate.annotations.Proxy;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Index;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Entity
@@ -62,5 +61,9 @@ public class UniversityEntity extends JpaBaseEntity {
     @ApiModelProperty("是否一流专业")
     @Column(name = "is_key_major")
     private Boolean isKeyMajor;
+
+    @ManyToMany(mappedBy = "universities")
+    @JsonIgnore
+    private Set<StudentsEntity> students;
 
 }

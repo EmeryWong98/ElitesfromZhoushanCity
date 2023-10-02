@@ -10,21 +10,39 @@ import com.dx.easyspringweb.data.jpa.SortField;
 import com.dx.easyspringweb.data.jpa.service.JpaPublicService;
 import com.dx.zjxz_gwjh.dto.*;
 import com.dx.zjxz_gwjh.entity.*;
+import com.dx.zjxz_gwjh.enums.DegreeType;
 import com.dx.zjxz_gwjh.filter.StudentsFilter;
-import com.dx.zjxz_gwjh.repository.AreaCodeRepository;
+import com.dx.zjxz_gwjh.repository.DegreeBindingRepository;
 import com.dx.zjxz_gwjh.repository.StudentsRepository;
 import com.dx.zjxz_gwjh.repository.UniversityRepository;
 import com.dx.zjxz_gwjh.util.IdCardInfo;
+import com.dx.zjxz_gwjh.vo.StudentsVO;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.group.GroupBy;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberTemplate;
+import com.querydsl.jpa.JPAExpressions;
 import org.elasticsearch.cluster.metadata.AliasAction;
+import org.hibernate.query.criteria.internal.expression.function.AggregationFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.awt.print.Pageable;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
+
+import static java.util.Collections.max;
 
 @Service
 public class StudentsService extends JpaPublicService<StudentsEntity, String> implements StandardService<StudentsEntity, StudentsFilter, String> {
@@ -38,6 +56,12 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
 
     @Autowired
     private StudentsRepository studentsRepository;
+
+    @Autowired
+    private DegreeBindingRepository degreeBindingRepository;
+
+    @Autowired
+    private UniversityRepository universityRepository;
 
     @Autowired
     private HighSchoolNetService highSchoolNetService;
@@ -54,6 +78,9 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
     @Autowired
     private AreaCodeService areaCodeService;
 
+    @Autowired
+    private EntityManager entityManager;
+
     public StudentsService(StudentsRepository repository) {
         super(repository);
     }
@@ -62,20 +89,25 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
     public PagingData<StudentsEntity> queryList(QueryRequest<StudentsFilter> query)
             throws ServiceException {
         BooleanBuilder predicate = new BooleanBuilder();
-
-
         StudentsFilter filter = query.getFilter();
         if (filter != null) {
             QStudentsEntity q = QStudentsEntity.studentsEntity;
+            QDegreeBindingEntity qDegree = QDegreeBindingEntity.degreeBindingEntity;
+            QUniversityEntity qUniversity = QUniversityEntity.universityEntity;
 
+            // Create a base query
+            JPAQuery<StudentsEntity> jpaQuery = new JPAQuery<>(entityManager);
+            jpaQuery.from(q)
+                    .leftJoin(qDegree).on(q.id.eq(qDegree.studentId))
+                    .leftJoin(qUniversity).on(qDegree.universityId.eq(qUniversity.id))
+                    .where(predicate);  // assuming predicate is built using the new Q classes as needed.
 
             // 关键词搜索
             String keyword = filter.getKeyword();
             if (StringUtils.hasText(keyword)) {
                 predicate.and(q.name.contains(keyword)
-                        .or(q.university.name.contains(keyword))
-                        .or(q.highSchool.name.contains(keyword))
-                        .or(q.major.contains(keyword)));
+                        .or(qUniversity.name.contains(keyword))
+                        .or(q.highSchool.name.contains(keyword)));
             }
 
             // 学生姓名
@@ -99,26 +131,18 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
             // 大学
             String university = filter.getUniversity();
             if (StringUtils.hasText(university)) {
-                predicate.and(q.university.name.contains(university));
-            }
-
-            // 专业
-            String major = filter.getMajor();
-            if (StringUtils.hasText(major)) {
-                predicate.and(q.major.contains(major));
+                predicate.and(
+                        QUniversityEntity.universityEntity.name.contains(university)
+                                .and(QUniversityEntity.universityEntity.in(q.universities))
+                );
             }
 
             // 省份
             String province = filter.getProvince();
             if (StringUtils.hasText(province)) {
-                predicate.and(q.province.eq(province));
+                predicate.and(q.universities.any().province.eq(province));
             }
 
-            // 大学省份
-            String universityProvince = filter.getUniversityProvince();
-            if (StringUtils.hasText(universityProvince)) {
-                predicate.and(q.universityProvince.eq(universityProvince));
-            }
 
             // 学年
             Integer academicYear = filter.getAcademicYear();
@@ -126,10 +150,15 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
                 predicate.and(q.academicYear.eq(academicYear));
             }
 
+
             // 学历
             String degree = filter.getDegree();
             if (StringUtils.hasText(degree)) {
-                predicate.and(q.degree.eq(degree)); // 假设您的StudentsEntity中有一个名为degree的字段来存储学历
+                predicate.and(q.universities.any().id.in(
+                        JPAExpressions.select(qDegree.universityId)
+                                .from(qDegree)
+                                .where(qDegree.degree.stringValue().eq(degree))
+                ));
             }
 
             // 属地ID
@@ -151,33 +180,24 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
                 predicate.and(q.isKeyContact.eq(isKeyContact));
             }
 
-        Integer startYear = filter.getStartYear();
-        Integer endYear = filter.getEndYear();
+            Integer startYear = filter.getStartYear();
+            Integer endYear = filter.getEndYear();
 
-        if (startYear != null) {
-            predicate.and(q.academicYear.goe(startYear));
+            if (startYear != null) {
+                predicate.and(q.academicYear.goe(startYear));
+            }
+
+            if (endYear != null) {
+                predicate.and(q.academicYear.loe(endYear));
+            }
         }
 
-        if (endYear != null) {
-            predicate.and(q.academicYear.loe(endYear));
+
+        if (query.getSorts() == null) {
+            query.setSorts(SortField.def());
         }
-    }
 
-    if (query.getSorts() == null) {
-        query.setSorts(SortField.def());
-    }
-
-    return this.queryList(predicate, query.getPageInfo(), query.getSorts());
-}
-
-    @Override
-    public StudentsEntity update(StudentsEntity entity) throws ServiceException {
-        // 可以添加一些业务逻辑，比如根据entity里面的某些字段更改其他字段
-
-        // 调用父类方法进行实际的更新
-        entity = super.update(entity);
-
-        return entity;
+        return this.queryList(predicate, query.getPageInfo(), query.getSorts());
     }
 
     public StudentsEntity createStudent(StudentsDto dto) throws ServiceException {
@@ -187,36 +207,32 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
             StudentsEntity existingStudent = studentsRepository.findByIdCard(dto.getIdCard());
             if (existingStudent != null) {
                 throw new ServiceException("学生重复");
-            }
-        } else {
+            } else {
 
-                // 先检查并获取或创建University实体
-                UniversityEntity universityEntity = universityService.findOrCreateByNameAndProvince(dto.getUniversityName(), dto.getUniversityProvince());
+            // 先检查并获取HighSchool实体
+            HighSchoolEntity highSchoolEntity = highSchoolService.findByName(dto.getHighSchoolName());
 
-                // 先检查并获取或创建HighSchool实体
-                HighSchoolEntity highSchoolEntity = highSchoolService.findOrCreateByName(dto.getHighSchoolName());
+            // 先检查并获取highSchoolNet实体
+            HighSchoolNetEntity highSchoolNetEntity = highSchoolNetService.findByName(dto.getHighSchoolNetName());
 
-                // 先检查并获取或创建highSchoolNet实体
-                HighSchoolNetEntity highSchoolNetEntity = highSchoolNetService.findOrCreateByName(dto.getHighSchoolNetName());
+            // 先检查并获取或创建AreaNet实体
+            AreaNetEntity areaNetEntity = areaNetService.findByName(dto.getAreaNetName());
 
-                // 先检查并获取或创建AreaNet实体
-                AreaNetEntity areaNetEntity = areaNetService.findOrCreateByName(dto.getAreaNetName());
+            // 先检查并获取或创建OfficerNet实体
+            OfficerNetEntity officerNetEntity = officerNetService.findByName(dto.getOfficerNetName());
 
-                // 先检查并获取或创建OfficerNet实体
-                OfficerNetEntity officerNetEntity = officerNetService.findOrCreateByName(dto.getOfficerNetName());
+            // 先检查并获取或创建UnionNet实体
+            UnionNetEntity unionNetEntity = UnionNetService.findByName(dto.getUnionNetName());
 
-                // 先检查并获取或创建UnionNet实体
-                UnionNetEntity unionNetEntity = UnionNetService.findOrCreateByName(dto.getUnionNetName());
+            // 将DTO中的数据复制到学生实体
+            ObjectUtils.copyEntity(dto, entity);
 
-                // 将DTO中的数据复制到学生实体
-                ObjectUtils.copyEntity(dto, entity);
-                // 设置关联的University和HighSchool
-                entity.setUniversity(universityEntity);
-                entity.setHighSchool(highSchoolEntity);
-                entity.setHighSchoolNet(highSchoolNetEntity);
-                entity.setAreaNet(areaNetEntity);
-                entity.setOfficerNet(officerNetEntity);
-                entity.setUnionNet(unionNetEntity);
+            // 设置关联的University和HighSchool
+            entity.setHighSchool(highSchoolEntity);
+            entity.setHighSchoolNet(highSchoolNetEntity);
+            entity.setAreaNet(areaNetEntity);
+            entity.setOfficerNet(officerNetEntity);
+            entity.setUnionNet(unionNetEntity);
 
             // 从身份证中提取出生日期和性别
             try {
@@ -232,10 +248,135 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         }
 
         // 保存学生实体到数据库
-        studentsRepository.save(entity);
+        studentsRepository.save(entity);}
+
+    // 为每个大学和学位创建和保存一个 DegreeBindingEntity 对象
+    List<String> universityNames = Arrays.asList(dto.getUniversity1Name(), dto.getUniversity2Name(), dto.getUniversity3Name());
+    List<String> degrees = Arrays.asList(dto.getDegree1(), dto.getDegree2(), dto.getDegree3());
+    List<String> majors = Arrays.asList(dto.getMajor1(), dto.getMajor2(), dto.getMajor3());
+    List<String> universityProvinces = Arrays.asList(dto.getUniversity1Province(), dto.getUniversity2Province(), dto.getUniversity3Province());
+
+    for (int i = 0; i<universityNames.size();i++) {
+        String universityName = universityNames.get(i);
+        String province = universityProvinces.get(i);
+        String degree = degrees.get(i);
+        String major = majors.get(i);
+
+        if (universityName != null) {
+            UniversityEntity universityEntity = universityService.findOrCreateByNameAndProvince(universityName, province);
+
+            if (universityEntity != null) {
+                DegreeBindingEntity degreeBindingEntity = new DegreeBindingEntity();
+                degreeBindingEntity.setStudentId(entity.getId()); // 使用已保存的entity的ID
+                degreeBindingEntity.setUniversityId(universityEntity.getId());
+                degreeBindingEntity.setMajor(major);
+
+                try {
+                    degreeBindingEntity.setDegree(DegreeType.fromDescription(degree));
+                } catch (ServiceException e) {
+                    throw new ServiceException("无效的学位描述: " + degree);
+                }
+
+                degreeBindingRepository.save(degreeBindingEntity);
+            }
+        }
+    }
+    return entity;
+}
+
+
+    public StudentsEntity updateStudents(StudentsDto dto) throws ServiceException {
+        StudentsEntity entity = this.getById(dto.getId());
+
+        if(entity == null) {
+            throw new ServiceException("学生不存在");
+        }
+
+        // 先检查大学名称是否改变
+        List<String> universityNames = Arrays.asList(dto.getUniversity1Name(), dto.getUniversity2Name(), dto.getUniversity3Name());
+        List<String> degrees = Arrays.asList(dto.getDegree1(), dto.getDegree2(), dto.getDegree3());
+        List<String> majors = Arrays.asList(dto.getMajor1(), dto.getMajor2(), dto.getMajor3());
+        List<String> universityProvinces = Arrays.asList(dto.getUniversity1Province(), dto.getUniversity2Province(), dto.getUniversity3Province());
+
+        List<DegreeBindingEntity> degreeBindingEntities = degreeBindingRepository.findByStudentId(entity.getId());
+        List<String> existingUniversityNames = degreeBindingEntities.stream()
+                .map(DegreeBindingEntity::getUniversityId)
+                .map(universityRepository::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(UniversityEntity::getName)
+                .collect(Collectors.toList());
+
+        List<String> existingDegrees = degreeBindingEntities.stream()
+                .map(DegreeBindingEntity::getDegree)
+                .map(DegreeType::getDescription)
+                .collect(Collectors.toList());
+
+        List<String> existingMajors = degreeBindingEntities.stream()
+                .map(DegreeBindingEntity::getMajor)
+                .collect(Collectors.toList());
+
+
+        // 如果大学名称改变了，删除现有的 DegreeBindingEntity 对象
+        if(!existingUniversityNames.equals(universityNames)) {
+            degreeBindingRepository.deleteAll(degreeBindingEntities);
+        }
+
+        //如果学位改变了，删除现有的 DegreeBindingEntity 对象
+        if(!existingDegrees.equals(degrees)) {
+            degreeBindingRepository.deleteAll(degreeBindingEntities);
+        }
+
+        //如果专业改变了，删除现有的 DegreeBindingEntity 对象
+        if(!existingMajors.equals(majors)) {
+            degreeBindingRepository.deleteAll(degreeBindingEntities);
+        }
+
+        // 为每个大学和学位创建和保存一个 DegreeBindingEntity 对象
+        for (int i = 0; i<universityNames.size();i++) {
+            String universityName = universityNames.get(i);
+            String province = universityProvinces.get(i);
+            String degree = degrees.get(i);
+            String major = majors.get(i);
+
+            if (universityName != null) {
+                UniversityEntity universityEntity = universityService.findOrCreateByNameAndProvince(universityName, province);
+
+                if (universityEntity != null) {
+                    DegreeBindingEntity degreeBindingEntity = new DegreeBindingEntity();
+                    degreeBindingEntity.setStudentId(entity.getId()); // 使用已保存的entity的ID
+                    degreeBindingEntity.setUniversityId(universityEntity.getId());
+                    degreeBindingEntity.setMajor(major);
+
+                    try {
+                        degreeBindingEntity.setDegree(DegreeType.fromDescription(degree));
+                    } catch (ServiceException e) {
+                        throw new ServiceException("无效的学位描述: " + degree);
+                    }
+
+                    degreeBindingRepository.save(degreeBindingEntity);
+                }
+            }
+        }
 
         return entity;
     }
+
+    @Transactional
+    public void deleteById(String id) throws ServiceException {
+        // 检查学生是否存在
+        if (!studentsRepository.existsById(id)) {
+            throw new ServiceException("Student with id: " + id + " does not exist");
+        }
+
+        // 删除相关联的DegreeBindingEntity
+        degreeBindingRepository.deleteByStudentId(id);
+
+        // 删除StudentsEntity
+        studentsRepository.deleteById(id);
+    }
+
+
 
 //    public List<StudentCountDto> getStudentCountByAcademicYearAndArea(AcademicYearAndAreaDto academicYearAndAreaDto) throws ServiceException {
 //        int startYear = academicYearAndAreaDto.getStartYear();
@@ -316,23 +457,6 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
 
         List<String> areaIds = idMap.getOrDefault(areaId, Collections.singletonList(areaId));
         List<AreaCodeDto> allAreas = areaCodeService.getAreaCodeList();
-
-//        List<StudentCountDto> result = new ArrayList<>();
-//        for (String id : areaIds) {
-//            List<AreaCodeDto> selectedAreas = findSelectedAndChildAreas(allAreas, id);
-//            for (AreaCodeDto area : selectedAreas) {
-//                int count = calculateAreaCount(area, startYear, endYear);
-//                StudentCountDto dto = new StudentCountDto();
-//                dto.setId(area.getId());
-//                dto.setName(area.getName());
-//                dto.setCount(count);
-//                result.add(dto);
-//            }
-//        }
-//
-//        return result;
-//    }
-
 
         List<StudentCountDto> result = new ArrayList<>();
         for (String id : areaIds) {
@@ -540,10 +664,10 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         return count;
     }
 
-    private int calculateAreaCountForDegree(AreaCodeDto area, int startYear, int endYear, String degreeType, boolean isKeyContact) {
-        int count = studentsRepository.countByAcademicYearBetweenAndAreaAndDegreeAndIsKeyContact(startYear, endYear, area.getName(), degreeType, isKeyContact);
+    private int calculateAreaCountForDegree(AreaCodeDto area, int startYear, int endYear, DegreeType degreeT, boolean isKeyContact) {
+        int count = studentsRepository.countByAcademicYearBetweenAndAreaAndDegreeAndIsKeyContact(startYear, endYear, area.getName(), degreeT, isKeyContact);
         for (AreaCodeDto child : area.getChildren()) {
-            count += calculateAreaCountForDegree(child, startYear, endYear, degreeType, isKeyContact); // 递归计算所有子区域的学生总数，考虑学位和是否为重点学子
+            count += calculateAreaCountForDegree(child, startYear, endYear, degreeT, isKeyContact); // 递归计算所有子区域的学生总数，考虑学位和是否为重点学子
         }
         return count;
     }
@@ -574,29 +698,12 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         List<AreaCodeDto> allAreas = areaCodeService.getAreaCodeList();
         List<AreaCodeDto> selectedAreas = findSelectedAndChildAreas(allAreas, areaId);
 
-//        List<EliteCountDto> result = new ArrayList<>();
-//        for (AreaCodeDto area : selectedAreas) {
-//            int count = calculateAreaCountForElite(area, startYear, endYear, true); // 重点学子数量
-//            int scount = calculateAreaCountForDegree(area, startYear, endYear, "硕士研究生", true); // 硕士数量
-//            int bcount = calculateAreaCountForDegree(area, startYear, endYear, "博士研究生", true); // 博士数量
-//            EliteCountDto dto = new EliteCountDto();
-//            dto.setId(area.getId());
-//            dto.setName(area.getName());
-//            dto.setCount(count);
-//            dto.setScount(scount);
-//            dto.setBcount(bcount);
-//            result.add(dto);
-//        }
-//
-//        return result;
-//    }
-
         EliteCountDto eliteCountDto = null;
         for (AreaCodeDto area : selectedAreas) {
             if(area.getId().equals(areaId)) {
                 int count = calculateAreaCountForElite(area, startYear, endYear, true); // 重点学子数量
-                int scount = calculateAreaCountForDegree(area, startYear, endYear, "硕士研究生", true); // 硕士数量
-                int bcount = calculateAreaCountForDegree(area, startYear, endYear, "博士研究生", true); // 博士数量
+                int scount = calculateAreaCountForDegree(area, startYear, endYear, DegreeType.Graduate, true); // 硕士数量
+                int bcount = calculateAreaCountForDegree(area, startYear, endYear, DegreeType.PHD, true); // 博士数量
                 eliteCountDto = new EliteCountDto();
                 eliteCountDto.setId(area.getId());
                 eliteCountDto.setName(area.getName());
@@ -638,34 +745,14 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         List<String> areaIds = idMap.getOrDefault(areaId, Collections.singletonList(areaId));
         List<AreaCodeDto> allAreas = areaCodeService.getAreaCodeList();
 
-//        List<EliteCountDto> result = new ArrayList<>();
-//        for (String id : areaIds) {
-//            List<AreaCodeDto> selectedAreas = findSelectedAndChildAreas(allAreas, id);
-//            for (AreaCodeDto area : selectedAreas) {
-//                int count = calculateAreaCountForElite(area, startYear, endYear, true); // 重点学子数量
-//                int scount = calculateAreaCountForDegree(area, startYear, endYear, "硕士研究生", true); // 硕士数量
-//                int bcount = calculateAreaCountForDegree(area, startYear, endYear, "博士研究生", true); // 博士数量
-//                EliteCountDto dto = new EliteCountDto();
-//                dto.setId(area.getId());
-//                dto.setName(area.getName());
-//                dto.setCount(count);
-//                dto.setScount(scount);
-//                dto.setBcount(bcount);
-//                result.add(dto);
-//            }
-//        }
-//
-//        return result;
-//    }
-
         List<EliteCountDto> result = new ArrayList<>();
         for (String id : areaIds) {
             Optional<AreaCodeDto> optionalArea = allAreas.stream().filter(area -> area.getId().equals(id)).findFirst();
             if(optionalArea.isPresent()) {
                 AreaCodeDto area = optionalArea.get();
                 int count = calculateAreaCountForElite(area, startYear, endYear, true); // 重点学子数量
-                int scount = calculateAreaCountForDegree(area, startYear, endYear, "硕士研究生", true); // 硕士数量
-                int bcount = calculateAreaCountForDegree(area, startYear, endYear, "博士研究生", true); // 博士数量
+                int scount = calculateAreaCountForDegree(area, startYear, endYear, DegreeType.Graduate, true); // 硕士数量
+                int bcount = calculateAreaCountForDegree(area, startYear, endYear, DegreeType.PHD, true); // 博士数量
                 EliteCountDto dto = new EliteCountDto();
                 dto.setId(area.getId());
                 dto.setName(area.getName());
@@ -798,72 +885,72 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         return (int) studentsRepository.count();
     }
 
-    public StudentsEntity MassiveCreateStudent(StudentsImportDto dto) throws ServiceException {
-        // 如果是新创建的学生（ID 为 null），检查 idCard 的唯一性
-        if (dto.getId() == null) {
-            StudentsEntity existingStudent = studentsRepository.findByIdCard(dto.getIdCard());
-            if (existingStudent != null) {
-                throw new ServiceException("学生重复");
-            }
-        }
-
-        // 先检查并获取或创建University实体
-        UniversityEntity universityEntity = universityService.findOrCreateByNameAndProvince(dto.getUniversityName(), dto.getUniversityProvince());
-
-        // 先检查并获取或创建HighSchool实体
-        HighSchoolEntity highSchoolEntity = highSchoolService.findOrCreateByName(dto.getHighSchoolName());
-
-        // 先检查并获取或创建highSchoolNet实体
-        HighSchoolNetEntity highSchoolNetEntity = highSchoolNetService.findOrCreateByNameAndContactorAndPhoneAndAreaCodeAndLocation(dto.getHighSchoolNetName(), dto.getHighSchoolNetContactor(), dto.getHighSchoolNetContactorMobile(), dto.getHighSchoolNetAreaCode(), dto.getHighSchoolNetLocation());
-
-        // 先检查并获取或创建AreaNet实体
-        AreaNetEntity areaNetEntity = areaNetService.findOrCreateByNameAndContactorAndPhoneAndAreaCodeAndLocation(dto.getAreaNetName(), dto.getAreaNetContactor(), dto.getAreaNetContactorMobile(), dto.getAreaNetAreaCode(), dto.getAreaNetLocation());
-
-        // 先检查并获取或创建OfficerNet实体
-        OfficerNetEntity officerNetEntity = officerNetService.findOrCreateByNameAndTitle(dto.getOfficerNetName(),dto.getOfficerNetPosition());
-
-        // 先检查并获取或创建UnionNet实体
-        UnionNetEntity unionNetEntity = UnionNetService.findOrCreateByNameAndContactorAndPhoneAndLocation(dto.getUnionNetName(), dto.getUnionNetContactor(), dto.getUnionNetContactorMobile(), dto.getUnionNetLocation());
-
-        // 创建或获取现有的学生实体
-        StudentsEntity entity = new StudentsEntity();
-        if (dto.getId() != null) {
-            entity = this.getById(dto.getId());
-        }
-
-        // 将DTO中的数据复制到学生实体
-        ObjectUtils.copyEntity(dto, entity);
-
-        // 设置关联的University和HighSchool
-        entity.setUniversity(universityEntity);
-        entity.setHighSchool(highSchoolEntity);
-        entity.setHighSchoolNet(highSchoolNetEntity);
-        entity.setAreaNet(areaNetEntity);
-        entity.setOfficerNet(officerNetEntity);
-        entity.setUnionNet(unionNetEntity);
-
-
-        // 从身份证中提取出生日期和性别
-        try {
-            java.util.Date birthDate = IdCardInfo.getBirthDate(dto.getIdCard()); // 假设 IdCardInfo 类存在
-            java.sql.Date sqlBirthDate = new java.sql.Date(birthDate.getTime());  // 转换为 java.sql.Date
-            String gender = IdCardInfo.getGender(dto.getIdCard());     // 假设 IdCardInfo 类存在
-
-            entity.setDob(sqlBirthDate); // 假设您的 StudentsEntity 有一个叫做 'dob' 的字段
-            entity.setSex(gender); // 假设您的 StudentsEntity 有一个叫做 'gender' 的字段
-        } catch (ParseException e) {
-            throw new ServiceException("身份证格式错误");
-        }
-
-        // 创建或更新学生实体
-        StudentsEntity studentEntity;
-        if (dto.getId() != null) {
-            studentEntity = this.update(entity); // 假设的更新方法，您需要实现它
-        } else {
-            studentEntity = this.create(entity); // 假设的创建方法，您需要实现它
-        }
-
-        return studentEntity;
-    }
+//    public StudentsEntity MassiveCreateStudent(StudentsImportDto dto) throws ServiceException {
+//        // 如果是新创建的学生（ID 为 null），检查 idCard 的唯一性
+//        if (dto.getId() == null) {
+//            StudentsEntity existingStudent = studentsRepository.findByIdCard(dto.getIdCard());
+//            if (existingStudent != null) {
+//                throw new ServiceException("学生重复");
+//            }
+//        }
+//
+//        // 先检查并获取或创建University实体
+//        UniversityEntity universityEntity = universityService.findOrCreateByNameAndProvince(dto.getUniversityName(), dto.getUniversityProvince());
+//
+//        // 先检查并获取或创建HighSchool实体
+//        HighSchoolEntity highSchoolEntity = highSchoolService.findOrCreateByName(dto.getHighSchoolName());
+//
+//        // 先检查并获取或创建highSchoolNet实体
+//        HighSchoolNetEntity highSchoolNetEntity = highSchoolNetService.findOrCreateByNameAndContactorAndPhoneAndAreaCodeAndLocation(dto.getHighSchoolNetName(), dto.getHighSchoolNetContactor(), dto.getHighSchoolNetContactorMobile(), dto.getHighSchoolNetAreaCode(), dto.getHighSchoolNetLocation());
+//
+//        // 先检查并获取或创建AreaNet实体
+//        AreaNetEntity areaNetEntity = areaNetService.findOrCreateByNameAndContactorAndPhoneAndAreaCodeAndLocation(dto.getAreaNetName(), dto.getAreaNetContactor(), dto.getAreaNetContactorMobile(), dto.getAreaNetAreaCode(), dto.getAreaNetLocation());
+//
+//        // 先检查并获取或创建OfficerNet实体
+//        OfficerNetEntity officerNetEntity = officerNetService.findOrCreateByNameAndTitle(dto.getOfficerNetName(),dto.getOfficerNetPosition());
+//
+//        // 先检查并获取或创建UnionNet实体
+//        UnionNetEntity unionNetEntity = UnionNetService.findOrCreateByNameAndContactorAndPhoneAndLocation(dto.getUnionNetName(), dto.getUnionNetContactor(), dto.getUnionNetContactorMobile(), dto.getUnionNetLocation());
+//
+//        // 创建或获取现有的学生实体
+//        StudentsEntity entity = new StudentsEntity();
+//        if (dto.getId() != null) {
+//            entity = this.getById(dto.getId());
+//        }
+//
+//        // 将DTO中的数据复制到学生实体
+//        ObjectUtils.copyEntity(dto, entity);
+//
+//        // 设置关联的University和HighSchool
+//        entity.setUniversity(universityEntity);
+//        entity.setHighSchool(highSchoolEntity);
+//        entity.setHighSchoolNet(highSchoolNetEntity);
+//        entity.setAreaNet(areaNetEntity);
+//        entity.setOfficerNet(officerNetEntity);
+//        entity.setUnionNet(unionNetEntity);
+//
+//
+//        // 从身份证中提取出生日期和性别
+//        try {
+//            java.util.Date birthDate = IdCardInfo.getBirthDate(dto.getIdCard()); // 假设 IdCardInfo 类存在
+//            java.sql.Date sqlBirthDate = new java.sql.Date(birthDate.getTime());  // 转换为 java.sql.Date
+//            String gender = IdCardInfo.getGender(dto.getIdCard());     // 假设 IdCardInfo 类存在
+//
+//            entity.setDob(sqlBirthDate); // 假设您的 StudentsEntity 有一个叫做 'dob' 的字段
+//            entity.setSex(gender); // 假设您的 StudentsEntity 有一个叫做 'gender' 的字段
+//        } catch (ParseException e) {
+//            throw new ServiceException("身份证格式错误");
+//        }
+//
+//        // 创建或更新学生实体
+//        StudentsEntity studentEntity;
+//        if (dto.getId() != null) {
+//            studentEntity = this.update(entity); // 假设的更新方法，您需要实现它
+//        } else {
+//            studentEntity = this.create(entity); // 假设的创建方法，您需要实现它
+//        }
+//
+//        return studentEntity;
+//    }
 
 }

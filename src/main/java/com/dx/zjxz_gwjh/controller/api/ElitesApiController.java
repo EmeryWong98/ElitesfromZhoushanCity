@@ -15,11 +15,13 @@ import com.dx.zjxz_gwjh.entity.UniversityEntity;
 import com.dx.zjxz_gwjh.filter.StudentsFilter;
 import com.dx.zjxz_gwjh.filter.UniversityFilter;
 import com.dx.zjxz_gwjh.model.RDUserSession;
-import com.dx.zjxz_gwjh.service.StudentsService;
-import com.dx.zjxz_gwjh.service.UniversityService;
+import com.dx.zjxz_gwjh.repository.HighSchoolNetRepository;
+import com.dx.zjxz_gwjh.service.*;
 import com.dx.zjxz_gwjh.vo.ElitesVO;
+import com.dx.zjxz_gwjh.vo.StudentsDetailsVO;
 import com.dx.zjxz_gwjh.vo.StudentsVO;
 import com.dx.zjxz_gwjh.vo.UniversityVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +42,21 @@ public class ElitesApiController {
 
     @Autowired
     private UniversityService universityService;
+
+    @Autowired
+    private DegreeBindingService degreeBindingService;
+
+    @Autowired
+    private HighSchoolNetService highSchoolNetService;
+
+    @Autowired
+    private AreaNetService areaNetService;
+
+    @Autowired
+    private OfficerNetService officerNetService;
+
+    @Autowired
+    private UnionNetService unionNetService;
 
     @BindResource("elites:api:countbymap")
     @Action("查询地图显示学子")
@@ -101,6 +118,15 @@ public class ElitesApiController {
         return result.map((entity) -> {
             ElitesVO vo = ObjectUtils.copyEntity(entity, ElitesVO.class);
 
+            // 设置学生的大学名称、省份、学历、专业
+            vo.setUniversityName(degreeBindingService.findHighestDegreeUniversityNameByStudentId(entity.getId()));
+            vo.setDegree(degreeBindingService.findHighestDegreeByStudentId(entity.getId()));
+            vo.setMajor(degreeBindingService.findHighestDegreeMajorByStudentId(entity.getId()));
+            vo.setHighSchoolNetName(highSchoolNetService.findNameById(entity.getHighSchoolNetId()));
+            vo.setAreaNetName(areaNetService.findNameById(entity.getAreaNetId()));
+            vo.setOfficerNetName(officerNetService.findNameById(entity.getOfficerNetId()));
+            vo.setUnionNetName(unionNetService.findNameById(entity.getUnionNetId()));
+
             return vo;
         });
     }
@@ -108,13 +134,22 @@ public class ElitesApiController {
     @BindResource("elites:api:details")
     @Action(value = "查询学生详情", type = Action.ActionType.QUERY_ITEM)
     @PostMapping("/details")
-    public StudentsEntity details(@RequestParam("id") String id)
+    public StudentsDetailsVO details(@RequestParam("id") String id)
             throws ServiceException {
-        return studentsService.getById(id);
+        StudentsEntity studentEntity = studentsService.getById(id);
+
+        StudentsDetailsVO studentDetails = new StudentsDetailsVO();
+        // 复制 StudentsEntity 的属性到 StudentDetailsVO
+        BeanUtils.copyProperties(studentEntity, studentDetails);
+
+        // 设置 StudentDetailsVO 的额外字段
+        studentDetails.setUniversityName(degreeBindingService.findHighestDegreeUniversityNameByStudentId(studentEntity.getId()));
+        studentDetails.setUniversityProvince(degreeBindingService.findHighestDegreeUniversityProvinceByStudentId(studentEntity.getId()));
+        studentDetails.setDegree(degreeBindingService.findHighestDegreeByStudentId(studentEntity.getId()));
+        studentDetails.setMajor(degreeBindingService.findHighestDegreeMajorByStudentId(studentEntity.getId()));
+
+        return studentDetails;
     }
-
-
-
 
 
 }

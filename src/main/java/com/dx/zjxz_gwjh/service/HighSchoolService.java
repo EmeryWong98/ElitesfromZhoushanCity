@@ -46,17 +46,10 @@ public class HighSchoolService extends JpaPublicService<HighSchoolEntity, String
             return this.queryList(predicate, query.getPageInfo(), query.getSorts());
     }
 
-    public HighSchoolEntity findOrCreateByName(String name) {
+    public HighSchoolEntity findByName(String name) throws ServiceException {
         HighSchoolEntity highSchoolEntity = highSchoolRepository.findByName(name);
         if (highSchoolEntity == null) {
-            // 如果没有找到，创建一个新的高中实体
-            highSchoolEntity = new HighSchoolEntity();
-            highSchoolEntity.setName(name);
-            // 设置其他需要初始化的字段
-            // ...
-
-            // 保存到数据库
-            highSchoolRepository.save(highSchoolEntity);
+            throw new ServiceException("高中不存在，请先添加或修改高中信息");
         }
         return highSchoolEntity;
     }

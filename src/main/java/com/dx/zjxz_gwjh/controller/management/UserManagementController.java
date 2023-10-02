@@ -59,7 +59,7 @@ public class UserManagementController
         Role<String> role = roleService.getByName("超级管理员");
 
         UserDto dto = new UserDto();
-        dto.setUserName("chen6855");
+        dto.setUserName("wang98");
         dto.setRealName("超级管理员");
         dto.setPassword("dx123456");
         dto.setPhoneNumber("13429196855");

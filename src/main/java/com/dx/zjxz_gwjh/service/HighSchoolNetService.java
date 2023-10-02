@@ -57,19 +57,30 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
         return this.queryList(predicate, query.getPageInfo(), query.getSorts());
     }
 
-    public HighSchoolNetEntity findOrCreateByName(String name) {
+    public HighSchoolNetEntity findByName(String name) throws ServiceException {
         if (StringUtils.isBlank(name)) {
             return null;
         }
 
         HighSchoolNetEntity highSchoolNetEntity = highSchoolNetRepository.findByName(name);
         if (highSchoolNetEntity == null) {
-            highSchoolNetEntity = new HighSchoolNetEntity();
-            highSchoolNetEntity.setName(name);
-            highSchoolNetEntity = highSchoolNetRepository.save(highSchoolNetEntity);
+            throw new ServiceException("该高中网格不存在，请先添加或修改高中网格信息");
         }
         return highSchoolNetEntity;
     }
+
+    public String findNameById(String highSchoolNetId) {
+        if (StringUtils.isBlank(highSchoolNetId)) {
+            return null;
+        }
+
+        HighSchoolNetEntity highSchoolNetEntity = highSchoolNetRepository.findById(highSchoolNetId).orElse(null);
+        if (highSchoolNetEntity == null) {
+            return null;
+        }
+        return highSchoolNetEntity.getName();
+    }
+
 
     public HighSchoolNetEntity findOrCreateByNameAndContactorAndPhoneAndAreaCodeAndLocation(String highSchoolNetName, String highSchoolNetContactor, String highSchoolNetContactorMobile, String highSchoolNetAreaCode, String highSchoolNetLocation) {
         if (StringUtils.isBlank(highSchoolNetName)) {
@@ -100,35 +111,13 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
         return studentsRepository.findHighSchoolNetOverview();
     }
 
-    public List<HighSchoolNetActivityDto> getHighSchoolNetActivityRanking() {
+    public List<NetActivityDto> getHighSchoolNetActivityRanking() {
         return highSchoolNetRepository.findHighSchoolNetActivityRanking();
     }
 
     public List<HighSchoolNetSimpleOverviewDto> getHighSchoolNetSimpleOverview() {
         return studentsRepository.findHighSchoolNetSimpleOverview();
     }
-
-//    public List<TeacherStudentDto> getTeachersAndStudents(HighSchoolRequestDto highSchoolRequestDto) {
-//        List<Object[]> results = studentsRepository.findTeachersAndStudents(highSchoolRequestDto.getHighSchoolId(), highSchoolRequestDto.getGraduationYear(), highSchoolRequestDto.getNetId());
-//
-//        Map<String, TeacherStudentDto> teacherStudentMap = new HashMap<>();
-//        for (Object[] result : results) {
-//            String teacherName = (String) result[0];
-//            String studentId = (String) result[1];
-//            String studentName = (String) result[2];
-//
-//            TeacherStudentDto teacherStudentDto = teacherStudentMap.get(teacherName);
-//            if (teacherStudentDto == null) {
-//                teacherStudentDto = new TeacherStudentDto(teacherName, new ArrayList<>());
-//                teacherStudentMap.put(teacherName, teacherStudentDto);
-//            }
-//
-//            StudentDto studentDto = new StudentDto(studentId, studentName);
-//            teacherStudentDto.getStudentList().add(studentDto);
-//        }
-//
-//        return new ArrayList<>(teacherStudentMap.values());
-//    }
 
     public List<TeacherStudentDto> getTeachersAndStudents(HighSchoolRequestDto highSchoolRequestDto) {
         List<Object[]> results = studentsRepository.findTeachersAndStudents(highSchoolRequestDto.getHighSchoolId(), highSchoolRequestDto.getGraduationYear(), highSchoolRequestDto.getNetId());

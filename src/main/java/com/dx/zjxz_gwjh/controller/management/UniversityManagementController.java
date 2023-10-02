@@ -15,6 +15,7 @@ import com.dx.zjxz_gwjh.dto.UniversityDto;
 import com.dx.zjxz_gwjh.entity.UniversityEntity;
 import com.dx.zjxz_gwjh.filter.UniversityFilter;
 import com.dx.zjxz_gwjh.model.RDUserSession;
+import com.dx.zjxz_gwjh.service.DegreeBindingService;
 import com.dx.zjxz_gwjh.service.UniversityService;
 import com.dx.zjxz_gwjh.vo.UniversityVO;
 import org.apache.poi.ss.usermodel.Row;
@@ -40,6 +41,9 @@ public class UniversityManagementController {
     @Autowired
     private UniversityService universityService;
 
+    @Autowired
+    private DegreeBindingService degreeBindingService;
+
     @BindResource(value = "university:management:list")
     @Action(value = "查询大学列表", type = Action.ActionType.QUERY_LIST)
     @PostMapping("/list")
@@ -56,7 +60,7 @@ public class UniversityManagementController {
     @BindResource(value = "university:management:create")
     @Action(value = "创建大学信息", type = Action.ActionType.CREATE)
     @PostMapping("/create")
-    public UniversityEntity create(@Valid @Session RDUserSession user, @RequestBody UniversityDto dto)
+    public UniversityEntity create(@Session RDUserSession user,@Valid @RequestBody UniversityDto dto)
             throws ServiceException {
 
         UniversityEntity entity = universityService.newEntity(dto);
@@ -97,45 +101,53 @@ public class UniversityManagementController {
         universityService.update(entity);
     }
 
-    @BindResource("universities:management:import")
-    @Action(value = "导入大学信息", type = Action.ActionType.CREATE)
-    @PostMapping("/import")
-    public String importUniversities(@RequestParam("file") MultipartFile file) {
-        if (file.isEmpty()) {
-            return "请选择文件";
-        }
-        try {
-            List<UniversitiesImportDto> universitiesList = parseExcelFile(file);
-            for (UniversitiesImportDto university : universitiesList) {
-                universityService.massiveCreateUniversity(university);
-            }
-            return "导入成功";
-        } catch (Exception e) {
-            return "导入失败：" + e.getMessage();
-        }
-    }
-
-    private List<UniversitiesImportDto> parseExcelFile(MultipartFile file) throws IOException {
-        List<UniversitiesImportDto> universitiesList = new ArrayList<>();
-        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
-            Sheet sheet = workbook.getSheetAt(0);
-            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-                Row row = sheet.getRow(i);
-                UniversitiesImportDto dto = convertRowToDto(row);
-                universitiesList.add(dto);
-            }
-        }
-        return universitiesList;
-    }
-
-    private UniversitiesImportDto convertRowToDto(Row row) {
-        UniversitiesImportDto dto = new UniversitiesImportDto();
-        dto.setName(row.getCell(0).getStringCellValue());
-        dto.setProvince(row.getCell(1).getStringCellValue());
-        dto.setIsSupreme("是".equals(row.getCell(2).getStringCellValue()));
-        dto.setIsKeyMajor("是".equals(row.getCell(3).getStringCellValue()));
-        return dto;
-    }
+//    @BindResource("universities:management:import")
+//    @Action(value = "导入大学信息", type = Action.ActionType.CREATE)
+//    @PostMapping("/import")
+//    public String importUniversities(@RequestParam("file") MultipartFile file) {
+//        if (file.isEmpty()) {
+//            return "请选择文件";
+//        }
+//        try {
+//            List<UniversitiesImportDto> universitiesList = parseExcelFile(file);
+//            for (UniversitiesImportDto university : universitiesList) {
+//                universityService.massiveCreateUniversity(university);
+//            }
+//            return "导入成功";
+//        } catch (Exception e) {
+//            return "导入失败：" + e.getMessage();
+//        }
+//    }
+//
+//    private List<UniversitiesImportDto> parseExcelFile(MultipartFile file) throws IOException {
+//        List<UniversitiesImportDto> universitiesList = new ArrayList<>();
+//        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+//            Sheet sheet = workbook.getSheetAt(0);
+//            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+//                Row row = sheet.getRow(i);
+//                UniversitiesImportDto dto = convertRowToDto(row);
+//                universitiesList.add(dto);
+//            }
+//        }
+//        return universitiesList;
+//    }
+//
+//    private UniversitiesImportDto convertRowToDto(Row row) {
+//        UniversitiesImportDto dto = new UniversitiesImportDto();
+//        dto.setName(row.getCell(0).getStringCellValue());
+//        dto.setProvince(row.getCell(1).getStringCellValue());
+//        dto.setIsSupreme("是".equals(row.getCell(2).getStringCellValue()));
+//        dto.setIsKeyMajor("是".equals(row.getCell(3).getStringCellValue()));
+//        return dto;
+//    }
+//
+////    @BindResource("universities:management:once")
+////    @Action(value = "导入信息", type = Action.ActionType.CREATE)
+////    @PostMapping("/once")
+////    public String populateDegreeBinding() {
+////        degreeBindingService.populateDegreeBinding();
+////        return "DegreeBinding has been populated";
+////    }
 
 
 

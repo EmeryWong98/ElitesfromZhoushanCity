@@ -44,4 +44,8 @@ public class UnionNetEntity extends JpaBaseEntity {
     @Column(name = "location")
     private String location;
 
+    @ApiModelProperty("网格分数")
+    @Column(name = "score")
+    private Float score;
+
 }

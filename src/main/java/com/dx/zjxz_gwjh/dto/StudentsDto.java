@@ -64,9 +64,6 @@ public class StudentsDto extends BaseEventDto {
     @ApiModelProperty("省份")
     private String province;
 
-    @ApiModelProperty("学历")
-    private String degree;
-
     @ApiModelProperty("家庭联系人")
     private String familyContactor;
 
@@ -82,11 +79,41 @@ public class StudentsDto extends BaseEventDto {
     @ApiModelProperty("联系老师电话")
     private String headTeacherMobile;
 
-    @ApiModelProperty("大学名称")
-    private String universityName;
+    @ApiModelProperty("大学1名称")
+    private String university1Name;
 
-    @ApiModelProperty("大学省份")
-    private String universityProvince;
+    @ApiModelProperty("大学1省份")
+    private String university1Province;
+
+    @ApiModelProperty("学历1")
+    private String degree1;
+
+    @ApiModelProperty("专业1")
+    private String major1;
+
+    @ApiModelProperty("大学2名称")
+    private String university2Name;
+
+    @ApiModelProperty("大学2省份")
+    private String university2Province;
+
+    @ApiModelProperty("学历2")
+    private String degree2;
+
+    @ApiModelProperty("专业2")
+    private String major2;
+
+    @ApiModelProperty("大学3名称")
+    private String university3Name;
+
+    @ApiModelProperty("大学3省份")
+    private String university3Province;
+
+    @ApiModelProperty("学历3")
+    private String degree3;
+
+    @ApiModelProperty("专业3")
+    private String major3;
 
     @ApiModelProperty("高中名称")
     private String highSchoolName;
@@ -105,6 +132,5 @@ public class StudentsDto extends BaseEventDto {
 
     @ApiModelProperty("学联网格名称")
     private String UnionNetName;
-
 
 }

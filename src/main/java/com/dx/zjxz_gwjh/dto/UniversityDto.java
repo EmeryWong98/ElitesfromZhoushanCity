@@ -29,6 +29,7 @@ public class UniversityDto extends BaseEventDto{
     private float lat;
 
     @ApiModelProperty("省份")
+    @NotNull(message = "省份不能为空")
     private String province;
 
     @ApiModelProperty("是否双一流")

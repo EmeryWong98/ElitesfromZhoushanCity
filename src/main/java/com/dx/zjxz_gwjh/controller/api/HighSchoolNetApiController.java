@@ -7,8 +7,11 @@ import com.dx.easyspringweb.core.annotation.BindResource;
 import com.dx.easyspringweb.core.exception.ServiceException;
 import com.dx.zjxz_gwjh.dto.*;
 import com.dx.zjxz_gwjh.entity.StudentsEntity;
+import com.dx.zjxz_gwjh.service.DegreeBindingService;
 import com.dx.zjxz_gwjh.service.HighSchoolNetService;
 import com.dx.zjxz_gwjh.service.StudentsService;
+import com.dx.zjxz_gwjh.vo.StudentsDetailsVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +29,9 @@ public class HighSchoolNetApiController {
     @Autowired
     private StudentsService studentsService;
 
+    @Autowired
+    private DegreeBindingService degreeBindingService;
+
     @BindResource("highschoolnet:api:overview")
     @Action("查询高中网格概况")
     @PostMapping("/overview")
@@ -36,7 +42,7 @@ public class HighSchoolNetApiController {
     @BindResource("highschoolnet:api:ranking")
     @Action("查询高中网格活跃度排名")
     @PostMapping("/ranking")
-    public List<HighSchoolNetActivityDto> getHighSchoolNetActivityRanking() {
+    public List<NetActivityDto> getHighSchoolNetActivityRanking() {
         return highSchoolNetService.getHighSchoolNetActivityRanking();
     }
 
@@ -57,9 +63,21 @@ public class HighSchoolNetApiController {
     @BindResource("highschoolnet:api:details")
     @Action(value = "查询学生详情", type = Action.ActionType.QUERY_ITEM)
     @PostMapping("/details")
-    public StudentsEntity details(@RequestParam("id") String id)
+    public StudentsDetailsVO details(@RequestParam("id") String id)
             throws ServiceException {
-        return studentsService.getById(id);
+        StudentsEntity studentEntity = studentsService.getById(id);
+
+        StudentsDetailsVO studentDetails = new StudentsDetailsVO();
+        // 复制 StudentsEntity 的属性到 StudentDetailsVO
+        BeanUtils.copyProperties(studentEntity, studentDetails);
+
+        // 设置 StudentDetailsVO 的额外字段
+        studentDetails.setUniversityName(degreeBindingService.findHighestDegreeUniversityNameByStudentId(studentEntity.getId()));
+        studentDetails.setUniversityProvince(degreeBindingService.findHighestDegreeUniversityProvinceByStudentId(studentEntity.getId()));
+        studentDetails.setDegree(degreeBindingService.findHighestDegreeByStudentId(studentEntity.getId()));
+        studentDetails.setMajor(degreeBindingService.findHighestDegreeMajorByStudentId(studentEntity.getId()));
+
+        return studentDetails;
     }
 
 

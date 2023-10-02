@@ -6,8 +6,8 @@ import lombok.Data;
 import javax.validation.constraints.NotNull;
 
 @Data
-@ApiModel("高中网格网格活跃榜DTO")
-public class HighSchoolNetActivityDto {
+@ApiModel("网格活跃榜DTO")
+public class NetActivityDto {
 
     @NotNull
     private String NetId; // 网格ID
@@ -16,7 +16,7 @@ public class HighSchoolNetActivityDto {
     private Float NetScore; // 网格分数
 
     // 定义一个与参数类型匹配的构造函数
-    public HighSchoolNetActivityDto(@NotNull String id, String netName, String contactorName, Float score) {
+    public NetActivityDto(@NotNull String id, String netName, String contactorName, Float score) {
         this.NetId = id;
         this.NetName = netName;
         this.NetContactorName = contactorName;
