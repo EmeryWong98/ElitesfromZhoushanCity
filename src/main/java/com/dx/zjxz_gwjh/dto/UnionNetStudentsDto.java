@@ -17,5 +17,4 @@ public class UnionNetStudentsDto {
     private String phoneNumber;
     private String name; // 网格名称
     private int keyStudentsCount; // 重点学子数量
-    private List<StudentDetailsVO> studentDetails; // 学生详情列表
 }

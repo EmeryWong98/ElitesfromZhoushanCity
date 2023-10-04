@@ -6,6 +6,7 @@ import com.dx.easyspringweb.core.annotation.Action;
 import com.dx.easyspringweb.core.annotation.BindResource;
 import com.dx.easyspringweb.core.exception.ServiceException;
 import com.dx.zjxz_gwjh.dto.*;
+import com.dx.zjxz_gwjh.entity.HighSchoolNetEntity;
 import com.dx.zjxz_gwjh.entity.StudentsEntity;
 import com.dx.zjxz_gwjh.service.DegreeBindingService;
 import com.dx.zjxz_gwjh.service.HighSchoolNetService;
@@ -78,6 +79,13 @@ public class HighSchoolNetApiController {
         studentDetails.setMajor(degreeBindingService.findHighestDegreeMajorByStudentId(studentEntity.getId()));
 
         return studentDetails;
+    }
+
+    @BindResource("highschoolnet:api:netlist")
+    @Action("查询高中网格列表")
+    @PostMapping("/netlist")
+    public List<HighSchoolNetEntity> getHighSchoolNetList(@RequestParam("id") String id) {
+        return highSchoolNetService.getHighSchoolNetList(id);
     }
 
 

@@ -11,13 +11,10 @@ import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.core.utils.ObjectUtils;
 import com.dx.zjxz_gwjh.dto.NetNameDto;
 import com.dx.zjxz_gwjh.entity.AreaNetEntity;
-import com.dx.zjxz_gwjh.entity.HighSchoolNetEntity;
 import com.dx.zjxz_gwjh.filter.NetFilter;
 import com.dx.zjxz_gwjh.model.RDUserSession;
 import com.dx.zjxz_gwjh.service.AreaNetService;
-import com.dx.zjxz_gwjh.service.HighSchoolNetService;
 import com.dx.zjxz_gwjh.vo.AreaNetVO;
-import com.dx.zjxz_gwjh.vo.HighSchoolNetVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +25,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/management/net/areaNet")
 @BindResource(value = "areaNet:management")
-public class AreaNetController {
+public class AreaNetManagementController {
     @Autowired
     private AreaNetService areaNetService;
 
@@ -77,13 +74,11 @@ public class AreaNetController {
     @Action(value = "更新属地网格信息", type = Action.ActionType.UPDATE)
     @PostMapping("/update")
     public void update(@Valid @RequestBody NetNameDto dto) throws ServiceException {
-        // 获取现有的高中实体
+
         AreaNetEntity entity = areaNetService.getById(dto.getId());
 
-        // 将dto中的字段复制到现有的高中实体中
         ObjectUtils.copyEntity(dto, entity);
 
-        // 更新高中实体
         areaNetService.update(entity);
     }
 

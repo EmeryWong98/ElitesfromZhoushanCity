@@ -48,4 +48,12 @@ public class UnionNetEntity extends JpaBaseEntity {
     @Column(name = "score")
     private Float score;
 
+    @ApiModelProperty("经度")
+    @Column(name = "lon")
+    private Float lon;
+
+    @ApiModelProperty("纬度")
+    @Column(name = "lat")
+    private Float lat;
+
 }

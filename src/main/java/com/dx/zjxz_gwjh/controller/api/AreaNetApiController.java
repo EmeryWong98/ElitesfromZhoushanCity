@@ -5,12 +5,10 @@ import com.dx.easyspringweb.api.annotation.ApiModule;
 import com.dx.easyspringweb.core.annotation.Action;
 import com.dx.easyspringweb.core.annotation.BindResource;
 import com.dx.zjxz_gwjh.dto.*;
+import com.dx.zjxz_gwjh.entity.AreaNetEntity;
 import com.dx.zjxz_gwjh.repository.AreaNetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.dx.zjxz_gwjh.service.AreaNetService;
 
 import java.util.List;
@@ -47,5 +45,14 @@ public class AreaNetApiController {
     public List<TeacherStudentDto> getTeachersAndStudents(@RequestBody AreaRequestDto areaRequestDto) {
         return areaNetService.getTeachersAndStudents(areaRequestDto);
     }
+
+    @BindResource("areanet:api:netlist")
+    @Action("查询家庭属地网格列表")
+    @PostMapping("/netlist")
+    public List<AreaNetEntity> getAreaNetList(@RequestParam("id") String id) {
+        return areaNetService.getAreaNetList(id);
+    }
+
+
 
 }

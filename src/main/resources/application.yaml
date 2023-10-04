@@ -10,7 +10,7 @@ server:
 
 spring:
   profiles:
-    active: test
+    active: prod
 
   main:
     allow-bean-definition-overriding: true

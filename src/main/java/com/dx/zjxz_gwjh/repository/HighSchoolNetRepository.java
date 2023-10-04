@@ -20,4 +20,6 @@ public interface HighSchoolNetRepository extends JpaCommonRepository<HighSchoolN
             "FROM HighSchoolNetEntity n " +
             "ORDER BY n.score DESC")
     List<NetActivityDto> findHighSchoolNetActivityRanking();
+
+    List<HighSchoolNetEntity> findByAreaCode(String areaCode);
 }

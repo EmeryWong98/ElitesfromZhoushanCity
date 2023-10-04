@@ -18,4 +18,5 @@ public interface AreaCodeRepository extends JpaCommonRepository<AreaCodeEntity, 
 
     @Query("SELECT a.name FROM AreaCodeEntity a WHERE a.id IN :areaId")
     String findNameById(String areaId);
+
 }

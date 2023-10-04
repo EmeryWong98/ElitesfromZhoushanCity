@@ -19,4 +19,10 @@ public class UnionNetDto extends BaseEventDto{
     private String location;
     @ApiModelProperty("网格活跃度")
     private Float score;
+
+    @ApiModelProperty("经度")
+    private Float lon;
+
+    @ApiModelProperty("纬度")
+    private Float lat;
 }

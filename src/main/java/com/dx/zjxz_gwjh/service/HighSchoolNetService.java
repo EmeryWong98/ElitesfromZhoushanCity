@@ -10,6 +10,7 @@ import com.dx.zjxz_gwjh.dto.*;
 import com.dx.zjxz_gwjh.entity.HighSchoolNetEntity;
 import com.dx.zjxz_gwjh.entity.QHighSchoolNetEntity;
 import com.dx.zjxz_gwjh.filter.NetFilter;
+import com.dx.zjxz_gwjh.repository.AreaCodeRepository;
 import com.dx.zjxz_gwjh.repository.HighSchoolNetRepository;
 import com.dx.zjxz_gwjh.repository.StudentsRepository;
 import com.querydsl.core.BooleanBuilder;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, String> implements StandardService<HighSchoolNetEntity, NetFilter, String> {
@@ -29,6 +31,9 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
 
     @Autowired
     private StudentsRepository studentsRepository;
+
+    @Autowired
+    private AreaCodeRepository areaCodeRepository;
 
     public HighSchoolNetService(HighSchoolNetRepository repository) {
         super(repository);
@@ -146,4 +151,24 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
     }
 
 
+    public List<HighSchoolNetEntity> getHighSchoolNetList(String id) {
+        // 根据ID从AreaCodes表中获取area_code
+        String areaCode = areaCodeRepository.findById(id).orElseThrow(() -> new RuntimeException("AreaId not found")).getCode();
+
+        // 使用area_code查询AreaNetEntity
+        return highSchoolNetRepository.findByAreaCode(areaCode);
+
+    }
+
+    public HighSchoolNetEntity findById(String highSchoolNetId) throws ServiceException{
+        if (StringUtils.isBlank(highSchoolNetId)) {
+            return null;
+        }
+
+        HighSchoolNetEntity highSchoolNetEntity = highSchoolNetRepository.findById(highSchoolNetId).orElse(null);
+        if (highSchoolNetEntity == null) {
+            throw new ServiceException("该高中网格不存在，请先添加或修改高中网格信息");
+        }
+        return highSchoolNetEntity;
+}
 }

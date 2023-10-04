@@ -57,4 +57,12 @@ public class HighSchoolService extends JpaPublicService<HighSchoolEntity, String
     public int count() {
         return (int) highSchoolRepository.count();
     }
+
+    public HighSchoolEntity findById(String highSchoolId) throws ServiceException {
+        HighSchoolEntity highSchoolEntity = highSchoolRepository.findById(highSchoolId).orElse(null);
+        if (highSchoolEntity == null) {
+            throw new ServiceException("高中不存在，请先添加或修改高中信息");
+        }
+        return highSchoolEntity;
+    }
 }

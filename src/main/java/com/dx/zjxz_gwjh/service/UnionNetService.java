@@ -107,28 +107,53 @@ public class UnionNetService extends JpaPublicService<UnionNetEntity, String> im
         // 获取该网格的重点学子数量和学生详情
         List<StudentsEntity> students = studentsRepository.findByUnionNetId(unionNet.getId());
         dto.setKeyStudentsCount((int) students.stream().filter(StudentsEntity::getIsKeyContact).count());
-        dto.setStudentDetails(students.stream().map(this::convertToDetailDto).collect(Collectors.toList()));
 
         return dto;
     }
 
 
-    private StudentDetailsVO convertToDetailDto(StudentsEntity studentEntity) {
-        StudentDetailsVO dto = new StudentDetailsVO();
-        dto.setId(studentEntity.getId());
-        dto.setAcademicYear(studentEntity.getAcademicYear());
-        dto.setName(studentEntity.getName());
-        dto.setDob(studentEntity.getDob());
-        dto.setUniversityName(degreeBindingService.findHighestDegreeUniversityNameByStudentId(studentEntity.getId()));
-        dto.setMajor(degreeBindingService.findHighestDegreeMajorByStudentId(studentEntity.getId()));
-        dto.setArea(studentEntity.getArea());
-        dto.setPhone(studentEntity.getPhone());
-        dto.setIsKeyContact(studentEntity.getIsKeyContact());
-        return dto;
-    }
+//    private StudentDetailsVO convertToDetailDto(StudentsEntity studentEntity) {
+//        StudentDetailsVO dto = new StudentDetailsVO();
+//        dto.setId(studentEntity.getId());
+//        dto.setAcademicYear(studentEntity.getAcademicYear());
+//        dto.setName(studentEntity.getName());
+//        dto.setDob(studentEntity.getDob());
+//        dto.setUniversityName(degreeBindingService.findHighestDegreeUniversityNameByStudentId(studentEntity.getId()));
+//        dto.setMajor(degreeBindingService.findHighestDegreeMajorByStudentId(studentEntity.getId()));
+//        dto.setArea(studentEntity.getArea());
+//        dto.setPhone(studentEntity.getPhone());
+//        dto.setIsKeyContact(studentEntity.getIsKeyContact());
+//        return dto;
+//    }
 
     public Integer getUnionNetCount() {
         return unionNetRepository.findAll().size();
+    }
+
+    public List<UnionRequestDto> getUnionNetList() {
+        List<UnionNetEntity> unionNetEntities = unionNetRepository.findAll();
+        List<UnionRequestDto> unionRequestDtos = new ArrayList<>();
+        for (UnionNetEntity unionNetEntity : unionNetEntities) {
+            UnionRequestDto unionRequestDto = new UnionRequestDto();
+            unionRequestDto.setId(unionNetEntity.getId());
+            unionRequestDto.setName(unionNetEntity.getName());
+            unionRequestDto.setLon(unionNetEntity.getLon());
+            unionRequestDto.setLat(unionNetEntity.getLat());
+            unionRequestDtos.add(unionRequestDto);
+        }
+        return unionRequestDtos;
+    }
+
+    public UnionNetEntity findById(String unionNetId) throws ServiceException {
+        if (StringUtils.isBlank(unionNetId)) {
+            return null;
+        }
+
+        UnionNetEntity unionNetEntity = unionNetRepository.findById(unionNetId).orElse(null);
+        if (unionNetEntity == null) {
+            throw new ServiceException("该高校网格不存在，请先添加或修改高校网格信息");
+        }
+        return unionNetEntity;
     }
 
 //    public UnionNetEntity findOrCreateByNameAndContactorAndPhoneAndLocation(String unionNetName, String unionNetContactor, String unionNetContactorMobile, String unionNetLocation) {

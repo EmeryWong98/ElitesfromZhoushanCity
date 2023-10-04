@@ -74,13 +74,11 @@ public class UnionNetManagementController {
     @Action(value = "更新学联网格信息", type = Action.ActionType.UPDATE)
     @PostMapping("/update")
     public void update(@Valid @RequestBody UnionNetDto dto) throws ServiceException {
-        // 获取现有的高中实体
+
         UnionNetEntity entity = unionNetService.getById(dto.getId());
 
-        // 将dto中的字段复制到现有的高中实体中
         ObjectUtils.copyEntity(dto, entity);
 
-        // 更新高中实体
         unionNetService.update(entity);
     }
 }

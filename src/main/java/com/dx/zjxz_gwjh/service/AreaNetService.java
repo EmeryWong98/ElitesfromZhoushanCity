@@ -12,6 +12,7 @@ import com.dx.zjxz_gwjh.entity.HighSchoolNetEntity;
 import com.dx.zjxz_gwjh.entity.QAreaNetEntity;
 import com.dx.zjxz_gwjh.entity.QHighSchoolNetEntity;
 import com.dx.zjxz_gwjh.filter.NetFilter;
+import com.dx.zjxz_gwjh.repository.AreaCodeRepository;
 import com.dx.zjxz_gwjh.repository.AreaNetRepository;
 import com.querydsl.core.BooleanBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +28,9 @@ import java.util.Map;
 public class AreaNetService extends JpaPublicService<AreaNetEntity, String> implements StandardService<AreaNetEntity, NetFilter, String> {
     @Autowired
     AreaNetRepository areaNetRepository;
+
+    @Autowired
+    AreaCodeRepository areaCodeRepository;
 
     public AreaNetService(AreaNetRepository repository) {
         super(repository);
@@ -113,6 +117,28 @@ public class AreaNetService extends JpaPublicService<AreaNetEntity, String> impl
         return new ArrayList<>(teacherStudentMap.values());
     }
 
+    public List<AreaNetEntity> getAreaNetList(String id) {
+        // 根据ID从AreaCodes表中获取area_code
+        String areaCode = areaCodeRepository.findById(id).orElseThrow(() -> new RuntimeException("AreaId not found")).getCode();
+
+        // 使用area_code查询AreaNetEntity
+        return areaNetRepository.findByAreaCode(areaCode);
+    }
+
+    public AreaNetEntity findById(String areaNetId) throws ServiceException {
+        if (StringUtils.isBlank(areaNetId)) {
+            return null;
+        }
+
+        AreaNetEntity areaNetEntity = areaNetRepository.findById(areaNetId).orElse(null);
+        if (areaNetEntity == null) {
+            throw new ServiceException("该属地网格不存在，请先添加或修改属地网格信息");
+        }
+        return areaNetEntity;
+
+    }
+    }
+
 //    public AreaNetEntity findOrCreateByNameAndContactorAndPhoneAndAreaCodeAndLocation(String areaNetName, String areaNetContactor, String areaNetContactorMobile, String areaNetAreaCode, String areaNetLocation) {
 //        if (StringUtils.isBlank(areaNetName)) {
 //            return null;
@@ -137,4 +163,4 @@ public class AreaNetService extends JpaPublicService<AreaNetEntity, String> impl
 //        areaNetEntity = areaNetRepository.save(areaNetEntity); // 保存或更新实体
 //        return areaNetEntity;
 //    }
-}
+

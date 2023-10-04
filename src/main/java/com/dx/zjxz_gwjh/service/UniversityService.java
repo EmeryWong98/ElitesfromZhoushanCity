@@ -89,9 +89,6 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
     }
 
     public UniversityEntity findOrCreateByNameAndProvince(String name, String province) throws ServiceException {
-        if (name == null || name.trim().isEmpty()) {
-            throw new ServiceException("大学名称不能为空");
-        }
 
         UniversityEntity universityEntity = universityRepository.findByName(name.trim());
         if (universityEntity == null) {

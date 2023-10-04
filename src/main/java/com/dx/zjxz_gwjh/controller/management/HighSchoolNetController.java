@@ -76,13 +76,11 @@ public class HighSchoolNetController {
     @Action(value = "更新高中网格信息", type = Action.ActionType.UPDATE)
     @PostMapping("/update")
     public void update(@Valid @RequestBody NetNameDto dto) throws ServiceException {
-        // 获取现有的高中实体
+
         HighSchoolNetEntity entity = highSchoolNetService.getById(dto.getId());
 
-        // 将dto中的字段复制到现有的高中实体中
         ObjectUtils.copyEntity(dto, entity);
 
-        // 更新高中实体
         highSchoolNetService.update(entity);
     }
 

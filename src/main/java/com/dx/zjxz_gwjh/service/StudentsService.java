@@ -12,9 +12,7 @@ import com.dx.zjxz_gwjh.dto.*;
 import com.dx.zjxz_gwjh.entity.*;
 import com.dx.zjxz_gwjh.enums.DegreeType;
 import com.dx.zjxz_gwjh.filter.StudentsFilter;
-import com.dx.zjxz_gwjh.repository.DegreeBindingRepository;
-import com.dx.zjxz_gwjh.repository.StudentsRepository;
-import com.dx.zjxz_gwjh.repository.UniversityRepository;
+import com.dx.zjxz_gwjh.repository.*;
 import com.dx.zjxz_gwjh.util.IdCardInfo;
 import com.dx.zjxz_gwjh.vo.StudentsVO;
 import com.querydsl.core.BooleanBuilder;
@@ -81,6 +79,12 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
     @Autowired
     private EntityManager entityManager;
 
+    @Autowired
+    private HighSchoolNetRepository highSchoolNetRepository;
+
+    @Autowired
+    private HighSchoolRepository highSchoolRepository;
+
     public StudentsService(StudentsRepository repository) {
         super(repository);
     }
@@ -131,10 +135,7 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
             // 大学
             String university = filter.getUniversity();
             if (StringUtils.hasText(university)) {
-                predicate.and(
-                        QUniversityEntity.universityEntity.name.contains(university)
-                                .and(QUniversityEntity.universityEntity.in(q.universities))
-                );
+                predicate.and(q.universities.any().name.contains(university));
             }
 
             // 省份
@@ -174,6 +175,13 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
                 predicate.and(q.area.in(allAreaNames)); // 使用名称列表
             }
 
+            // 学联网格ID
+            String unionNetId = filter.getUnionNetId();
+            if (StringUtils.hasText(unionNetId)) {
+                predicate.and(q.unionNet.id.eq(unionNetId));
+            }
+
+
             // 是否重点学子
             Boolean isKeyContact = filter.getIsKeyContact();
             if (isKeyContact != null) {
@@ -200,29 +208,28 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         return this.queryList(predicate, query.getPageInfo(), query.getSorts());
     }
 
-    public StudentsEntity createStudent(StudentsDto dto) throws ServiceException {
+    public StudentsEntity createStudent(StudentsCreateDto dto) throws ServiceException {
         // 如果是新创建的学生（ID 为 null），检查 idCard 的唯一性
         StudentsEntity entity = new StudentsEntity();
-        if (dto.getId() == null) {
-            StudentsEntity existingStudent = studentsRepository.findByIdCard(dto.getIdCard());
+        StudentsEntity existingStudent = studentsRepository.findByIdCard(dto.getIdCard());
             if (existingStudent != null) {
                 throw new ServiceException("学生重复");
             } else {
 
             // 先检查并获取HighSchool实体
-            HighSchoolEntity highSchoolEntity = highSchoolService.findByName(dto.getHighSchoolName());
+            HighSchoolEntity highSchoolEntity = highSchoolService.findById(dto.getHighSchoolId());
 
             // 先检查并获取highSchoolNet实体
-            HighSchoolNetEntity highSchoolNetEntity = highSchoolNetService.findByName(dto.getHighSchoolNetName());
+            HighSchoolNetEntity highSchoolNetEntity = highSchoolNetService.findById(dto.getHighSchoolNetId());
 
             // 先检查并获取或创建AreaNet实体
-            AreaNetEntity areaNetEntity = areaNetService.findByName(dto.getAreaNetName());
+            AreaNetEntity areaNetEntity = areaNetService.findById(dto.getAreaNetId());
 
             // 先检查并获取或创建OfficerNet实体
-            OfficerNetEntity officerNetEntity = officerNetService.findByName(dto.getOfficerNetName());
+            OfficerNetEntity officerNetEntity = officerNetService.findById(dto.getOfficerNetId());
 
             // 先检查并获取或创建UnionNet实体
-            UnionNetEntity unionNetEntity = UnionNetService.findByName(dto.getUnionNetName());
+            UnionNetEntity unionNetEntity = UnionNetService.findById(dto.getUnionNetId());
 
             // 将DTO中的数据复制到学生实体
             ObjectUtils.copyEntity(dto, entity);
@@ -248,7 +255,7 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         }
 
         // 保存学生实体到数据库
-        studentsRepository.save(entity);}
+        studentsRepository.save(entity);
 
     // 为每个大学和学位创建和保存一个 DegreeBindingEntity 对象
     List<String> universityNames = Arrays.asList(dto.getUniversity1Name(), dto.getUniversity2Name(), dto.getUniversity3Name());
@@ -261,6 +268,11 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         String province = universityProvinces.get(i);
         String degree = degrees.get(i);
         String major = majors.get(i);
+
+        // 如果degree为空或者是空字符串，直接跳过这次循环
+        if (!StringUtils.hasText(degree)) {
+            continue;
+        }
 
         if (universityName != null) {
             UniversityEntity universityEntity = universityService.findOrCreateByNameAndProvince(universityName, province);
@@ -291,6 +303,35 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         if(entity == null) {
             throw new ServiceException("学生不存在");
         }
+
+        // 将DTO中的数据复制到学生实体
+        ObjectUtils.copyEntity(dto, entity);
+
+        if (dto.getHighSchoolNetId() != null) {
+            HighSchoolNetEntity highSchoolNet = highSchoolNetRepository.findById(dto.getHighSchoolNetId()).orElse(null);
+            entity.setHighSchoolNet(highSchoolNet);
+        }
+
+        if (dto.getHighSchoolId() != null) {
+            HighSchoolEntity highSchool = highSchoolRepository.findById(dto.getHighSchoolId()).orElse(null);
+            entity.setHighSchool(highSchool);
+        }
+
+        if (dto.getAreaNetId() != null) {
+            AreaNetEntity areaNet = areaNetService.findById(dto.getAreaNetId());
+            entity.setAreaNet(areaNet);
+        }
+
+        if (dto.getOfficerNetId() != null) {
+            OfficerNetEntity officerNet = officerNetService.findById(dto.getOfficerNetId());
+            entity.setOfficerNet(officerNet);
+        }
+
+        if (dto.getUnionNetId() != null) {
+            UnionNetEntity unionNet = UnionNetService.findById(dto.getUnionNetId());
+            entity.setUnionNet(unionNet);
+        }
+
 
         // 先检查大学名称是否改变
         List<String> universityNames = Arrays.asList(dto.getUniversity1Name(), dto.getUniversity2Name(), dto.getUniversity3Name());
@@ -338,6 +379,11 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
             String province = universityProvinces.get(i);
             String degree = degrees.get(i);
             String major = majors.get(i);
+
+        // 如果degree为空或者是空字符串，直接跳过这次循环
+            if (!StringUtils.hasText(degree)) {
+                continue;
+            }
 
             if (universityName != null) {
                 UniversityEntity universityEntity = universityService.findOrCreateByNameAndProvince(universityName, province);

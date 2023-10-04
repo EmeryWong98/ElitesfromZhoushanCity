@@ -44,4 +44,7 @@ public interface AreaNetRepository extends JpaCommonRepository<AreaNetEntity, St
     List<Object[]> findTeachersAndStudents(@Param("areaId") String areaId,
                                            @Param("graduationYear") Integer graduationYear,
                                            @Param("netId") String netId);
+
+
+    List<AreaNetEntity> findByAreaCode(String areaCode);
 }

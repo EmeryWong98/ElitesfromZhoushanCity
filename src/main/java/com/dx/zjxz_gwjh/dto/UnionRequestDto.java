@@ -8,5 +8,9 @@ import lombok.Data;
 @ApiModel("学联网格请求Dto")
 public class UnionRequestDto {
     private String id;
+    private String name;
+    private Float lon;
+    private Float lat;
+
 
 }

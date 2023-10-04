@@ -174,12 +174,14 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
     int countKeyStudentsByYearAndAreas(@Param("year") int year, @Param("areas") List<String> areas);
 
     @Query("SELECT new com.dx.zjxz_gwjh.dto.HighSchoolNetOverviewDto(" +
-            "hs.name, hs.id, COUNT(DISTINCT s.highSchoolNetId), " +
-            "COUNT(s), SUM(CASE WHEN s.isKeyContact = true THEN 1 ELSE 0 END)) " +
+            "hs.name, hs.id, ac.id, COUNT(DISTINCT s.highSchoolNetId), " +
+            "COUNT(s), SUM(CASE WHEN s.isKeyContact = true THEN 1 ELSE 0 END), hs.lon, hs.lat) " +
             "FROM StudentsEntity s " +
             "JOIN HighSchoolEntity hs ON s.highSchoolId = hs.id " +
+            "JOIN HighSchoolNetEntity hsn ON hs.name = hsn.location " +
+            "JOIN AreaCodeEntity ac ON hsn.areaCode = ac.code " +
             "WHERE hs.name IS NOT NULL " +
-            "GROUP BY hs.name, hs.id")
+            "GROUP BY hs.name, hs.id, ac.id, hs.lon, hs.lat")
     List<HighSchoolNetOverviewDto> findHighSchoolNetOverview();
 
 

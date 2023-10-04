@@ -10,6 +10,7 @@ import com.dx.easyspringweb.core.model.PagingData;
 import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.core.utils.ObjectUtils;
 import com.dx.zjxz_gwjh.dto.NetNameDto;
+import com.dx.zjxz_gwjh.dto.StudentsCreateDto;
 import com.dx.zjxz_gwjh.dto.StudentsDto;
 import com.dx.zjxz_gwjh.dto.StudentsImportDto;
 import com.dx.zjxz_gwjh.entity.DegreeBindingEntity;
@@ -19,6 +20,8 @@ import com.dx.zjxz_gwjh.enums.DegreeType;
 import com.dx.zjxz_gwjh.enums.NetType;
 import com.dx.zjxz_gwjh.filter.StudentsFilter;
 import com.dx.zjxz_gwjh.model.RDUserSession;
+import com.dx.zjxz_gwjh.repository.DegreeBindingRepository;
+import com.dx.zjxz_gwjh.repository.UniversityRepository;
 import com.dx.zjxz_gwjh.service.AreaCodeService;
 import com.dx.zjxz_gwjh.service.DegreeBindingService;
 import com.dx.zjxz_gwjh.service.StudentsService;
@@ -52,6 +55,12 @@ public class StudentsManagementController {
     @Autowired
     private DegreeBindingService degreeBindingService;
 
+    @Autowired
+    private DegreeBindingRepository degreeBindingRepository;
+
+    @Autowired
+    private UniversityRepository universityRepository;
+
     @BindResource(value = "students:management:list")
     @Action(value = "查询学生列表", type = Action.ActionType.QUERY_LIST)
     @PostMapping("/list")
@@ -77,7 +86,7 @@ public class StudentsManagementController {
     @BindResource(value = "students:management:create")
     @Action(value = "创建学生信息", type = Action.ActionType.CREATE)
     @PostMapping("/create")
-    public StudentsEntity create(@Session RDUserSession user,@Valid @RequestBody StudentsDto dto)
+    public StudentsEntity create(@Session RDUserSession user,@Valid @RequestBody StudentsCreateDto dto)
             throws ServiceException {
 
         // 使用新的createStudent方法来创建或更新学生实体
@@ -113,10 +122,50 @@ public class StudentsManagementController {
     @BindResource("students:management:details")
     @Action(value = "查询学生详情", type = Action.ActionType.QUERY_ITEM)
     @PostMapping("/details")
-    public StudentsEntity details(@RequestParam("id") String id)
+    public StudentsDto details(@RequestParam("id") String id)
             throws ServiceException {
-        return studentsService.getById(id);
+        StudentsEntity studentEntity = studentsService.getById(id);
+        if (studentEntity == null) {
+            throw new ServiceException("学生不存在");
+        }
+
+        StudentsDto dto = convertToDto(studentEntity);
+        return dto;
     }
+
+        private StudentsDto convertToDto(StudentsEntity studentEntity)
+            throws ServiceException {
+            StudentsDto dto = new StudentsDto();
+            // 将 studentEntity 的属性复制到 dto
+            ObjectUtils.copyEntity(studentEntity, dto);
+
+            List<DegreeBindingEntity> degrees = degreeBindingRepository.findByStudentId(studentEntity.getId());
+            for (int i = 0; i < degrees.size(); i++) {
+                DegreeBindingEntity degree = degrees.get(i);
+                UniversityEntity university = universityRepository.findById(degree.getUniversityId()).orElse(null);
+
+                if (university != null) {
+                    if (i == 0) {
+                        dto.setUniversity1Name(university.getName());
+                        dto.setUniversity1Province(university.getProvince());
+                        dto.setMajor1(degree.getMajor());
+                        dto.setDegree1(degree.getDegree().getDescription());
+                    } else if (i == 1) {
+                        dto.setUniversity2Name(university.getName());
+                        dto.setUniversity2Province(university.getProvince());
+                        dto.setMajor2(degree.getMajor());
+                        dto.setDegree2(degree.getDegree().getDescription());
+                    } else if (i == 2) {
+                        dto.setUniversity3Name(university.getName());
+                        dto.setUniversity3Province(university.getProvince());
+                        dto.setMajor3(degree.getMajor());
+                        dto.setDegree3(degree.getDegree().getDescription());
+                    }
+                }
+            }
+
+            return dto;
+        }
 
 
 //    @BindResource("students:management:import")

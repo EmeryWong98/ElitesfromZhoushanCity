@@ -51,4 +51,7 @@ public class StudentsFilter {
 
     @ApiModelProperty("学历")
     private String degree;
+
+    @ApiModelProperty("学联网格ID")
+    private String unionNetId;
 }

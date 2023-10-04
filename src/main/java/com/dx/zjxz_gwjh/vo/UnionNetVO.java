@@ -19,12 +19,17 @@ public class UnionNetVO {
     @ApiModelProperty("联系人电话")
     private String phoneNumber;
 
-    @ApiModelProperty("网格属地")
-    private String areaCode;
-
     @ApiModelProperty("网格位置")
     private String location;
 
     @ApiModelProperty("活跃度")
     private Float score;
+
+    @ApiModelProperty("经度")
+    private Float lon;
+
+    @ApiModelProperty("纬度")
+    private Float lat;
+
+
 }
