@@ -7,12 +7,12 @@ import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.data.jpa.SortField;
 import com.dx.easyspringweb.data.jpa.service.JpaPublicService;
 import com.dx.zjxz_gwjh.dto.*;
+import com.dx.zjxz_gwjh.entity.HighSchoolEntity;
 import com.dx.zjxz_gwjh.entity.HighSchoolNetEntity;
 import com.dx.zjxz_gwjh.entity.QHighSchoolNetEntity;
+import com.dx.zjxz_gwjh.entity.UniversityEntity;
 import com.dx.zjxz_gwjh.filter.NetFilter;
-import com.dx.zjxz_gwjh.repository.AreaCodeRepository;
-import com.dx.zjxz_gwjh.repository.HighSchoolNetRepository;
-import com.dx.zjxz_gwjh.repository.StudentsRepository;
+import com.dx.zjxz_gwjh.repository.*;
 import com.querydsl.core.BooleanBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +34,12 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
 
     @Autowired
     private AreaCodeRepository areaCodeRepository;
+
+    @Autowired
+    private UniversityRepository universityRepository;
+
+    @Autowired
+    private HighSchoolRepository highSchoolRepository;
 
     public HighSchoolNetService(HighSchoolNetRepository repository) {
         super(repository);
@@ -151,12 +157,13 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
     }
 
 
-    public List<HighSchoolNetEntity> getHighSchoolNetList(String id) {
-        // 根据ID从AreaCodes表中获取area_code
-        String areaCode = areaCodeRepository.findById(id).orElseThrow(() -> new RuntimeException("AreaId not found")).getCode();
+    public List<HighSchoolNetEntity> getHighSchoolNetList(String id){
 
-        // 使用area_code查询AreaNetEntity
-        return highSchoolNetRepository.findByAreaCode(areaCode);
+        HighSchoolEntity highSchoolEntity = highSchoolRepository.findById(id).orElse(null);
+
+        List<HighSchoolNetEntity> highSchoolNetEntityList = highSchoolNetRepository.findByLocation(highSchoolEntity.getName());
+
+        return highSchoolNetEntityList;
 
     }
 

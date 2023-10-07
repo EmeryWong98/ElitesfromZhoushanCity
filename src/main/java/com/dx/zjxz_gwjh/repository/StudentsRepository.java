@@ -190,7 +190,7 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
             "hs.id, hs.name, COUNT(DISTINCT s.highSchoolNetId), COUNT(s)) " +
             "FROM StudentsEntity s " +
             "JOIN HighSchoolEntity hs ON s.highSchoolId = hs.id " +
-            "GROUP BY hs.highSchoolId, hs.name " +
+            "GROUP BY hs.id, hs.name " +
             "ORDER BY COUNT(s) DESC")
     List<HighSchoolNetSimpleOverviewDto> findHighSchoolNetSimpleOverview();
 
@@ -199,7 +199,7 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
             "FROM StudentsEntity s " +
             "JOIN HighSchoolNetEntity hsn ON s.highSchoolNetId = hsn.id " +
             "JOIN HighSchoolEntity hs ON s.highSchoolId = hs.id " +
-            "WHERE hs.highSchoolId = :highSchoolId " +
+            "WHERE hs.id = :highSchoolId " +
             "AND s.highSchoolNetId IS NOT NULL " +
             "AND (:netId IS NULL OR s.highSchoolNetId = :netId) " +
             "AND (:graduationYear IS NULL OR s.academicYear = :graduationYear) " +

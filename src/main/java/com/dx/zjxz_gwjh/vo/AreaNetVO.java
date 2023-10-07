@@ -23,6 +23,9 @@ public class AreaNetVO extends AreaNetEntity {
     @ApiModelProperty("网格属地")
     private String areaCode;
 
+    @ApiModelProperty("网格位置")
+    private String location;
+
     @ApiModelProperty("活跃度")
     private Float score;
 }

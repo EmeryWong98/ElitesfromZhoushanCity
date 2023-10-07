@@ -30,9 +30,6 @@ import java.util.List;
 @AllArgsConstructor
 @TypeDef(name = "json", typeClass = JsonType.class)
 public class HighSchoolEntity extends JpaBaseEntity {
-    @ApiModelProperty("高中ID")
-    @Column(name = "id", insertable = false, updatable = false)
-    private String highSchoolId;
 
     @ApiModelProperty("高中名称")
     @Column(name = "name")
