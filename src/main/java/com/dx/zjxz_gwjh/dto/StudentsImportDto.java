@@ -11,7 +11,7 @@ import java.sql.Date;
 @Data
 @ApiModel("学子批量上传")
 @EqualsAndHashCode(callSuper = false)
-public class StudentsImportDto extends BaseEventDto {
+public class StudentsImportDto {
 
     @NotNull(message = "学生姓名不能为空")
     @ApiModelProperty("学生姓名")

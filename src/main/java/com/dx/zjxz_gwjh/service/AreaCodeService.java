@@ -22,18 +22,17 @@ public class AreaCodeService {
 
     public List<StaticAreaCodeDto> getAreaCodeListStatic() {
         List<StaticAreaCodeDto> counties = Arrays.asList(
-                new StaticAreaCodeDto("1f68bea42eae4d039d664328f560729c", "嵊泗县", "3", new ArrayList<>()),
-                new StaticAreaCodeDto("6f84ef6994a74ad4b7bd24d014409565", "岱山县", "3", new ArrayList<>()),
+                new StaticAreaCodeDto("cbd46108d05c4c3393e5319edde692a9", "定海区", "3", new ArrayList<>()),
                 new StaticAreaCodeDto("a31c792dbc504609ae275229ea1239f6", "普陀区", "3", new ArrayList<>()),
-                new StaticAreaCodeDto("cbd46108d05c4c3393e5319edde692a9", "定海区", "3", new ArrayList<>())
+                new StaticAreaCodeDto("6f84ef6994a74ad4b7bd24d014409565", "岱山县", "3", new ArrayList<>()),
+                new StaticAreaCodeDto("1f68bea42eae4d039d664328f560729c", "嵊泗县", "3", new ArrayList<>())
         );
 
         List<StaticAreaCodeDto> functionalAreas = Arrays.asList(
-                new StaticAreaCodeDto("e9230ab250b34136bb8032ce653905a8", "高新区", "3", new ArrayList<>()),
-                new StaticAreaCodeDto("e9230ab250b34136bb9032ce653905b7", "六横", "3", new ArrayList<>()),
-                new StaticAreaCodeDto("e9230ab250b34136bb9132ce653905a7", "普朱", "3", new ArrayList<>()),
                 new StaticAreaCodeDto("e9230ab250b34137bb8032ce653905a7", "新城", "3", new ArrayList<>()),
-                new StaticAreaCodeDto("e9230ab250b34149bb8032ce653905a7", "金塘", "3", new ArrayList<>())
+                new StaticAreaCodeDto("e9230ab250b34136bb9132ce653905a7", "普朱", "3", new ArrayList<>()),
+                new StaticAreaCodeDto("e9230ab250b34149bb8032ce653905a7", "金塘", "3", new ArrayList<>()),
+                new StaticAreaCodeDto("e9230ab250b34136bb9032ce653905b7", "六横", "3", new ArrayList<>())
         );
 
         StaticAreaCodeDto countyArea = new StaticAreaCodeDto("1f84ef6994a89ad4b7bd24d014409565", "县区", "2", counties);

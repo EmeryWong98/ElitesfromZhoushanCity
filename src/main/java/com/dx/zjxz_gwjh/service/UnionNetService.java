@@ -156,27 +156,27 @@ public class UnionNetService extends JpaPublicService<UnionNetEntity, String> im
         return unionNetEntity;
     }
 
-//    public UnionNetEntity findOrCreateByNameAndContactorAndPhoneAndLocation(String unionNetName, String unionNetContactor, String unionNetContactorMobile, String unionNetLocation) {
-//        if (StringUtils.isBlank(unionNetName)) {
-//            return null;
-//        }
-//        UnionNetEntity unionNetEntity = unionNetRepository.findByName(unionNetName);
-//        if (unionNetEntity != null) {
-//            unionNetEntity = new UnionNetEntity();
-//            unionNetEntity.setName(unionNetName);
-//            unionNetEntity.setUserName(unionNetContactor);
-//            unionNetEntity.setPhoneNumber(unionNetContactorMobile);
-//            unionNetEntity.setLocation(unionNetLocation);
-//            unionNetEntity = unionNetRepository.save(unionNetEntity);
-//        } else {
-//            unionNetEntity = new UnionNetEntity();
-//            unionNetEntity.setName(unionNetName);
-//            unionNetEntity.setUserName(unionNetContactor);
-//            unionNetEntity.setPhoneNumber(unionNetContactorMobile);
-//            unionNetEntity.setLocation(unionNetLocation);
-//            unionNetEntity = unionNetRepository.save(unionNetEntity);
-//        }
-//        unionNetEntity = unionNetRepository.save(unionNetEntity); // 保存或更新实体
-//        return unionNetEntity;
-//    }
+    public UnionNetEntity findOrCreateByNameAndContactorAndPhoneAndLocation(String unionNetName, String unionNetContactor, String unionNetContactorMobile, String unionNetLocation) {
+        if (StringUtils.isBlank(unionNetName)) {
+            return null;
+        }
+        UnionNetEntity unionNetEntity = unionNetRepository.findByName(unionNetName);
+        if (unionNetEntity != null) {
+            unionNetEntity = new UnionNetEntity();
+            unionNetEntity.setName(unionNetName);
+            unionNetEntity.setUserName(unionNetContactor);
+            unionNetEntity.setPhoneNumber(unionNetContactorMobile);
+            unionNetEntity.setLocation(unionNetLocation);
+            unionNetEntity = unionNetRepository.save(unionNetEntity);
+        } else {
+            unionNetEntity = new UnionNetEntity();
+            unionNetEntity.setName(unionNetName);
+            unionNetEntity.setUserName(unionNetContactor);
+            unionNetEntity.setPhoneNumber(unionNetContactorMobile);
+            unionNetEntity.setLocation(unionNetLocation);
+            unionNetEntity = unionNetRepository.save(unionNetEntity);
+        }
+        unionNetEntity = unionNetRepository.save(unionNetEntity); // 保存或更新实体
+        return unionNetEntity;
+    }
 }

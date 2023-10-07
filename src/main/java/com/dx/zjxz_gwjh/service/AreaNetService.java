@@ -137,30 +137,30 @@ public class AreaNetService extends JpaPublicService<AreaNetEntity, String> impl
         return areaNetEntity;
 
     }
-    }
 
-//    public AreaNetEntity findOrCreateByNameAndContactorAndPhoneAndAreaCodeAndLocation(String areaNetName, String areaNetContactor, String areaNetContactorMobile, String areaNetAreaCode, String areaNetLocation) {
-//        if (StringUtils.isBlank(areaNetName)) {
-//            return null;
-//        }
-//        AreaNetEntity areaNetEntity = areaNetRepository.findByName(areaNetName);
-//        if (areaNetEntity != null) {
-//            areaNetEntity.setName(areaNetName);
-//            areaNetEntity.setUserName(areaNetContactor) ;
-//            areaNetEntity.setPhoneNumber(areaNetContactorMobile);
-//            areaNetEntity.setAreaCode(areaNetAreaCode);
-//            areaNetEntity.setLocation(areaNetLocation);
-//            areaNetEntity = areaNetRepository.save(areaNetEntity);
-//        } else {
-//            areaNetEntity = new AreaNetEntity();
-//            areaNetEntity.setName(areaNetName);
-//            areaNetEntity.setUserName(areaNetContactor) ;
-//            areaNetEntity.setPhoneNumber(areaNetContactorMobile);
-//            areaNetEntity.setAreaCode(areaNetAreaCode);
-//            areaNetEntity.setLocation(areaNetLocation);
-//            areaNetEntity = areaNetRepository.save(areaNetEntity);
-//        }
-//        areaNetEntity = areaNetRepository.save(areaNetEntity); // 保存或更新实体
-//        return areaNetEntity;
-//    }
+    public AreaNetEntity findOrCreateByNameAndContactorAndPhoneAndAreaCodeAndLocation(String areaNetName, String areaNetContactor, String areaNetContactorMobile, String areaNetAreaCode, String areaNetLocation) {
+        if (StringUtils.isBlank(areaNetName)) {
+            return null;
+        }
+        AreaNetEntity areaNetEntity = areaNetRepository.findByName(areaNetName);
+        if (areaNetEntity != null) {
+            areaNetEntity.setName(areaNetName);
+            areaNetEntity.setUserName(areaNetContactor) ;
+            areaNetEntity.setPhoneNumber(areaNetContactorMobile);
+            areaNetEntity.setAreaCode(areaNetAreaCode);
+            areaNetEntity.setLocation(areaNetLocation);
+            areaNetEntity = areaNetRepository.save(areaNetEntity);
+        } else {
+            areaNetEntity = new AreaNetEntity();
+            areaNetEntity.setName(areaNetName);
+            areaNetEntity.setUserName(areaNetContactor) ;
+            areaNetEntity.setPhoneNumber(areaNetContactorMobile);
+            areaNetEntity.setAreaCode(areaNetAreaCode);
+            areaNetEntity.setLocation(areaNetLocation);
+            areaNetEntity = areaNetRepository.save(areaNetEntity);
+        }
+        areaNetEntity = areaNetRepository.save(areaNetEntity); // 保存或更新实体
+        return areaNetEntity;
+    }
+}
 

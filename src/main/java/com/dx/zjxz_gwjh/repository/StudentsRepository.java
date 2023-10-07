@@ -175,15 +175,14 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
 
     @Query("SELECT new com.dx.zjxz_gwjh.dto.HighSchoolNetOverviewDto(" +
             "hs.name, hs.id, ac.id, COUNT(DISTINCT s.highSchoolNetId), " +
-            "COUNT(s), SUM(CASE WHEN s.isKeyContact = true THEN 1 ELSE 0 END), hs.lon, hs.lat) " +
-            "FROM StudentsEntity s " +
-            "JOIN HighSchoolEntity hs ON s.highSchoolId = hs.id " +
-            "JOIN HighSchoolNetEntity hsn ON hs.name = hsn.location " +
-            "JOIN AreaCodeEntity ac ON hsn.areaCode = ac.code " +
-            "WHERE hs.name IS NOT NULL " +
+            "COUNT(s), SUM(CASE WHEN s.isKeyContact = true THEN 1 ELSE 0 END), hs.lon, hs.lat, MAX(hs.files)) " +
+            "FROM HighSchoolEntity hs " +
+            "LEFT JOIN StudentsEntity s ON hs.id = s.highSchoolId " +
+            "LEFT JOIN HighSchoolNetEntity hsn ON hs.name = hsn.location " +
+            "LEFT JOIN AreaCodeEntity ac ON hsn.areaCode = ac.code " +
+            "where hs.name is not null " +
             "GROUP BY hs.name, hs.id, ac.id, hs.lon, hs.lat")
     List<HighSchoolNetOverviewDto> findHighSchoolNetOverview();
-
 
 
     @Query("SELECT new com.dx.zjxz_gwjh.dto.HighSchoolNetSimpleOverviewDto(" +

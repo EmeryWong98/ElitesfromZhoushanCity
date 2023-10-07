@@ -168,93 +168,93 @@ public class StudentsManagementController {
         }
 
 
-//    @BindResource("students:management:import")
-//    @Action(value = "导入学生信息", type = Action.ActionType.CREATE)
-//    @PostMapping("/import")
-//    public String importStudents(@RequestParam("file") MultipartFile file) {
-//        if (file.isEmpty()) {
-//            return "请选择文件";
-//        }
-//        try {
-//            List<StudentsImportDto> studentsList = parseExcelFile(file);
-//            for (StudentsImportDto student : studentsList) {
-//                studentsService.MassiveCreateStudent(student);
-//            }
-//            return "导入成功";
-//        } catch (Exception e) {
-//            return "导入失败：" + e.getMessage();
-//        }
-//    }
-//
-//    private List<StudentsImportDto> parseExcelFile(MultipartFile file) throws IOException {
-//        List<StudentsImportDto> studentsList = new ArrayList<>();
-//        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
-//            Sheet sheet = workbook.getSheetAt(0);
-//            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-//                Row row = sheet.getRow(i);
-//                StudentsImportDto dto = convertRowToDto(row);
-//                studentsList.add(dto);
-//            }
-//        }
-//        return studentsList;
-//    }
-//
-//    private StudentsImportDto convertRowToDto(Row row) {
-//        DataFormatter dataFormatter = new DataFormatter();
-//        StudentsImportDto dto = new StudentsImportDto();
-//
-//        dto.setAcademicYear(Integer.parseInt(dataFormatter.formatCellValue(row.getCell(1)))); // 从第二列开始
-//        dto.setName(dataFormatter.formatCellValue(row.getCell(2)));
-//        dto.setProvince(dataFormatter.formatCellValue(row.getCell(3)));
-//        dto.setUniversityName(dataFormatter.formatCellValue(row.getCell(4)));
-//        dto.setUniversityProvince(dataFormatter.formatCellValue(row.getCell(5)));
-//        dto.setMajor(dataFormatter.formatCellValue(row.getCell(6)));
-//        dto.setDegree(dataFormatter.formatCellValue(row.getCell(7)));
-//        dto.setIdCard(dataFormatter.formatCellValue(row.getCell(8)));
-//        dto.setHighSchoolName(dataFormatter.formatCellValue(row.getCell(9)));
-//
-//        String isKeyContact = dataFormatter.formatCellValue(row.getCell(10));
-//        dto.setIsKeyContact(!"否".equals(isKeyContact));
-//        dto.setIsSupreme("是（双一流）".equals(isKeyContact));
-//
-//        dto.setPhone(dataFormatter.formatCellValue(row.getCell(11)));
-//        dto.setArea(dataFormatter.formatCellValue(row.getCell(12)));
-//        dto.setAddress(dataFormatter.formatCellValue(row.getCell(13)));
-//        dto.setFamilyContactor(dataFormatter.formatCellValue(row.getCell(14)));
-//        dto.setFamilyContactorMobile(dataFormatter.formatCellValue(row.getCell(15)));
-//        dto.setUndergraduateClass(dataFormatter.formatCellValue(row.getCell(16)));
-//        dto.setHeadTeacher(dataFormatter.formatCellValue(row.getCell(17)));
-//        dto.setHeadTeacherMobile(dataFormatter.formatCellValue(row.getCell(18)));
-//
-//        if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(19)))) {
-//            dto.setHighSchoolNetName(dataFormatter.formatCellValue(row.getCell(19)));
-//            dto.setHighSchoolNetContactor(dataFormatter.formatCellValue(row.getCell(20)));
-//            dto.setHighSchoolNetContactorMobile(dataFormatter.formatCellValue(row.getCell(21)));
-//            dto.setHighSchoolNetAreaCode(areaCodeService.getAreaCodeByName(dataFormatter.formatCellValue(row.getCell(12))));
-//            dto.setHighSchoolNetLocation(dataFormatter.formatCellValue(row.getCell(9)));
-//        }
-//
-//        if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(22)))) {
-//            dto.setAreaNetName(dataFormatter.formatCellValue(row.getCell(22)));
-//            dto.setAreaNetContactor(dataFormatter.formatCellValue(row.getCell(23)));
-//            dto.setAreaNetContactorMobile(dataFormatter.formatCellValue(row.getCell(24)));
-//            dto.setAreaNetAreaCode(areaCodeService.getAreaCodeByName(dataFormatter.formatCellValue(row.getCell(12))));
-//            dto.setAreaNetLocation(dataFormatter.formatCellValue(row.getCell(12)));
-//        }
-//
-//        if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(25)))) {
-//            dto.setOfficerNetName(dataFormatter.formatCellValue(row.getCell(25)));
-//            dto.setOfficerNetPosition(dataFormatter.formatCellValue(row.getCell(26)));
-//        }
-//
-//        if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(27)))) {
-//            dto.setUnionNetName(dataFormatter.formatCellValue(row.getCell(27)));
-//            dto.setUnionNetContactor(dataFormatter.formatCellValue(row.getCell(28)));
-//            dto.setUnionNetContactorMobile(dataFormatter.formatCellValue(row.getCell(29)));
-//            dto.setUnionNetLocation(dataFormatter.formatCellValue(row.getCell(5)));
-//        }
-//
-//        return dto;
-//    }
+    @BindResource("students:management:import")
+    @Action(value = "导入学生信息", type = Action.ActionType.CREATE)
+    @PostMapping("/import")
+    public String importStudents(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return "请选择文件";
+        }
+        try {
+            List<StudentsImportDto> studentsList = parseExcelFile(file);
+            for (StudentsImportDto student : studentsList) {
+                studentsService.MassiveCreateStudent(student);
+            }
+            return "导入成功";
+        } catch (Exception e) {
+            return "导入失败：" + e.getMessage();
+        }
+    }
+
+    private List<StudentsImportDto> parseExcelFile(MultipartFile file) throws IOException {
+        List<StudentsImportDto> studentsList = new ArrayList<>();
+        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                StudentsImportDto dto = convertRowToDto(row);
+                studentsList.add(dto);
+            }
+        }
+        return studentsList;
+    }
+
+    private StudentsImportDto convertRowToDto(Row row) {
+        DataFormatter dataFormatter = new DataFormatter();
+        StudentsImportDto dto = new StudentsImportDto();
+
+        dto.setAcademicYear(Integer.parseInt(dataFormatter.formatCellValue(row.getCell(1)))); // 从第二列开始
+        dto.setName(dataFormatter.formatCellValue(row.getCell(2)));
+        dto.setProvince(dataFormatter.formatCellValue(row.getCell(3)));
+        dto.setUniversityName(dataFormatter.formatCellValue(row.getCell(4)));
+        dto.setUniversityProvince(dataFormatter.formatCellValue(row.getCell(5)));
+        dto.setMajor(dataFormatter.formatCellValue(row.getCell(6)));
+        dto.setDegree(dataFormatter.formatCellValue(row.getCell(7)));
+        dto.setIdCard(dataFormatter.formatCellValue(row.getCell(8)));
+        dto.setHighSchoolName(dataFormatter.formatCellValue(row.getCell(9)));
+
+        String isKeyContact = dataFormatter.formatCellValue(row.getCell(10));
+        dto.setIsKeyContact(!"否".equals(isKeyContact));
+        dto.setIsSupreme("是（双一流）".equals(isKeyContact));
+
+        dto.setPhone(dataFormatter.formatCellValue(row.getCell(11)));
+        dto.setArea(dataFormatter.formatCellValue(row.getCell(12)));
+        dto.setAddress(dataFormatter.formatCellValue(row.getCell(13)));
+        dto.setFamilyContactor(dataFormatter.formatCellValue(row.getCell(14)));
+        dto.setFamilyContactorMobile(dataFormatter.formatCellValue(row.getCell(15)));
+        dto.setUndergraduateClass(dataFormatter.formatCellValue(row.getCell(16)));
+        dto.setHeadTeacher(dataFormatter.formatCellValue(row.getCell(17)));
+        dto.setHeadTeacherMobile(dataFormatter.formatCellValue(row.getCell(18)));
+
+        if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(19)))) {
+            dto.setHighSchoolNetName(dataFormatter.formatCellValue(row.getCell(19)));
+            dto.setHighSchoolNetContactor(dataFormatter.formatCellValue(row.getCell(20)));
+            dto.setHighSchoolNetContactorMobile(dataFormatter.formatCellValue(row.getCell(21)));
+            dto.setHighSchoolNetAreaCode(areaCodeService.getAreaCodeByName(dataFormatter.formatCellValue(row.getCell(12))));
+            dto.setHighSchoolNetLocation(dataFormatter.formatCellValue(row.getCell(9)));
+        }
+
+        if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(22)))) {
+            dto.setAreaNetName(dataFormatter.formatCellValue(row.getCell(22)));
+            dto.setAreaNetContactor(dataFormatter.formatCellValue(row.getCell(23)));
+            dto.setAreaNetContactorMobile(dataFormatter.formatCellValue(row.getCell(24)));
+            dto.setAreaNetAreaCode(areaCodeService.getAreaCodeByName(dataFormatter.formatCellValue(row.getCell(12))));
+            dto.setAreaNetLocation(dataFormatter.formatCellValue(row.getCell(12)));
+        }
+
+        if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(25)))) {
+            dto.setOfficerNetName(dataFormatter.formatCellValue(row.getCell(25)));
+            dto.setOfficerNetPosition(dataFormatter.formatCellValue(row.getCell(26)));
+        }
+
+        if (StringUtils.isNotBlank(dataFormatter.formatCellValue(row.getCell(27)))) {
+            dto.setUnionNetName(dataFormatter.formatCellValue(row.getCell(27)));
+            dto.setUnionNetContactor(dataFormatter.formatCellValue(row.getCell(28)));
+            dto.setUnionNetContactorMobile(dataFormatter.formatCellValue(row.getCell(29)));
+            dto.setUnionNetLocation(dataFormatter.formatCellValue(row.getCell(5)));
+        }
+
+        return dto;
+    }
 
 }

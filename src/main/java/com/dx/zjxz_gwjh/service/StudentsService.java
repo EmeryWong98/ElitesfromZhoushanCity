@@ -162,6 +162,12 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
                 ));
             }
 
+            //属地
+            String area = filter.getArea();
+            if (StringUtils.hasText(area)) {
+                predicate.and(q.area.contains(area));
+            }
+
             // 属地ID
             String areaId = filter.getAreaId();
             if (StringUtils.hasText(areaId)) {
@@ -495,11 +501,10 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         idMap.put("1f68bea42eae4d039d664328f560729c", Arrays.asList("6f84ef6994a74ad4b7bd24d014409565", "1f68bea42eae4d039d664328f560729c", "a31c792dbc504609ae275229ea1239f6", "cbd46108d05c4c3393e5319edde692a9"));
         idMap.put("a31c792dbc504609ae275229ea1239f6", Arrays.asList("6f84ef6994a74ad4b7bd24d014409565", "1f68bea42eae4d039d664328f560729c", "a31c792dbc504609ae275229ea1239f6", "cbd46108d05c4c3393e5319edde692a9"));
         idMap.put("cbd46108d05c4c3393e5319edde692a9", Arrays.asList("6f84ef6994a74ad4b7bd24d014409565", "1f68bea42eae4d039d664328f560729c", "a31c792dbc504609ae275229ea1239f6", "cbd46108d05c4c3393e5319edde692a9"));
-        idMap.put("e9230ab250b34136bb8032ce653905a8", Arrays.asList("e9230ab250b34136bb8032ce653905a8", "e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
-        idMap.put("e9230ab250b34137bb8032ce653905a7", Arrays.asList("e9230ab250b34136bb8032ce653905a8", "e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
-        idMap.put("e9230ab250b34136bb9132ce653905a7", Arrays.asList("e9230ab250b34136bb8032ce653905a8", "e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
-        idMap.put("e9230ab250b34149bb8032ce653905a7", Arrays.asList("e9230ab250b34136bb8032ce653905a8", "e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
-        idMap.put("e9230ab250b34136bb9032ce653905b7", Arrays.asList("e9230ab250b34136bb8032ce653905a8", "e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
+        idMap.put("e9230ab250b34137bb8032ce653905a7", Arrays.asList("e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
+        idMap.put("e9230ab250b34136bb9132ce653905a7", Arrays.asList("e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
+        idMap.put("e9230ab250b34149bb8032ce653905a7", Arrays.asList("e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
+        idMap.put("e9230ab250b34136bb9032ce653905b7", Arrays.asList("e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
 
         List<String> areaIds = idMap.getOrDefault(areaId, Collections.singletonList(areaId));
         List<AreaCodeDto> allAreas = areaCodeService.getAreaCodeList();
@@ -782,11 +787,10 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         idMap.put("1f68bea42eae4d039d664328f560729c", Arrays.asList("6f84ef6994a74ad4b7bd24d014409565", "1f68bea42eae4d039d664328f560729c", "a31c792dbc504609ae275229ea1239f6", "cbd46108d05c4c3393e5319edde692a9"));
         idMap.put("a31c792dbc504609ae275229ea1239f6", Arrays.asList("6f84ef6994a74ad4b7bd24d014409565", "1f68bea42eae4d039d664328f560729c", "a31c792dbc504609ae275229ea1239f6", "cbd46108d05c4c3393e5319edde692a9"));
         idMap.put("cbd46108d05c4c3393e5319edde692a9", Arrays.asList("6f84ef6994a74ad4b7bd24d014409565", "1f68bea42eae4d039d664328f560729c", "a31c792dbc504609ae275229ea1239f6", "cbd46108d05c4c3393e5319edde692a9"));
-        idMap.put("e9230ab250b34136bb8032ce653905a8", Arrays.asList("e9230ab250b34136bb8032ce653905a8", "e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
-        idMap.put("e9230ab250b34137bb8032ce653905a7", Arrays.asList("e9230ab250b34136bb8032ce653905a8", "e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
-        idMap.put("e9230ab250b34136bb9132ce653905a7", Arrays.asList("e9230ab250b34136bb8032ce653905a8", "e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
-        idMap.put("e9230ab250b34149bb8032ce653905a7", Arrays.asList("e9230ab250b34136bb8032ce653905a8", "e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
-        idMap.put("e9230ab250b34136bb9032ce653905b7", Arrays.asList("e9230ab250b34136bb8032ce653905a8", "e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
+        idMap.put("e9230ab250b34137bb8032ce653905a7", Arrays.asList("e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
+        idMap.put("e9230ab250b34136bb9132ce653905a7", Arrays.asList("e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
+        idMap.put("e9230ab250b34149bb8032ce653905a7", Arrays.asList("e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
+        idMap.put("e9230ab250b34136bb9032ce653905b7", Arrays.asList("e9230ab250b34137bb8032ce653905a7", "e9230ab250b34136bb9132ce653905a7", "e9230ab250b34149bb8032ce653905a7", "e9230ab250b34136bb9032ce653905b7"));
 
         List<String> areaIds = idMap.getOrDefault(areaId, Collections.singletonList(areaId));
         List<AreaCodeDto> allAreas = areaCodeService.getAreaCodeList();
@@ -931,72 +935,81 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         return (int) studentsRepository.count();
     }
 
-//    public StudentsEntity MassiveCreateStudent(StudentsImportDto dto) throws ServiceException {
-//        // 如果是新创建的学生（ID 为 null），检查 idCard 的唯一性
-//        if (dto.getId() == null) {
-//            StudentsEntity existingStudent = studentsRepository.findByIdCard(dto.getIdCard());
-//            if (existingStudent != null) {
-//                throw new ServiceException("学生重复");
-//            }
-//        }
-//
-//        // 先检查并获取或创建University实体
-//        UniversityEntity universityEntity = universityService.findOrCreateByNameAndProvince(dto.getUniversityName(), dto.getUniversityProvince());
-//
-//        // 先检查并获取或创建HighSchool实体
-//        HighSchoolEntity highSchoolEntity = highSchoolService.findOrCreateByName(dto.getHighSchoolName());
-//
-//        // 先检查并获取或创建highSchoolNet实体
-//        HighSchoolNetEntity highSchoolNetEntity = highSchoolNetService.findOrCreateByNameAndContactorAndPhoneAndAreaCodeAndLocation(dto.getHighSchoolNetName(), dto.getHighSchoolNetContactor(), dto.getHighSchoolNetContactorMobile(), dto.getHighSchoolNetAreaCode(), dto.getHighSchoolNetLocation());
-//
-//        // 先检查并获取或创建AreaNet实体
-//        AreaNetEntity areaNetEntity = areaNetService.findOrCreateByNameAndContactorAndPhoneAndAreaCodeAndLocation(dto.getAreaNetName(), dto.getAreaNetContactor(), dto.getAreaNetContactorMobile(), dto.getAreaNetAreaCode(), dto.getAreaNetLocation());
-//
-//        // 先检查并获取或创建OfficerNet实体
-//        OfficerNetEntity officerNetEntity = officerNetService.findOrCreateByNameAndTitle(dto.getOfficerNetName(),dto.getOfficerNetPosition());
-//
-//        // 先检查并获取或创建UnionNet实体
-//        UnionNetEntity unionNetEntity = UnionNetService.findOrCreateByNameAndContactorAndPhoneAndLocation(dto.getUnionNetName(), dto.getUnionNetContactor(), dto.getUnionNetContactorMobile(), dto.getUnionNetLocation());
-//
-//        // 创建或获取现有的学生实体
-//        StudentsEntity entity = new StudentsEntity();
-//        if (dto.getId() != null) {
-//            entity = this.getById(dto.getId());
-//        }
-//
-//        // 将DTO中的数据复制到学生实体
-//        ObjectUtils.copyEntity(dto, entity);
-//
-//        // 设置关联的University和HighSchool
-//        entity.setUniversity(universityEntity);
-//        entity.setHighSchool(highSchoolEntity);
-//        entity.setHighSchoolNet(highSchoolNetEntity);
-//        entity.setAreaNet(areaNetEntity);
-//        entity.setOfficerNet(officerNetEntity);
-//        entity.setUnionNet(unionNetEntity);
-//
-//
-//        // 从身份证中提取出生日期和性别
-//        try {
-//            java.util.Date birthDate = IdCardInfo.getBirthDate(dto.getIdCard()); // 假设 IdCardInfo 类存在
-//            java.sql.Date sqlBirthDate = new java.sql.Date(birthDate.getTime());  // 转换为 java.sql.Date
-//            String gender = IdCardInfo.getGender(dto.getIdCard());     // 假设 IdCardInfo 类存在
-//
-//            entity.setDob(sqlBirthDate); // 假设您的 StudentsEntity 有一个叫做 'dob' 的字段
-//            entity.setSex(gender); // 假设您的 StudentsEntity 有一个叫做 'gender' 的字段
-//        } catch (ParseException e) {
-//            throw new ServiceException("身份证格式错误");
-//        }
-//
-//        // 创建或更新学生实体
-//        StudentsEntity studentEntity;
-//        if (dto.getId() != null) {
-//            studentEntity = this.update(entity); // 假设的更新方法，您需要实现它
-//        } else {
-//            studentEntity = this.create(entity); // 假设的创建方法，您需要实现它
-//        }
-//
-//        return studentEntity;
-//    }
+    public StudentsEntity MassiveCreateStudent(StudentsImportDto dto) throws ServiceException {
+        // 如果是新创建的学生（ID 为 null），检查 idCard 的唯一性
+        StudentsEntity entity = new StudentsEntity();
+        StudentsEntity existingStudent = studentsRepository.findByIdCard(dto.getIdCard());
+        if (existingStudent != null) {
+            throw new ServiceException("学生重复");
+        } else {
+
+        // 先检查并获取或创建HighSchool实体
+        HighSchoolEntity highSchoolEntity = highSchoolService.findOrCreateByName(dto.getHighSchoolName());
+
+        // 先检查并获取或创建highSchoolNet实体
+        HighSchoolNetEntity highSchoolNetEntity = highSchoolNetService.findOrCreateByNameAndContactorAndPhoneAndAreaCodeAndLocation(dto.getHighSchoolNetName(), dto.getHighSchoolNetContactor(), dto.getHighSchoolNetContactorMobile(), dto.getHighSchoolNetAreaCode(), dto.getHighSchoolNetLocation());
+
+        // 先检查并获取或创建AreaNet实体
+        AreaNetEntity areaNetEntity = areaNetService.findOrCreateByNameAndContactorAndPhoneAndAreaCodeAndLocation(dto.getAreaNetName(), dto.getAreaNetContactor(), dto.getAreaNetContactorMobile(), dto.getAreaNetAreaCode(), dto.getAreaNetLocation());
+
+        // 先检查并获取或创建OfficerNet实体
+        OfficerNetEntity officerNetEntity = officerNetService.findOrCreateByNameAndTitle(dto.getOfficerNetName(),dto.getOfficerNetPosition());
+
+        // 先检查并获取或创建UnionNet实体
+        UnionNetEntity unionNetEntity = UnionNetService.findByName(dto.getUnionNetName());
+
+        // 将DTO中的数据复制到学生实体
+        ObjectUtils.copyEntity(dto, entity);
+
+        // 设置关联的University和HighSchool
+        entity.setHighSchool(highSchoolEntity);
+        entity.setHighSchoolNet(highSchoolNetEntity);
+        entity.setAreaNet(areaNetEntity);
+        entity.setOfficerNet(officerNetEntity);
+        entity.setUnionNet(unionNetEntity);
+
+
+        // 从身份证中提取出生日期和性别
+        try {
+            java.util.Date birthDate = IdCardInfo.getBirthDate(dto.getIdCard()); // 假设 IdCardInfo 类存在
+            java.sql.Date sqlBirthDate = new java.sql.Date(birthDate.getTime());  // 转换为 java.sql.Date
+            String gender = IdCardInfo.getGender(dto.getIdCard());     // 假设 IdCardInfo 类存在
+
+            entity.setDob(sqlBirthDate); // 假设您的 StudentsEntity 有一个叫做 'dob' 的字段
+            entity.setSex(gender); // 假设您的 StudentsEntity 有一个叫做 'gender' 的字段
+        } catch (ParseException e) {
+            throw new ServiceException("身份证格式错误");
+        }
+
+            // 保存学生实体到数据库
+            studentsRepository.save(entity);
+
+            // 为每个大学和学位创建和保存一个 DegreeBindingEntity 对象
+            String universityName = dto.getUniversityName();
+            String province = dto.getUniversityProvince();
+            String degree = dto.getDegree();
+            String major = dto.getMajor();
+
+            if (universityName != null) {
+                UniversityEntity universityEntity = universityService.findOrCreateByNameAndProvince(universityName, province);
+
+                if (universityEntity != null) {
+                    DegreeBindingEntity degreeBindingEntity = new DegreeBindingEntity();
+                    degreeBindingEntity.setStudentId(entity.getId()); // 使用已保存的entity的ID
+                    degreeBindingEntity.setUniversityId(universityEntity.getId());
+                    degreeBindingEntity.setMajor(major);
+
+                    try {
+                        degreeBindingEntity.setDegree(DegreeType.fromDescription(degree));
+                    } catch (ServiceException e) {
+                        throw new ServiceException("无效的学位描述: " + degree);
+                    }
+
+                    degreeBindingRepository.save(degreeBindingEntity);
+                }
+            }
+        }
+        return entity;
+    }
 
 }

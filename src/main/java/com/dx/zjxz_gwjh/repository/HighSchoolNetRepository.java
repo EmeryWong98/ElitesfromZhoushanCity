@@ -23,5 +23,5 @@ public interface HighSchoolNetRepository extends JpaCommonRepository<HighSchoolN
 
     List<HighSchoolNetEntity> findByAreaCode(String areaCode);
 
-    List<HighSchoolNetEntity> findByLocation(String highSchoolName);
+    List<HighSchoolNetEntity> findByLocationOrderByName(String highSchoolName);
 }

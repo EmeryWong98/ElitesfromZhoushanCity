@@ -65,4 +65,15 @@ public class HighSchoolService extends JpaPublicService<HighSchoolEntity, String
         }
         return highSchoolEntity;
     }
+
+
+    public HighSchoolEntity findOrCreateByName(String highSchoolName) throws ServiceException{
+        HighSchoolEntity highSchoolEntity = highSchoolRepository.findByName(highSchoolName.trim());
+        if (highSchoolEntity == null) {
+            highSchoolEntity = new HighSchoolEntity();
+            highSchoolEntity.setName(highSchoolName);
+            highSchoolEntity = highSchoolRepository.save(highSchoolEntity);
+        }
+        return highSchoolEntity;
+    }
 }

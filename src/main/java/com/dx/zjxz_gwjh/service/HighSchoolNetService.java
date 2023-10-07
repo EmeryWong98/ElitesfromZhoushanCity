@@ -161,7 +161,7 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
 
         HighSchoolEntity highSchoolEntity = highSchoolRepository.findById(id).orElse(null);
 
-        List<HighSchoolNetEntity> highSchoolNetEntityList = highSchoolNetRepository.findByLocation(highSchoolEntity.getName());
+        List<HighSchoolNetEntity> highSchoolNetEntityList = highSchoolNetRepository.findByLocationOrderByName(highSchoolEntity.getName());
 
         return highSchoolNetEntityList;
 

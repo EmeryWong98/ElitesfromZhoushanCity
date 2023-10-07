@@ -86,22 +86,22 @@ public class OfficerNetService extends JpaPublicService<OfficerNetEntity, String
         return officerNetEntity;
     }
 
-//    public OfficerNetEntity findOrCreateByNameAndTitle(String officerNetName, String officerNetPosition) {
-//        if (StringUtils.isBlank(officerNetName)) {
-//            return null;
-//        }
-//        OfficerNetEntity officerNetEntity = officerNetRepository.findByUserName(officerNetName);
-//        if (officerNetEntity != null) {
-//            officerNetEntity.setUserName(officerNetName);
-//            officerNetEntity.setTitle(officerNetPosition);
-//            officerNetEntity = officerNetRepository.save(officerNetEntity);
-//        } else {
-//            officerNetEntity = new OfficerNetEntity();
-//            officerNetEntity.setUserName(officerNetName);
-//            officerNetEntity.setTitle(officerNetPosition);
-//            officerNetEntity = officerNetRepository.save(officerNetEntity);
-//        }
-//        officerNetEntity = officerNetRepository.save(officerNetEntity); // 保存或更新实体
-//        return officerNetEntity;
-//    }
+    public OfficerNetEntity findOrCreateByNameAndTitle(String officerNetName, String officerNetPosition) {
+        if (StringUtils.isBlank(officerNetName)) {
+            return null;
+        }
+        OfficerNetEntity officerNetEntity = officerNetRepository.findByUserName(officerNetName);
+        if (officerNetEntity != null) {
+            officerNetEntity.setUserName(officerNetName);
+            officerNetEntity.setTitle(officerNetPosition);
+            officerNetEntity = officerNetRepository.save(officerNetEntity);
+        } else {
+            officerNetEntity = new OfficerNetEntity();
+            officerNetEntity.setUserName(officerNetName);
+            officerNetEntity.setTitle(officerNetPosition);
+            officerNetEntity = officerNetRepository.save(officerNetEntity);
+        }
+        officerNetEntity = officerNetRepository.save(officerNetEntity); // 保存或更新实体
+        return officerNetEntity;
+    }
 }
