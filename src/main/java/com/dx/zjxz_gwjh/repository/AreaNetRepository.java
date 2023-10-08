@@ -32,7 +32,7 @@ public interface AreaNetRepository extends JpaCommonRepository<AreaNetEntity, St
             "GROUP BY ac.name, ac.id")
     List<AreaNetOverviewDto> findAreaNetOverview();
 
-    @Query("SELECT s.areaNetId, an.userName, s.id, s.name " +
+    @Query("SELECT s.areaNetId, an.userName, s.id, s.name, s.sex " +
             "FROM StudentsEntity s " +
             "JOIN AreaNetEntity an ON s.areaNetId = an.id " +
             "JOIN AreaCodeEntity ac ON s.area = ac.name " +
@@ -45,6 +45,5 @@ public interface AreaNetRepository extends JpaCommonRepository<AreaNetEntity, St
                                            @Param("graduationYear") Integer graduationYear,
                                            @Param("netId") String netId);
 
-
-    List<AreaNetEntity> findByAreaCode(String areaCode);
+    List<AreaNetEntity> findByAreaCodeOrderByName(String areaCode);
 }

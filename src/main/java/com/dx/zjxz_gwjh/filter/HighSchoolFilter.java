@@ -12,4 +12,7 @@ public class HighSchoolFilter {
 
     @ApiModelProperty("名称")
     private String name;
+
+    @ApiModelProperty("是否显示")
+    private Boolean isShow;
 }

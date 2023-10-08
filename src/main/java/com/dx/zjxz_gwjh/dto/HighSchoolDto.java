@@ -25,4 +25,10 @@ public class HighSchoolDto extends BaseEventDto{
 
     @ApiModelProperty("纬度")
     private float lat;
+
+    @ApiModelProperty("是否显示")
+    private Boolean isShow;
+
+    @ApiModelProperty("顺序")
+    private Integer xOrder;
 }

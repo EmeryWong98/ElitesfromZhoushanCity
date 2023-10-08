@@ -20,7 +20,7 @@ import java.util.List;
 @Entity
 @Proxy(lazy = false)
 @Table(name = "biz_high_school", indexes = {
-        @Index(columnList = "id")
+        @Index(columnList = "id"), @Index(columnList = "name")
 })
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
@@ -47,6 +47,14 @@ public class HighSchoolEntity extends JpaBaseEntity {
     @ApiModelProperty("lat")
     @Column(name = "lat")
     private float lat;
+
+    @ApiModelProperty("是否显示")
+    @Column(name = "is_show")
+    private Boolean isShow;
+
+    @ApiModelProperty("排序")
+    @Column(name = "x_order")
+    private Integer xorder;
 
 
 }

@@ -18,7 +18,7 @@ import java.util.Set;
 @Entity
 @Proxy(lazy = false)
 @Table(name = "biz_students", indexes = {
-        @Index(columnList = "id")
+        @Index(columnList = "id"), @Index(columnList = "area"), @Index(columnList = "high_school_id"), @Index(columnList = "high_school_net_id"), @Index(columnList = "area_net_id"), @Index(columnList = "officer_net_id"), @Index(columnList = "union_net_id"), @Index(columnList = "academic_year"),  @Index(columnList = "is_key_contact")
 })
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
@@ -83,6 +83,10 @@ public class StudentsEntity extends JpaBaseEntity{
     @ManyToOne
     @JoinColumn(name="high_School_id", referencedColumnName = "id")
     private HighSchoolEntity highSchool;
+
+    @OneToMany
+    @JoinColumn(name="student_id", referencedColumnName = "id")
+    private Set<DegreeBindingEntity> degreeBindings;
 
     @ApiModelProperty("省份")
     @Column(name = "province")

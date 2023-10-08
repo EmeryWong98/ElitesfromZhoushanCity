@@ -8,9 +8,10 @@ server:
     key-store-type: JKS
     enabled: true
 
+
 spring:
   profiles:
-    active: test
+    active: local
 
   main:
     allow-bean-definition-overriding: true

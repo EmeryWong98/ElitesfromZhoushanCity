@@ -49,24 +49,29 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
                                                       @Param("endYear") int endYear);
 
 
-
-
-    @Query("SELECT COUNT(DISTINCT s) FROM StudentsEntity s " +
+//    @Query("SELECT COUNT(DISTINCT s) FROM StudentsEntity s " +
+//            "JOIN DegreeBindingEntity d ON s.id = d.studentId " +
+//            "JOIN UniversityEntity u ON d.universityId = u.id " +
+//            "WHERE u.province = :province " +
+//            "AND s.academicYear BETWEEN :startYear AND :endYear " +
+//            "AND s.area IN :selectedAreaNames " +
+//            "AND (CASE WHEN d.degree = 'phd' THEN 2 " +
+//            "WHEN d.degree = 'graduate' THEN 1 " +
+//            "ELSE 0 END) = " +
+//            "(SELECT MAX(CASE WHEN degree = 'phd' THEN 2 " +
+//            "WHEN degree = 'graduate' THEN 1 " +
+//            "ELSE 0 END) FROM DegreeBindingEntity where studentId = s.id)")
+    @Query("SELECT COUNT(s) FROM StudentsEntity s " +
             "JOIN DegreeBindingEntity d ON s.id = d.studentId " +
             "JOIN UniversityEntity u ON d.universityId = u.id " +
             "WHERE u.province = :province " +
             "AND s.academicYear BETWEEN :startYear AND :endYear " +
-            "AND s.area IN :selectedAreaNames " +
-            "AND (CASE WHEN d.degree = 'phd' THEN 2 " +
-            "WHEN d.degree = 'graduate' THEN 1 " +
-            "ELSE 0 END) = " +
-            "(SELECT MAX(CASE WHEN degree = 'phd' THEN 2 " +
-            "WHEN degree = 'graduate' THEN 1 " +
-            "ELSE 0 END) FROM DegreeBindingEntity where studentId = s.id)")
+            "AND s.area IN :selectedAreaNames")
     int countStudentsByProvinceAndYearRange(@Param("province") String province,
                                             @Param("startYear") int startYear,
                                             @Param("endYear") int endYear,
                                             @Param("selectedAreaNames") List<String> selectedAreaNames);
+
 
 
 
@@ -97,91 +102,110 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
 
     int countByAcademicYearBetweenAndAreaAndIsKeyContact(int startYear, int endYear, String name, boolean isKeyContact);
 
+//    @Query("SELECT COUNT(DISTINCT s) FROM StudentsEntity s " +
+//            "JOIN DegreeBindingEntity d ON s.id = d.studentId " +
+//            "WHERE s.academicYear BETWEEN :startYear AND :endYear " +
+//            "AND s.area = :area " +
+//            "AND s.isKeyContact = :isKeyContact " +
+//            "AND d.degree = :degreeT " +
+//            "AND (CASE " +
+//            "  WHEN d.degree = 'PHD' THEN 3 " +
+//            "  WHEN d.degree = 'Graduate' THEN 2 " +
+//            "  WHEN d.degree = 'Undergraduate' THEN 1 " +
+//            "  ELSE 0 END) = " +
+//            "(SELECT MAX(CASE " +
+//            "  WHEN degree = 'PHD' THEN 3 " +
+//            "  WHEN degree = 'Graduate' THEN 2 " +
+//            "  WHEN degree = 'Undergraduate' THEN 1 " +
+//            "  ELSE 0 END) " +
+//            " FROM DegreeBindingEntity " +
+//            " WHERE studentId = s.id)")
     @Query("SELECT COUNT(DISTINCT s) FROM StudentsEntity s " +
             "JOIN DegreeBindingEntity d ON s.id = d.studentId " +
             "WHERE s.academicYear BETWEEN :startYear AND :endYear " +
             "AND s.area = :area " +
-            "AND s.isKeyContact = :isKeyContact " +
-            "AND d.degree = :degreeT " +
-            "AND (CASE " +
-            "  WHEN d.degree = 'PhD' THEN 3 " +
-            "  WHEN d.degree = 'Graduate' THEN 2 " +
-            "  WHEN d.degree = 'Undergraduate' THEN 1 " +
-            "  ELSE 0 END) = " +
-            "(SELECT MAX(CASE " +
-            "  WHEN degree = 'PhD' THEN 3 " +
-            "  WHEN degree = 'Graduate' THEN 2 " +
-            "  WHEN degree = 'Undergraduate' THEN 1 " +
-            "  ELSE 0 END) " +
-            " FROM DegreeBindingEntity " +
-            " WHERE studentId = s.id)")
+            "AND d.degree = :degreeT")
     int countByAcademicYearBetweenAndAreaAndDegreeAndIsKeyContact(@Param("startYear") int startYear,
                                                                   @Param("endYear") int endYear,
                                                                   @Param("area") String area,
-                                                                  @Param("degreeT") DegreeType degreeT,
-                                                                  @Param("isKeyContact") boolean isKeyContact);
+                                                                  @Param("degreeT") DegreeType degreeT);
 
 
 
-    @Query("SELECT COUNT(DISTINCT u) FROM StudentsEntity s " +
+//    @Query("SELECT COUNT(DISTINCT u) FROM StudentsEntity s " +
+//            "JOIN DegreeBindingEntity d ON s.id = d.studentId " +
+//            "JOIN UniversityEntity u ON d.universityId = u.id " +
+//            "WHERE u.province = :province " +
+//            "AND s.area IN :areaNames " +
+//            "AND s.academicYear BETWEEN :startYear AND :endYear " +
+//            "AND (CASE " +
+//            "WHEN d.degree = 'PHD' THEN 3 " + // 为PhD设置不同的值
+//            "WHEN d.degree = 'graduate' THEN 2 " +
+//            "WHEN d.degree = 'undergraduate' THEN 1 " + // 包含本科学位
+//            "ELSE 0 END) = " +
+//            "(SELECT MAX(CASE " +
+//            "WHEN degree = 'PHD' THEN 3 " + // 为PhD设置不同的值
+//            "WHEN degree = 'graduate' THEN 2 " +
+//            "WHEN degree = 'undergraduate' THEN 1 " + // 包含本科学位
+//            "ELSE 0 END) FROM DegreeBindingEntity WHERE studentId = s.id) " +
+//            "AND s.isKeyContact = :isKeyContact ") // 添加重点学生条件
+    @Query("SELECT COUNT(s) FROM StudentsEntity s " +
             "JOIN DegreeBindingEntity d ON s.id = d.studentId " +
             "JOIN UniversityEntity u ON d.universityId = u.id " +
             "WHERE u.province = :province " +
             "AND s.area IN :areaNames " +
             "AND s.academicYear BETWEEN :startYear AND :endYear " +
-            "AND (CASE " +
-            "WHEN d.degree = 'PhD' THEN 3 " + // 为PhD设置不同的值
-            "WHEN d.degree = 'graduate' THEN 2 " +
-            "WHEN d.degree = 'undergraduate' THEN 1 " + // 包含本科学位
-            "ELSE 0 END) = " +
-            "(SELECT MAX(CASE " +
-            "WHEN degree = 'PhD' THEN 3 " + // 为PhD设置不同的值
-            "WHEN degree = 'graduate' THEN 2 " +
-            "WHEN degree = 'undergraduate' THEN 1 " + // 包含本科学位
-            "ELSE 0 END) FROM DegreeBindingEntity WHERE studentId = s.id) " +
-            "AND s.isKeyContact = :isKeyContact ") // 添加重点学生条件
+            "AND s.isKeyContact = :isKeyContact ")
     int countKeyStudentsByProvinceAndYearRange(@Param("province") String province,
-                                           @Param("startYear") int startYear,
-                                           @Param("endYear") int endYear,
-                                           @Param("areaNames") List<String> areaNames,
-                                           @Param("isKeyContact") boolean isKeyContact); // 添加重点学生参数
+                                               @Param("startYear") int startYear,
+                                               @Param("endYear") int endYear,
+                                               @Param("areaNames") List<String> areaNames,
+                                               @Param("isKeyContact") boolean isKeyContact);
 
 
-    @Query("SELECT COUNT(DISTINCT u) FROM StudentsEntity s " +
-            "JOIN DegreeBindingEntity d ON s.id = d.studentId " +
-            "JOIN UniversityEntity u ON d.universityId = u.id " +
-            "WHERE u.province = :province " +
-            "AND s.academicYear BETWEEN :startYear AND :endYear " +
-            "AND s.area IN :areaNames " +
-            "AND s.isKeyContact = :isKeyContact " + // 考虑重点学生条件
-            "AND (CASE " +
-            "WHEN d.degree = 'PhD' THEN 3 " +
-            "WHEN d.degree = 'Graduate' THEN 2 " +
-            "WHEN d.degree = 'Undergraduate' THEN 1 " +
-            "ELSE 0 END) = " +
-            "(SELECT MAX(CASE " +
-            "WHEN degree = 'PhD' THEN 3 " +
-            "WHEN degree = 'Graduate' THEN 2 " +
-            "WHEN degree = 'Undergraduate' THEN 1 " +
-            "ELSE 0 END) FROM DegreeBindingEntity WHERE studentId = s.id)")
-    int countKeySchoolsByProvinceAndYearRange(@Param("province") String province,
-                                              @Param("startYear") int startYear,
-                                              @Param("endYear") int endYear,
-                                              @Param("areaNames") List<String> areaNames,
-                                              @Param("isKeyContact") boolean isKeyContact); // 使用重点学生参数
+
+//    @Query("SELECT COUNT(DISTINCT u) FROM StudentsEntity s " +
+//            "JOIN DegreeBindingEntity d ON s.id = d.studentId " +
+//            "JOIN UniversityEntity u ON d.universityId = u.id " +
+//            "WHERE u.province = :province " +
+//            "AND s.academicYear BETWEEN :startYear AND :endYear " +
+//            "AND s.area IN :areaNames " +
+//            "AND s.isKeyContact = :isKeyContact " + // 考虑重点学生条件
+//            "AND (CASE " +
+//            "WHEN d.degree = 'PHD' THEN 3 " +
+//            "WHEN d.degree = 'Graduate' THEN 2 " +
+//            "WHEN d.degree = 'Undergraduate' THEN 1 " +
+//            "ELSE 0 END) = " +
+//            "(SELECT MAX(CASE " +
+//            "WHEN degree = 'PHD' THEN 3 " +
+//            "WHEN degree = 'Graduate' THEN 2 " +
+//            "WHEN degree = 'Undergraduate' THEN 1 " +
+//            "ELSE 0 END) FROM DegreeBindingEntity WHERE studentId = s.id)")
+//    @Query("SELECT COUNT(DISTINCT u) FROM StudentsEntity s " +
+//            "JOIN DegreeBindingEntity d ON s.id = d.studentId " +
+//            "JOIN UniversityEntity u ON d.universityId = u.id " +
+//            "WHERE u.province = :province " +
+//            "AND s.area IN :areaNames " +
+//            "AND s.academicYear BETWEEN :startYear AND :endYear " +
+//            "AND s.isKeyContact = :isKeyContact ")
+//    int countKeySchoolsByProvinceAndYearRange(@Param("province") String province,
+//                                              @Param("startYear") int startYear,
+//                                              @Param("endYear") int endYear,
+//                                              @Param("areaNames") List<String> areaNames,
+//                                              @Param("isKeyContact") boolean isKeyContact); // 使用重点学生参数
 
     @Query("SELECT COUNT(s) FROM StudentsEntity s WHERE s.academicYear = :year AND s.area IN :areas AND s.isKeyContact = true") // 添加了重点学生筛选条件
     int countKeyStudentsByYearAndAreas(@Param("year") int year, @Param("areas") List<String> areas);
 
     @Query("SELECT new com.dx.zjxz_gwjh.dto.HighSchoolNetOverviewDto(" +
             "hs.name, hs.id, ac.id, COUNT(DISTINCT s.highSchoolNetId), " +
-            "COUNT(s), SUM(CASE WHEN s.isKeyContact = true THEN 1 ELSE 0 END), hs.lon, hs.lat, MAX(hs.files)) " +
+            "COUNT(s), SUM(CASE WHEN s.isKeyContact = true THEN 1 ELSE 0 END), hs.lon, hs.lat, hs.files) " +
             "FROM HighSchoolEntity hs " +
             "LEFT JOIN StudentsEntity s ON hs.id = s.highSchoolId " +
             "LEFT JOIN HighSchoolNetEntity hsn ON hs.name = hsn.location " +
             "LEFT JOIN AreaCodeEntity ac ON hsn.areaCode = ac.code " +
             "where hs.name is not null " +
-            "GROUP BY hs.name, hs.id, ac.id, hs.lon, hs.lat")
+            "GROUP BY hs.name, hs.id, ac.id, hs.lon, hs.lat, hs.files")
     List<HighSchoolNetOverviewDto> findHighSchoolNetOverview();
 
 
@@ -194,7 +218,7 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
     List<HighSchoolNetSimpleOverviewDto> findHighSchoolNetSimpleOverview();
 
 
-    @Query("SELECT s.highSchoolNetId, hsn.userName, s.id, s.name " +
+    @Query("SELECT s.highSchoolNetId, hsn.userName, s.id, s.name, s.sex " + // 添加 s.sex
             "FROM StudentsEntity s " +
             "JOIN HighSchoolNetEntity hsn ON s.highSchoolNetId = hsn.id " +
             "JOIN HighSchoolEntity hs ON s.highSchoolId = hs.id " +
@@ -223,12 +247,10 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
     @Query("SELECT COUNT(DISTINCT s) FROM StudentsEntity s " +
             "JOIN DegreeBindingEntity d ON s.id = d.studentId " +
             "WHERE d.universityId = :universityId " +
-            "AND d.major = :major " +
             "AND s.isSupreme = :isSupreme " +
             "AND s.isKeyContact = :isKeyContact " +
             "AND s.academicYear BETWEEN :startYear AND :endYear")
     int countByUniversityIdAndMajorAndIsSupremeAndIsKeyContactAndAcademicYearBetween(@Param("universityId") String universityId,
-                                                                                     @Param("major") String major,
                                                                                      @Param("isSupreme") boolean isSupreme,
                                                                                      @Param("isKeyContact") boolean isKeyContact,
                                                                                      @Param("startYear") Integer startYear,

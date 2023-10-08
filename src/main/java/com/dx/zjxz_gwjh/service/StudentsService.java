@@ -129,13 +129,13 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
             // 高中
             String highSchool = filter.getHighSchool();
             if (StringUtils.hasText(highSchool)) {
-                predicate.and(q.highSchool.name.contains(highSchool));
+                predicate.and(q.highSchool.name.eq(highSchool));
             }
 
             // 大学
             String university = filter.getUniversity();
             if (StringUtils.hasText(university)) {
-                predicate.and(q.universities.any().name.contains(university));
+                predicate.and(q.universities.any().name.eq(university));
             }
 
             // 省份
@@ -151,15 +151,10 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
                 predicate.and(q.academicYear.eq(academicYear));
             }
 
-
             // 学历
             String degree = filter.getDegree();
             if (StringUtils.hasText(degree)) {
-                predicate.and(q.universities.any().id.in(
-                        JPAExpressions.select(qDegree.universityId)
-                                .from(qDegree)
-                                .where(qDegree.degree.stringValue().eq(degree))
-                ));
+                predicate.and(q.degreeBindings.any().degree.eq(DegreeType.fromDescription(degree)));
             }
 
             //属地
@@ -561,7 +556,7 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
                 List<String> selectedAreaNames = getAreaNames(area); // 获取选定区域的名字集合
 
                 // 步骤2: 获取区域内所有省份
-                List<String> provinces = getProvincesInAreaAndYearRange(area, academicYearAndAreaDto.getStartYear(), academicYearAndAreaDto.getEndYear());
+                List<String> provinces = universityRepository.findDistinctProvince();
 
                 // 步骤3: 统计每个省份的数据
                 List<ProvinceCountDto> provinceCountList = new ArrayList<>();
@@ -577,9 +572,8 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
                     totalStudentCountInAllProvinces += studentCount; // 计算总学子数
 
                     // 计算学校数量
-                    int schoolCount = studentsRepository.countSchoolsByProvinceAndYearRange(
-                            province, startYear, endYear, selectedAreaNames
-                    );
+                    int schoolCount = universityRepository.countByProvince(province);
+
                     provinceCountDto.setSchoolCount(schoolCount);
 
                     provinceCountList.add(provinceCountDto);
@@ -715,10 +709,10 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         return count;
     }
 
-    private int calculateAreaCountForDegree(AreaCodeDto area, int startYear, int endYear, DegreeType degreeT, boolean isKeyContact) {
-        int count = studentsRepository.countByAcademicYearBetweenAndAreaAndDegreeAndIsKeyContact(startYear, endYear, area.getName(), degreeT, isKeyContact);
+    private int calculateAreaCountForDegree(AreaCodeDto area, int startYear, int endYear, DegreeType degreeT) {
+        int count = studentsRepository.countByAcademicYearBetweenAndAreaAndDegreeAndIsKeyContact(startYear, endYear, area.getName(), degreeT);
         for (AreaCodeDto child : area.getChildren()) {
-            count += calculateAreaCountForDegree(child, startYear, endYear, degreeT, isKeyContact); // 递归计算所有子区域的学生总数，考虑学位和是否为重点学子
+            count += calculateAreaCountForDegree(child, startYear, endYear, degreeT); // 递归计算所有子区域的学生总数，考虑学位和是否为重点学子
         }
         return count;
     }
@@ -753,8 +747,8 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         for (AreaCodeDto area : selectedAreas) {
             if(area.getId().equals(areaId)) {
                 int count = calculateAreaCountForElite(area, startYear, endYear, true); // 重点学子数量
-                int scount = calculateAreaCountForDegree(area, startYear, endYear, DegreeType.Graduate, true); // 硕士数量
-                int bcount = calculateAreaCountForDegree(area, startYear, endYear, DegreeType.PHD, true); // 博士数量
+                int scount = calculateAreaCountForDegree(area, startYear, endYear, DegreeType.Graduate); // 硕士数量
+                int bcount = calculateAreaCountForDegree(area, startYear, endYear, DegreeType.PHD); // 博士数量
                 eliteCountDto = new EliteCountDto();
                 eliteCountDto.setId(area.getId());
                 eliteCountDto.setName(area.getName());
@@ -801,8 +795,8 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
             if(optionalArea.isPresent()) {
                 AreaCodeDto area = optionalArea.get();
                 int count = calculateAreaCountForElite(area, startYear, endYear, true); // 重点学子数量
-                int scount = calculateAreaCountForDegree(area, startYear, endYear, DegreeType.Graduate, true); // 硕士数量
-                int bcount = calculateAreaCountForDegree(area, startYear, endYear, DegreeType.PHD, true); // 博士数量
+                int scount = calculateAreaCountForDegree(area, startYear, endYear, DegreeType.Graduate); // 硕士数量
+                int bcount = calculateAreaCountForDegree(area, startYear, endYear, DegreeType.PHD); // 博士数量
                 EliteCountDto dto = new EliteCountDto();
                 dto.setId(area.getId());
                 dto.setName(area.getName());
@@ -842,7 +836,7 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
                 List<String> selectedAreaNames = getAreaNames(area); // 获取选定区域的名字集合
 
                 // 步骤2: 获取区域内所有省份
-                List<String> provinces = getProvincesInAreaAndYearRange(area, academicYearAndAreaDto.getStartYear(), academicYearAndAreaDto.getEndYear());
+                List<String> provinces = universityRepository.findDistinctProvince();
 
                 // 步骤3: 统计每个省份的数据
                 List<ProvinceCountDto> provinceCountList = new ArrayList<>();
@@ -858,9 +852,8 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
                     totalStudentCountInAllProvinces += studentCount; // 计算总学子数
 
                     // 计算学校数量
-                    int schoolCount = studentsRepository.countKeySchoolsByProvinceAndYearRange(
-                            province, startYear, endYear, selectedAreaNames, true
-                    );
+                    int schoolCount = universityRepository.countKeyUniversitiesByProvince(province);
+
                     provinceCountDto.setSchoolCount(schoolCount);
 
                     provinceCountList.add(provinceCountDto);

@@ -15,7 +15,7 @@ import javax.persistence.Table;
 @Entity
 @Proxy(lazy = false)
 @Table(name = "biz_area_net", indexes = {
-        @Index(columnList = "id")
+        @Index(columnList = "id"), @Index(columnList = "area_code"), @Index(columnList = "location")
 })
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)

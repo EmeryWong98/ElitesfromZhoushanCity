@@ -66,4 +66,8 @@ public class UniversityEntity extends JpaBaseEntity {
     @JsonIgnore
     private Set<StudentsEntity> students;
 
+    @ApiModelProperty("顺序")
+    @Column(name = "x_order")
+    private Integer xorder;
+
 }

@@ -12,4 +12,7 @@ public class NetFilter {
 
     @ApiModelProperty("名称")
     private String name;
+
+    @ApiModelProperty("位置")
+    private String location;
 }

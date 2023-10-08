@@ -21,6 +21,8 @@ import com.dx.zjxz_gwjh.repository.StudentsRepository;
 import com.dx.zjxz_gwjh.repository.UniversityRepository;
 import com.dx.zjxz_gwjh.util.UniversityMajorDictionary;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.jpa.impl.JPAQuery;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -81,8 +83,10 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
             }
         }
 
+
+
         if (query.getSorts() == null) {
-            query.setSorts(SortField.def());
+            query.setSorts(SortField.by("xorder", true));
         }
 
         return this.queryList(predicate, query.getPageInfo(), query.getSorts());
@@ -98,6 +102,8 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
             universityEntity.setIsSupreme(false);
             universityEntity.setIsKeyMajor(false);
             universityEntity.setProvince(province);
+            universityEntity.setLon(0);
+            universityEntity.setLat(0);
 
 
             // 保存到数据库
@@ -110,7 +116,7 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
         EliteUniversityListDto result = new EliteUniversityListDto();
 
         // 获取符合条件的重点大学列表
-        List<UniversityEntity> supremeUniversities = universityRepository.findByIsSupremeAndProvince(true, filter.getProvince());
+        List<UniversityEntity> supremeUniversities = universityRepository.findByIsSupremeAndProvinceOrderByXorder(true, filter.getProvince());
         List<EliteUniversityDto> eliteUniversities = supremeUniversities.stream().map(university -> {
             EliteUniversityDto dto = new EliteUniversityDto();
             dto.setUniversityName(university.getName());
@@ -135,7 +141,7 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
                     dto.setLogo(university.getFiles()); // 设置 logo
                     // 计算每个大学、每个专业的关键联系人人数
                     int keyContactCount = studentsRepository.countByUniversityIdAndMajorAndIsSupremeAndIsKeyContactAndAcademicYearBetween(
-                            university.getId(), major, false, true, filter.getStartYear(), filter.getEndYear()
+                            university.getId(), false, true, filter.getStartYear(), filter.getEndYear()
                     );
                     dto.setKeyContactCount(keyContactCount);
                     dto.setMajorName(major);
@@ -145,7 +151,31 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
                 return Stream.empty();
             }
         }).collect(Collectors.toList());
-        result.setEliteMajors(eliteMajors);
+
+        // 按照学校名称对 eliteMajors 进行分组
+        Map<String, List<EliteMajorDto>> groupedByUniversity = eliteMajors.stream()
+                .collect(Collectors.groupingBy(EliteMajorDto::getUniversityName));
+
+        // 对每个大学合并其所有专业并计算学生总数
+        List<EliteMajorDto> mergedEliteMajors = groupedByUniversity.entrySet().stream().map(entry -> {
+            EliteMajorDto mergedDto = new EliteMajorDto();
+            mergedDto.setUniversityName(entry.getKey());
+            mergedDto.setLogo(entry.getValue().get(0).getLogo()); // 取第一个DTO的logo
+
+            String combinedMajors = entry.getValue().stream()
+                    .map(EliteMajorDto::getMajorName)
+                    .collect(Collectors.joining(", "));
+            mergedDto.setMajorName(combinedMajors);
+
+            int combinedKeyContactCount = entry.getValue().stream()
+                    .mapToInt(EliteMajorDto::getKeyContactCount)
+                    .sum();
+            mergedDto.setKeyContactCount(combinedKeyContactCount);
+
+            return mergedDto;
+        }).collect(Collectors.toList());
+
+        result.setEliteMajors(mergedEliteMajors);
 
         return result;
     }

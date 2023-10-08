@@ -59,6 +59,12 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
             if (org.springframework.util.StringUtils.hasText(keyword)) {
                 predicate.and(q.name.contains(keyword));
             }
+
+            // 网格所属高中
+            String location = filter.getLocation();
+            if (org.springframework.util.StringUtils.hasText(location)) {
+                predicate.and(q.location.eq(location));
+            }
         }
 
         if (query.getSorts() == null) {
@@ -139,6 +145,7 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
             String teacherName = (String) result[1]; // 假设 result[1] 包含老师名称
             String studentId = (String) result[2];
             String studentName = (String) result[3];
+            String studentSex = (String) result[4];
 
             // 使用 netId 和 teacherName 结合作为键
             String key = netId + "_" + teacherName;
@@ -149,7 +156,7 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
                 teacherStudentMap.put(key, teacherStudentDto);
             }
 
-            StudentDto studentDto = new StudentDto(studentId, studentName);
+            StudentDto studentDto = new StudentDto(studentId, studentName, studentSex);
             teacherStudentDto.getStudentList().add(studentDto);
         }
 

@@ -39,4 +39,7 @@ public class UniversityDto extends BaseEventDto{
     @ApiModelProperty("重点专业")
     @NotNull(message = "重点专业不能为空")
     private Boolean isKeyMajor;
+
+    @ApiModelProperty("顺序")
+    private Integer xOrder;
 }

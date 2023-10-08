@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Entity
 @Proxy(lazy = false)
 @Table(name = "biz_high_school_net", indexes = {
-        @Index(columnList = "id")
+        @Index(columnList = "id"), @Index(columnList = "area_code"), @Index(columnList = "location")
 })
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)

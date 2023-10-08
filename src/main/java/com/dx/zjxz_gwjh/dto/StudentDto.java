@@ -8,9 +8,11 @@ import lombok.Data;
 public class StudentDto {
     private String studentId;
     private String studentName;
+    private String studentSex;
 
-    public StudentDto(String studentId, String studentName) {
+    public StudentDto(String studentId, String studentName, String studentSex) {
         this.studentId = studentId;
         this.studentName = studentName;
+        this.studentSex = studentSex;
     }
 }

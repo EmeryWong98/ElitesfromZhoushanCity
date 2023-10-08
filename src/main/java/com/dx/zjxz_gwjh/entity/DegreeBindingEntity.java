@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Proxy(lazy = false)
 @Table(name = "biz_degree_binding", indexes = {
-        @Index(columnList = "id")
+        @Index(columnList = "id"), @Index(columnList = "student_id"), @Index(columnList = "university_id")
 })
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
