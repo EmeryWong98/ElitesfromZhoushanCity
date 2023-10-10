@@ -1,16 +1,13 @@
 package com.dx.zjxz_gwjh.controller.management;
 
 import com.dx.easyspringweb.api.annotation.Api;
-import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModule;
 import com.dx.easyspringweb.core.annotation.Action;
 import com.dx.easyspringweb.core.annotation.BindResource;
-import com.dx.easyspringweb.core.annotation.PermitAll;
 import com.dx.easyspringweb.core.annotation.Session;
 import com.dx.easyspringweb.core.exception.ServiceException;
 import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.core.utils.ObjectUtils;
-import com.dx.zjxz_gwjh.dto.UniversitiesImportDto;
 import com.dx.zjxz_gwjh.dto.UniversityDto;
 import com.dx.zjxz_gwjh.entity.UniversityEntity;
 import com.dx.zjxz_gwjh.filter.UniversityFilter;
@@ -18,18 +15,11 @@ import com.dx.zjxz_gwjh.model.RDUserSession;
 import com.dx.zjxz_gwjh.service.DegreeBindingService;
 import com.dx.zjxz_gwjh.service.UniversityService;
 import com.dx.zjxz_gwjh.vo.UniversityVO;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.dx.easyspringweb.core.model.PagingData;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @ApiModule("University")
@@ -60,7 +50,7 @@ public class UniversityManagementController {
     @BindResource(value = "university:management:create")
     @Action(value = "创建大学信息", type = Action.ActionType.CREATE)
     @PostMapping("/create")
-    public UniversityEntity create(@Session RDUserSession user,@Valid @RequestBody UniversityDto dto)
+    public UniversityEntity create(@Session RDUserSession user, @Valid @RequestBody UniversityDto dto)
             throws ServiceException {
 
         UniversityEntity entity = universityService.newEntity(dto);

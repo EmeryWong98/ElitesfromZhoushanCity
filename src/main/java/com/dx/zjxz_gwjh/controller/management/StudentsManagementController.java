@@ -9,15 +9,12 @@ import com.dx.easyspringweb.core.exception.ServiceException;
 import com.dx.easyspringweb.core.model.PagingData;
 import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.core.utils.ObjectUtils;
-import com.dx.zjxz_gwjh.dto.NetNameDto;
 import com.dx.zjxz_gwjh.dto.StudentsCreateDto;
 import com.dx.zjxz_gwjh.dto.StudentsDto;
 import com.dx.zjxz_gwjh.dto.StudentsImportDto;
 import com.dx.zjxz_gwjh.entity.DegreeBindingEntity;
 import com.dx.zjxz_gwjh.entity.StudentsEntity;
 import com.dx.zjxz_gwjh.entity.UniversityEntity;
-import com.dx.zjxz_gwjh.enums.DegreeType;
-import com.dx.zjxz_gwjh.enums.NetType;
 import com.dx.zjxz_gwjh.filter.StudentsFilter;
 import com.dx.zjxz_gwjh.model.RDUserSession;
 import com.dx.zjxz_gwjh.repository.DegreeBindingRepository;
@@ -26,9 +23,7 @@ import com.dx.zjxz_gwjh.service.AreaCodeService;
 import com.dx.zjxz_gwjh.service.DegreeBindingService;
 import com.dx.zjxz_gwjh.service.StudentsService;
 import com.dx.zjxz_gwjh.vo.StudentsVO;
-import feign.Logger;
 import org.apache.poi.ss.usermodel.*;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,12 +31,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.security.PrivateKey;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @ApiModule("Students")
 @Api(name = "StudentsManagement", description = "学子管理")
@@ -69,8 +60,14 @@ public class StudentsManagementController {
     @PostMapping("/list")
     public PagingData<StudentsVO> list(@Session RDUserSession user, @RequestBody QueryRequest<StudentsFilter> query)
             throws ServiceException {
-        if (query == null) {
-            query = QueryRequest.create(null);
+
+        if (user.isStaff()) {
+            StudentsFilter filter = query.getFilter();
+            if (filter == null) {
+                filter = new StudentsFilter();
+            }
+            filter.setArea(user.getTownship());
+            query.setFilter(filter);
         }
 
         PagingData<StudentsEntity> result = studentsService.queryList(query);
@@ -89,7 +86,7 @@ public class StudentsManagementController {
     @BindResource(value = "students:management:create")
     @Action(value = "创建学生信息", type = Action.ActionType.CREATE)
     @PostMapping("/create")
-    public StudentsEntity create(@Session RDUserSession user,@Valid @RequestBody StudentsCreateDto dto)
+    public StudentsEntity create(@Session RDUserSession user, @Valid @RequestBody StudentsCreateDto dto)
             throws ServiceException {
 
         // 使用新的createStudent方法来创建或更新学生实体

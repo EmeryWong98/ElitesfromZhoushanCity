@@ -1,14 +1,12 @@
 package com.dx.zjxz_gwjh.service;
 
-import java.util.List;
-
+import com.dx.zjxz_gwjh.model.RDUserSession;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.dx.zjxz_gwjh.entity.QUserEntity;
 import com.dx.zjxz_gwjh.entity.UserEntity;
 import com.dx.zjxz_gwjh.filter.UserFilter;
-import com.dx.zjxz_gwjh.model.RDUserSession;
 import com.dx.zjxz_gwjh.repository.UserRepository;
 import com.dx.easyspringweb.biz.jpa.service.JpaBaseUserService;
 import com.dx.easyspringweb.biz.model.User;
