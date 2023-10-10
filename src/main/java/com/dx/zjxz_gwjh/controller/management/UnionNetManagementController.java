@@ -10,6 +10,7 @@ import com.dx.easyspringweb.core.model.PagingData;
 import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.core.utils.ObjectUtils;
 import com.dx.zjxz_gwjh.dto.UnionNetDto;
+import com.dx.zjxz_gwjh.entity.AreaNetEntity;
 import com.dx.zjxz_gwjh.entity.UnionNetEntity;
 import com.dx.zjxz_gwjh.filter.NetFilter;
 import com.dx.zjxz_gwjh.model.RDUserSession;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @ApiModule("Net")
 @Api(name = "UnionNetManagement", description = "学联网格管理")
@@ -80,5 +82,12 @@ public class UnionNetManagementController {
         ObjectUtils.copyEntity(dto, entity);
 
         unionNetService.update(entity);
+    }
+
+    @BindResource("unionNet:management:list")
+    @Action(value = "查询学联网格列表", type = Action.ActionType.QUERY_LIST)
+    @PostMapping("/lists")
+    public List<UnionNetEntity> lists(){
+        return unionNetService.lists();
     }
 }

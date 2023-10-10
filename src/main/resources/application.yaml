@@ -11,8 +11,7 @@ server:
 
 spring:
   profiles:
-    active: prod
-
+    active: test
   main:
     allow-bean-definition-overriding: true
 

@@ -54,4 +54,15 @@ public class StudentsFilter {
 
     @ApiModelProperty("学联网格ID")
     private String unionNetId;
+
+    @ApiModelProperty("属地网格ID")
+    private String areaNetId;
+
+    @ApiModelProperty("高校网格ID")
+    private String highSchoolNetId;
+
+    @ApiModelProperty("高中ID")
+    private String highSchoolId;
+
+
 }

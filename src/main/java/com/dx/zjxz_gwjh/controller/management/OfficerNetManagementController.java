@@ -10,6 +10,7 @@ import com.dx.easyspringweb.core.model.PagingData;
 import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.core.utils.ObjectUtils;
 import com.dx.zjxz_gwjh.dto.NetNameDto;
+import com.dx.zjxz_gwjh.entity.AreaNetEntity;
 import com.dx.zjxz_gwjh.entity.OfficerNetEntity;
 import com.dx.zjxz_gwjh.entity.OfficerNetEntity;
 import com.dx.zjxz_gwjh.filter.NetFilter;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @ApiModule("Net")
 @Api(name = "OfficerNetManagement", description = "党政领导管理")
@@ -83,5 +85,12 @@ public class OfficerNetManagementController {
         ObjectUtils.copyEntity(dto, entity);
 
         officerNetService.update(entity);
+    }
+
+    @BindResource("officerNet:management:list")
+    @Action(value = "查询党政领导网格列表", type = Action.ActionType.QUERY_LIST)
+    @PostMapping("/lists")
+    public List<OfficerNetEntity> lists(){
+        return officerNetService.lists();
     }
 }

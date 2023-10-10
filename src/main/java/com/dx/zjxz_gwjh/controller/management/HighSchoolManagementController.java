@@ -10,6 +10,7 @@ import com.dx.easyspringweb.core.model.PagingData;
 import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.core.utils.ObjectUtils;
 import com.dx.zjxz_gwjh.dto.HighSchoolDto;
+import com.dx.zjxz_gwjh.entity.AreaNetEntity;
 import com.dx.zjxz_gwjh.entity.HighSchoolEntity;
 import com.dx.zjxz_gwjh.filter.HighSchoolFilter;
 import com.dx.zjxz_gwjh.model.RDUserSession;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @ApiModule("HighSchool")
 @Api(name = "HighSchoolManagement", description = "高中管理")
@@ -82,6 +84,13 @@ public class HighSchoolManagementController {
 
         // 更新高中实体
         highSchoolService.update(entity);
+    }
+
+    @BindResource("highschool:management:list")
+    @Action(value = "查询高中列表", type = Action.ActionType.QUERY_LIST)
+    @PostMapping("/lists")
+    public List<HighSchoolEntity> lists(){
+        return highSchoolService.lists();
     }
 
 

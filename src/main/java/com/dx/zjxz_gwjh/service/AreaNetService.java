@@ -169,5 +169,9 @@ public class AreaNetService extends JpaPublicService<AreaNetEntity, String> impl
         areaNetEntity = areaNetRepository.save(areaNetEntity); // 保存或更新实体
         return areaNetEntity;
     }
+
+    public List<AreaNetEntity> lists() {
+        return areaNetRepository.findAll();
+    }
 }
 

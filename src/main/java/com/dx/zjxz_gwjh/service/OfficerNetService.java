@@ -18,6 +18,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class OfficerNetService extends JpaPublicService<OfficerNetEntity, String> implements StandardService<OfficerNetEntity, NetFilter, String> {
     @Autowired
@@ -103,5 +105,9 @@ public class OfficerNetService extends JpaPublicService<OfficerNetEntity, String
         }
         officerNetEntity = officerNetRepository.save(officerNetEntity); // 保存或更新实体
         return officerNetEntity;
+    }
+
+    public List<OfficerNetEntity> lists() {
+        return officerNetRepository.findAll();
     }
 }

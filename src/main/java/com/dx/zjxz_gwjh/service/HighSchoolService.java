@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+
 @Service
 public class HighSchoolService extends JpaPublicService<HighSchoolEntity, String> implements StandardService<HighSchoolEntity, HighSchoolFilter, String> {
     @Autowired
@@ -75,5 +77,9 @@ public class HighSchoolService extends JpaPublicService<HighSchoolEntity, String
             highSchoolEntity = highSchoolRepository.save(highSchoolEntity);
         }
         return highSchoolEntity;
+    }
+
+    public List<HighSchoolEntity> lists() {
+        return highSchoolRepository.findAll();
     }
 }

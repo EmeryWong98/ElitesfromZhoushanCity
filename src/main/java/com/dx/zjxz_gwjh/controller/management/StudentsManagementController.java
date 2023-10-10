@@ -132,7 +132,7 @@ public class StudentsManagementController {
             throw new ServiceException("学生不存在");
         }
 
-        StudentsDto dto = convertToDto(studentEntity);
+        StudentsDto dto = smartConvertToDto(studentEntity);
         return dto;
     }
 
@@ -169,6 +169,44 @@ public class StudentsManagementController {
 
             return dto;
         }
+
+    private StudentsDto smartConvertToDto(StudentsEntity studentEntity)
+            throws ServiceException {
+        StudentsDto dto = new StudentsDto();
+        // 将 studentEntity 的属性复制到 dto
+        ObjectUtils.copyEntity(studentEntity, dto);
+
+        List<DegreeBindingEntity> degrees = degreeBindingRepository.findByStudentId(studentEntity.getId());
+        for (DegreeBindingEntity degree : degrees) {
+            UniversityEntity university = universityRepository.findById(degree.getUniversityId()).orElse(null);
+
+            if (university != null) {
+                switch(degree.getDegree()) {
+                    case Undergraduate:
+                        dto.setUniversity1Name(university.getName());
+                        dto.setUniversity1Province(university.getProvince());
+                        dto.setMajor1(degree.getMajor());
+                        dto.setDegree1(degree.getDegree().getDescription());
+                        break;
+                    case Graduate:
+                        dto.setUniversity2Name(university.getName());
+                        dto.setUniversity2Province(university.getProvince());
+                        dto.setMajor2(degree.getMajor());
+                        dto.setDegree2(degree.getDegree().getDescription());
+                        break;
+                    case PHD:
+                        dto.setUniversity3Name(university.getName());
+                        dto.setUniversity3Province(university.getProvince());
+                        dto.setMajor3(degree.getMajor());
+                        dto.setDegree3(degree.getDegree().getDescription());
+                        break;
+                }
+            }
+        }
+
+        return dto;
+    }
+
 
 
     @BindResource("students:management:import")

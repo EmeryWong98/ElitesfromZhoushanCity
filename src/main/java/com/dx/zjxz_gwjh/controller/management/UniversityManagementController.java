@@ -101,6 +101,14 @@ public class UniversityManagementController {
         universityService.update(entity);
     }
 
+    @BindResource("university:management:list")
+    @Action(value = "查询大学列表", type = Action.ActionType.QUERY_LIST)
+    @PostMapping("/lists")
+    public List<UniversityEntity> lists(){
+        	return universityService.lists();
+    }
+
+
 //    @BindResource("universities:management:import")
 //    @Action(value = "导入大学信息", type = Action.ActionType.CREATE)
 //    @PostMapping("/import")

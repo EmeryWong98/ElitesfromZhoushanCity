@@ -179,4 +179,8 @@ public class UnionNetService extends JpaPublicService<UnionNetEntity, String> im
         unionNetEntity = unionNetRepository.save(unionNetEntity); // 保存或更新实体
         return unionNetEntity;
     }
+
+    public List<UnionNetEntity> lists() {
+        return unionNetRepository.findAll();
+    }
 }

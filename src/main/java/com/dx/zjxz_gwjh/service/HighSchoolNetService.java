@@ -232,4 +232,8 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
         }
         return highSchoolNetEntity;
 }
+
+    public List<HighSchoolNetEntity> lists() {
+        return highSchoolNetRepository.findAll();
+    }
 }

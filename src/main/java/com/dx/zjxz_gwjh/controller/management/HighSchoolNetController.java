@@ -10,6 +10,7 @@ import com.dx.easyspringweb.core.model.PagingData;
 import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.core.utils.ObjectUtils;
 import com.dx.zjxz_gwjh.dto.NetNameDto;
+import com.dx.zjxz_gwjh.entity.AreaNetEntity;
 import com.dx.zjxz_gwjh.entity.HighSchoolEntity;
 import com.dx.zjxz_gwjh.entity.HighSchoolNetEntity;
 import com.dx.zjxz_gwjh.filter.NetFilter;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @ApiModule("Net")
 @Api(name = "HighSchoolNetManagement", description = "高中网格管理")
@@ -82,6 +84,13 @@ public class HighSchoolNetController {
         ObjectUtils.copyEntity(dto, entity);
 
         highSchoolNetService.update(entity);
+    }
+
+    @BindResource("highSchoolNet:management:list")
+    @Action(value = "查询高中网格列表", type = Action.ActionType.QUERY_LIST)
+    @PostMapping("/lists")
+    public List<HighSchoolNetEntity> lists(){
+        return highSchoolNetService.lists();
     }
 
 

@@ -195,6 +195,10 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
         return (int) universityRepository.count();
     }
 
+    public List<UniversityEntity> lists() {
+        return universityRepository.findAll();
+    }
+
 
 //    public UniversityEntity massiveCreateUniversity(UniversitiesImportDto dto) throws ServiceException {
 //        // 检查大学名称的唯一性
