@@ -30,5 +30,5 @@ public class HighSchoolDto extends BaseEventDto{
     private Boolean isShow;
 
     @ApiModelProperty("顺序")
-    private Integer xOrder;
+    private Integer xorder;
 }

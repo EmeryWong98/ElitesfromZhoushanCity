@@ -11,8 +11,8 @@ import lombok.Getter;
 @ApiModel("学历种类")
 public enum DegreeType implements StandardEnum<Integer> {
     Undergraduate(0, "全日制本科"),
-    Graduate(1, "硕士"),
-    PHD(2, "博士");
+    Graduate(1, "全日制硕士"),
+    PHD(2, "全日制博士");
 
     private Integer value;
     private String description;

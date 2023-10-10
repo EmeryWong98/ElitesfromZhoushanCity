@@ -129,7 +129,7 @@ public class AreaNetService extends JpaPublicService<AreaNetEntity, String> impl
         String areaCode = areaCodeRepository.findById(id).orElseThrow(() -> new RuntimeException("AreaId not found")).getCode();
 
         // 使用area_code查询AreaNetEntity
-        return areaNetRepository.findByAreaCodeOrderByName(areaCode);
+        return areaNetRepository.findByAreaCodeOrderByNameDesc(areaCode);
     }
 
     public AreaNetEntity findById(String areaNetId) throws ServiceException {

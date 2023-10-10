@@ -129,13 +129,19 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
             // 高中
             String highSchool = filter.getHighSchool();
             if (StringUtils.hasText(highSchool)) {
-                predicate.and(q.highSchool.name.eq(highSchool));
+                predicate.and(q.highSchool.name.contains(highSchool));
             }
 
             // 大学
             String university = filter.getUniversity();
             if (StringUtils.hasText(university)) {
-                predicate.and(q.universities.any().name.eq(university));
+                predicate.and(q.universities.any().name.contains(university));
+            }
+
+            //专业
+            String major = filter.getMajor();
+            if (StringUtils.hasText(major)) {
+                predicate.and(q.degreeBindings.any().major.contains(major));
             }
 
             // 省份
@@ -628,7 +634,7 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
                 .collect(Collectors.toList());
 
 
-        for (int year = startYear; year <= endYear; year++) {
+        for (int year = endYear; year >= startYear; year--) {
             YearlyStudentCountDto yearlyCount = new YearlyStudentCountDto();
             yearlyCount.setYear(year);
 
@@ -909,7 +915,7 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
                 .collect(Collectors.toList());
 
 
-        for (int year = startYear; year <= endYear; year++) {
+        for (int year = endYear; year >= startYear; year--) {
             YearlyStudentCountDto yearlyCount = new YearlyStudentCountDto();
             yearlyCount.setYear(year);
 

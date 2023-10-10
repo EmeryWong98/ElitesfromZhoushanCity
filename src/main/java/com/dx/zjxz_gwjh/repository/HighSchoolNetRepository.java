@@ -21,7 +21,7 @@ public interface HighSchoolNetRepository extends JpaCommonRepository<HighSchoolN
             "ORDER BY n.score DESC")
     List<NetActivityDto> findHighSchoolNetActivityRanking();
 
-    List<HighSchoolNetEntity> findByAreaCode(String areaCode);
+    List<HighSchoolNetEntity> findByLocationOrderByNameDesc(String highSchoolName);
 
-    List<HighSchoolNetEntity> findByLocationOrderByName(String highSchoolName);
+    long countByLocation(String name);
 }

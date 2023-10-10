@@ -41,5 +41,5 @@ public class UniversityDto extends BaseEventDto{
     private Boolean isKeyMajor;
 
     @ApiModelProperty("顺序")
-    private Integer xOrder;
+    private Integer xorder;
 }

@@ -15,6 +15,7 @@ import com.dx.zjxz_gwjh.dto.UniversitiesImportDto;
 import com.dx.zjxz_gwjh.entity.QUniversityEntity;
 import com.dx.zjxz_gwjh.entity.StudentsEntity;
 import com.dx.zjxz_gwjh.entity.UniversityEntity;
+import com.dx.zjxz_gwjh.enums.DegreeType;
 import com.dx.zjxz_gwjh.filter.StudentsFilter;
 import com.dx.zjxz_gwjh.filter.UniversityFilter;
 import com.dx.zjxz_gwjh.repository.StudentsRepository;
@@ -140,9 +141,13 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
                     dto.setUniversityName(university.getName());
                     dto.setLogo(university.getFiles()); // 设置 logo
                     // 计算每个大学、每个专业的关键联系人人数
-                    int keyContactCount = studentsRepository.countByUniversityIdAndMajorAndIsSupremeAndIsKeyContactAndAcademicYearBetween(
+                    int keyContactCountBachelor = studentsRepository.countByUniversityIdAndIsSupremeAndIsKeyContactAndAcademicYearBetween(
                             university.getId(), false, true, filter.getStartYear(), filter.getEndYear()
                     );
+
+//                    int keyContactCountOther = studentsRepository.countByUniversityIdAndDegreeTypes(university.getId(), DegreeType.Graduate, DegreeType.PHD);
+
+                    int keyContactCount = keyContactCountBachelor;
                     dto.setKeyContactCount(keyContactCount);
                     dto.setMajorName(major);
                     return dto;

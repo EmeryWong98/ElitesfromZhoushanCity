@@ -1,17 +1,16 @@
 package com.dx.zjxz_gwjh.repository;
 
 import com.dx.easyspringweb.data.jpa.JpaCommonRepository;
-import com.dx.zjxz_gwjh.dto.HighSchoolNetOverviewDto;
 import com.dx.zjxz_gwjh.dto.HighSchoolNetSimpleOverviewDto;
+import com.dx.zjxz_gwjh.entity.HighSchoolEntity;
 import com.dx.zjxz_gwjh.entity.StudentsEntity;
 import com.dx.zjxz_gwjh.enums.DegreeType;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
+import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Repository
 public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, String> {
@@ -197,26 +196,6 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
     @Query("SELECT COUNT(s) FROM StudentsEntity s WHERE s.academicYear = :year AND s.area IN :areas AND s.isKeyContact = true") // 添加了重点学生筛选条件
     int countKeyStudentsByYearAndAreas(@Param("year") int year, @Param("areas") List<String> areas);
 
-    @Query("SELECT new com.dx.zjxz_gwjh.dto.HighSchoolNetOverviewDto(" +
-            "hs.name, hs.id, ac.id, COUNT(DISTINCT s.highSchoolNetId), " +
-            "COUNT(s), SUM(CASE WHEN s.isKeyContact = true THEN 1 ELSE 0 END), hs.lon, hs.lat, hs.files) " +
-            "FROM HighSchoolEntity hs " +
-            "LEFT JOIN StudentsEntity s ON hs.id = s.highSchoolId " +
-            "LEFT JOIN HighSchoolNetEntity hsn ON hs.name = hsn.location " +
-            "LEFT JOIN AreaCodeEntity ac ON hsn.areaCode = ac.code " +
-            "where hs.name is not null " +
-            "GROUP BY hs.name, hs.id, ac.id, hs.lon, hs.lat, hs.files")
-    List<HighSchoolNetOverviewDto> findHighSchoolNetOverview();
-
-
-    @Query("SELECT new com.dx.zjxz_gwjh.dto.HighSchoolNetSimpleOverviewDto(" +
-            "hs.id, hs.name, COUNT(DISTINCT s.highSchoolNetId), COUNT(s)) " +
-            "FROM StudentsEntity s " +
-            "JOIN HighSchoolEntity hs ON s.highSchoolId = hs.id " +
-            "GROUP BY hs.id, hs.name " +
-            "ORDER BY COUNT(s) DESC")
-    List<HighSchoolNetSimpleOverviewDto> findHighSchoolNetSimpleOverview();
-
 
     @Query("SELECT s.highSchoolNetId, hsn.userName, s.id, s.name, s.sex " + // 添加 s.sex
             "FROM StudentsEntity s " +
@@ -250,13 +229,28 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
             "AND s.isSupreme = :isSupreme " +
             "AND s.isKeyContact = :isKeyContact " +
             "AND s.academicYear BETWEEN :startYear AND :endYear")
-    int countByUniversityIdAndMajorAndIsSupremeAndIsKeyContactAndAcademicYearBetween(@Param("universityId") String universityId,
+    int countByUniversityIdAndIsSupremeAndIsKeyContactAndAcademicYearBetween(@Param("universityId") String universityId,
                                                                                      @Param("isSupreme") boolean isSupreme,
                                                                                      @Param("isKeyContact") boolean isKeyContact,
                                                                                      @Param("startYear") Integer startYear,
                                                                                      @Param("endYear") Integer endYear);
 
     List<StudentsEntity> findByUnionNetId(String id);
+
+    long countByHighSchoolId(String id);
+
+    long countByHighSchoolIdAndIsKeyContact(String id, boolean b);
+
+    @Query("SELECT COUNT(DISTINCT s) FROM StudentsEntity s " +
+            "JOIN DegreeBindingEntity d ON s.id = d.studentId " +
+            "WHERE d.universityId = :universityId " +
+            "AND d.degree IN (:Graduate, :PHD)")
+    int countByUniversityIdAndDegreeTypes(@Param("universityId") String universityId,
+                                          @Param("Graduate") DegreeType Graduate,
+                                          @Param("PHD") DegreeType PHD);
+
+
+
 
 
 //    @Query("SELECT s FROM StudentsEntity s")

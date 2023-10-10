@@ -45,5 +45,5 @@ public interface AreaNetRepository extends JpaCommonRepository<AreaNetEntity, St
                                            @Param("graduationYear") Integer graduationYear,
                                            @Param("netId") String netId);
 
-    List<AreaNetEntity> findByAreaCodeOrderByName(String areaCode);
+    List<AreaNetEntity> findByAreaCodeOrderByNameDesc(String areaCode);
 }

@@ -125,7 +125,34 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
     }
 
     public List<HighSchoolNetOverviewDto> getHighSchoolNetOverview() {
-        return studentsRepository.findHighSchoolNetOverview();
+        List<HighSchoolEntity> highSchools = highSchoolRepository.findByIsShowTrue();
+        List<HighSchoolNetOverviewDto> result = new ArrayList<>();
+
+        for(HighSchoolEntity hs : highSchools){
+            HighSchoolNetOverviewDto dto = new HighSchoolNetOverviewDto();
+            dto.setHighSchoolId(hs.getId());
+            dto.setHighSchoolName(hs.getName());
+            dto.setLon(hs.getLon());
+            dto.setLat(hs.getLat());
+            dto.setFiles(hs.getFiles());
+
+            // Calculate netCount
+            long netCount = highSchoolNetRepository.countByLocation(hs.getName());
+            dto.setNetCount(netCount);
+
+            // Calculate studentCount
+            long studentCount = studentsRepository.countByHighSchoolId(hs.getId());
+            dto.setStudentCount(studentCount);
+
+            // Calculate eliteStudentCount
+            long eliteStudentCount = studentsRepository.countByHighSchoolIdAndIsKeyContact(hs.getId(), true);
+            dto.setEliteStudentCount(eliteStudentCount);
+
+            result.add(dto);
+        }
+
+        return result;
+
     }
 
     public List<NetActivityDto> getHighSchoolNetActivityRanking() {
@@ -133,7 +160,27 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
     }
 
     public List<HighSchoolNetSimpleOverviewDto> getHighSchoolNetSimpleOverview() {
-        return studentsRepository.findHighSchoolNetSimpleOverview();
+        List<HighSchoolEntity> highSchools = highSchoolRepository.findByIsShowTrue();
+        List<HighSchoolNetSimpleOverviewDto> result = new ArrayList<>();
+
+        for(HighSchoolEntity hs : highSchools){
+            HighSchoolNetSimpleOverviewDto dto = new HighSchoolNetSimpleOverviewDto();
+            dto.setHighSchoolId(hs.getId());
+            dto.setHighSchoolName(hs.getName());
+
+            // Calculate netCount
+            long netCount = highSchoolNetRepository.countByLocation(hs.getName());
+            dto.setNetCount(netCount);
+
+            // Calculate studentCount
+            long studentCount = studentsRepository.countByHighSchoolId(hs.getId());
+            dto.setStudentCount(studentCount);
+
+
+            result.add(dto);
+        }
+
+        return result;
     }
 
     public List<TeacherStudentDto> getTeachersAndStudents(HighSchoolRequestDto highSchoolRequestDto) {
@@ -168,7 +215,7 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
 
         HighSchoolEntity highSchoolEntity = highSchoolRepository.findById(id).orElse(null);
 
-        List<HighSchoolNetEntity> highSchoolNetEntityList = highSchoolNetRepository.findByLocationOrderByName(highSchoolEntity.getName());
+        List<HighSchoolNetEntity> highSchoolNetEntityList = highSchoolNetRepository.findByLocationOrderByNameDesc(highSchoolEntity.getName());
 
         return highSchoolNetEntityList;
 
