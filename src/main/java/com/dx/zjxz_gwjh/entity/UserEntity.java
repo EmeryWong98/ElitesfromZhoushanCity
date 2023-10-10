@@ -16,6 +16,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 public class UserEntity extends JpaUserEntity {
 
+    @Column(name = "township")
     @ApiModelProperty("所属区域")
     private String township;
 

@@ -71,6 +71,7 @@ public class UserService extends JpaBaseUserService<RDUserSession, UserEntity, U
     public RDUserSession createSession(User<String> user) throws ServiceException {
         UserEntity entity = (UserEntity) user;
         RDUserSession session = super.createSession(user);
+        session.setTownship(entity.getTownship());
         return session;
     }
 
