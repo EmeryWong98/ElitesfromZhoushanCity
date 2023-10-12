@@ -1011,4 +1011,7 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         return entity;
     }
 
+    public StudentsEntity findByIdCard(String idCard) {
+        return studentsRepository.findByIdCard(idCard);
+    }
 }

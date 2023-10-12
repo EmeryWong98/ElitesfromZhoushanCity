@@ -13,4 +13,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 public class UserDto extends BaseUserDto<String> {
+
+    @ApiModelProperty("区域")
+    private String township;
 }
