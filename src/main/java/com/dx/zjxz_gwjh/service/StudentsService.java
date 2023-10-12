@@ -195,6 +195,12 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
                 predicate.and(q.isKeyContact.eq(isKeyContact));
             }
 
+            //是否回舟
+            Boolean isBack = filter.getIsBack();
+            if (isBack != null) {
+                predicate.and(q.isBack.eq(isBack));
+            }
+
             Integer startYear = filter.getStartYear();
             Integer endYear = filter.getEndYear();
 

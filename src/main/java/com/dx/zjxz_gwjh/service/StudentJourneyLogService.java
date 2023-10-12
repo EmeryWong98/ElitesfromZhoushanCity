@@ -11,21 +11,17 @@ import com.dx.zjxz_gwjh.entity.StudentJourneyLogEntity;
 import com.dx.zjxz_gwjh.enums.DegreeType;
 import com.dx.zjxz_gwjh.filter.StudentJourneyLogEntityFilter;
 import com.dx.zjxz_gwjh.repository.StudentJourneyLogRepository;
-import com.dx.zjxz_gwjh.repository.StudentsRepository;
+
 import com.querydsl.core.BooleanBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLogEntity, String> implements StandardService<StudentJourneyLogEntity, StudentJourneyLogEntityFilter, String> {
-
-    @Autowired
-    private StudentsRepository studentsRepository;
 
     @Autowired
     private StudentJourneyLogRepository studentJourneyLogRepository;
@@ -40,11 +36,6 @@ public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLog
         StudentJourneyLogEntityFilter filter = query.getFilter();
         if (filter == null) {
             throw new ServiceException("查询条件不能为空");
-        }
-        Date startTime = filter.getEndTime();
-        Date endTime = filter.getEndTime();
-        if (startTime.compareTo(endTime) > 0) {
-            throw new ServiceException("开始时间不能大于结束时间");
         }
         if (query.getSorts() == null) {
             query.setSorts(SortField.def());
