@@ -44,10 +44,6 @@ public class DomesticAssistanceEntity extends JpaBaseEntity {
     @Column(name = "area")
     private String area;
 
-    @ApiModelProperty("属地编码")
-    @Column(name = "area_code")
-    private String areaCode;
-
     @ApiModelProperty("家事难事")
     @Column(name = "content")
     private String content;

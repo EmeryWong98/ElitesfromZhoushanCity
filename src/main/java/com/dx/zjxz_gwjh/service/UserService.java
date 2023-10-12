@@ -1,6 +1,7 @@
 package com.dx.zjxz_gwjh.service;
 
 import com.dx.zjxz_gwjh.model.RDUserSession;
+import org.hibernate.sql.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -58,6 +59,7 @@ public class UserService extends JpaBaseUserService<RDUserSession, UserEntity, U
         }
         return this.queryList(predicate, query.getPageInfo());
     }
+
 
     @Override
     public UserEntity create(UserEntity entity) throws ServiceException {

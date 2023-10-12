@@ -1,6 +1,7 @@
 package com.dx.zjxz_gwjh.service;
 
 import com.dx.zjxz_gwjh.dto.AreaCodeDto;
+import com.dx.zjxz_gwjh.dto.SimpleAreaCodeDto;
 import com.dx.zjxz_gwjh.dto.StaticAreaCodeDto;
 import com.dx.zjxz_gwjh.repository.AreaCodeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,4 +122,28 @@ public class AreaCodeService {
     public String findNameById(String areaId) {
         return areaCodeRepository.findNameById(areaId);
     }
+
+    public List<SimpleAreaCodeDto> getSimpleAreaCodeList() {
+        SimpleAreaCodeDto areaCodeDinghai = new SimpleAreaCodeDto("cbd46108d05c4c3393e5319edde692a9", "定海区");
+        SimpleAreaCodeDto areaCodePutuo = new SimpleAreaCodeDto("a31c792dbc504609ae275229ea1239f6", "普陀区");
+        SimpleAreaCodeDto areaCodeDaishan = new SimpleAreaCodeDto("6f84ef6994a74ad4b7bd24d014409565", "岱山县");
+        SimpleAreaCodeDto areaCodeShengsi = new SimpleAreaCodeDto("1f68bea42eae4d039d664328f560729c", "嵊泗县");
+        SimpleAreaCodeDto areaCodeXincheng = new SimpleAreaCodeDto("e9230ab250b34137bb8032ce653905a7", "新城");
+        SimpleAreaCodeDto areaCodePuzhu = new SimpleAreaCodeDto("e9230ab250b34136bb9132ce653905a7", "普朱");
+        SimpleAreaCodeDto areaCodeLiuhen = new SimpleAreaCodeDto("e9230ab250b34149bb8032ce653905a7", "六横");
+        SimpleAreaCodeDto areaCodeJintang = new SimpleAreaCodeDto("e9230ab250b34136bb9032ce653905b7", "金塘");
+
+        List<SimpleAreaCodeDto> areaCodeList = new ArrayList<>();
+        areaCodeList.add(areaCodeDinghai);
+        areaCodeList.add(areaCodePutuo);
+        areaCodeList.add(areaCodeDaishan);
+        areaCodeList.add(areaCodeShengsi);
+        areaCodeList.add(areaCodeXincheng);
+        areaCodeList.add(areaCodePuzhu);
+        areaCodeList.add(areaCodeLiuhen);
+        areaCodeList.add(areaCodeJintang);
+
+        return areaCodeList;
+    }
+
 }

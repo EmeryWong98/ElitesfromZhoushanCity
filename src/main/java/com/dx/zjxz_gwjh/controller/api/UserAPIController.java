@@ -1,7 +1,21 @@
 package com.dx.zjxz_gwjh.controller.api;
 
+import com.dx.easyspringweb.biz.model.User;
+import com.dx.easyspringweb.biz.vo.LoginUserInfo;
+import com.dx.easyspringweb.biz.zwding.model.DingtalkAppUser;
+import com.dx.easyspringweb.core.annotation.PermitAll;
+import com.dx.easyspringweb.core.exception.APIException;
+import com.dx.easyspringweb.core.exception.ServiceException;
+import com.dx.easyspringweb.rpc.account.service.OAuthAccountService;
+import com.dx.easyspringweb.security.UserSessionManager;
+import com.dx.easyspringweb.security.model.TokenData;
 import com.dx.zjxz_gwjh.model.RDUserSession;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dx.zjxz_gwjh.dto.UserDto;
@@ -10,6 +24,9 @@ import com.dx.zjxz_gwjh.filter.UserFilter;
 import com.dx.zjxz_gwjh.service.UserService;
 import com.dx.easyspringweb.api.annotation.Api;
 import com.dx.easyspringweb.biz.controller.api.BaseUserAPIController;
+import com.dx.easyspringweb.core.annotation.Action;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @Api(name = "UserApi", description = "用户API")
@@ -23,41 +40,33 @@ public class UserAPIController
         super(service);
     }
 
-//    @Action("用户免登")
-//    @PostMapping("/user/login")
-//    public LoginUserInfo<RDUserSession> loginByUserCode() throws ServiceException {
-//        String code = "固定的Code";
-//
-//        if (userService == null) {
-//            throw new APIException(-10001, "未开启用户登录");
-//        }
-//
-//        try {
-//            AppUser user = userService.getAccountInfo(code);
-//            if (user == null) {
-//                throw new APIException(-10002, "获取用户ID失败");
-//            }
-//
-//            String accountId = user.getAccountId().toString();
-//            TEntity entity = service.getByUserId(accountId);
-//            if (entity == null) {
-//                throw new APIException(-10003, "用户ID[" + accountId + "]未绑定");
-//            }
-//
-//            String token = oauthService.getAccessToken(entity.getUserName());
-//            if (token == null) {
-//                throw new APIException(-10004, "获取用户Token失败");
-//            }
-//
-//            TUserSession session = service.createSession(entity);
-//            sessionManager.save(session);
-//
-//            return new LoginUserInfo<>(token, session);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            throw new APIException(-10005, "用户API异常:" + e.getMessage());
-//        }
-//    }
+
+    @PermitAll
+    @Action("浙里办免登")
+    @PostMapping("/zlb/login")
+    public LoginUserInfo<RDUserSession> loginByZLBCode(@RequestParam("code") String code) throws ServiceException {
+
+        try {
+            // Assuming userService can directly get the user entity based on the code
+            UserEntity entity = userService.getByUserName(code);
+            if (entity == null) {
+                throw new APIException(-20003, "根据Code[" + code + "]未找到用户");
+            }
+
+            String token = getOauthService().getAccessToken(entity.getUserName());
+            if (token == null) {
+                throw new APIException(-20004, "获取用户Token失败");
+            }
+
+            RDUserSession session = userService.createSession(entity);
+            getSessionManager().save(session);
+            return new LoginUserInfo<>(token, session);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new APIException(-20005, "浙里办API异常:" + e.getMessage());
+        }
+    }
+
 
 
 }
