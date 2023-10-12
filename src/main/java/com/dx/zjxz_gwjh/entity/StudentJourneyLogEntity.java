@@ -2,12 +2,12 @@ package com.dx.zjxz_gwjh.entity;
 
 import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModelProperty;
+import com.dx.easyspringweb.data.jpa.entity.JpaBaseEntity;
 import com.dx.zjxz_gwjh.enums.RecordType;
 import lombok.*;
 import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Data
 @Entity
@@ -21,11 +21,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudentJourneyLogEntity {
-    @ApiModelProperty("ID")
-    @Id
-    @Column(name = "id")
-    private String id;
+public class StudentJourneyLogEntity extends JpaBaseEntity {
 
     @ApiModelProperty("学生ID")
     @Column(name = "student_id")
@@ -35,15 +31,15 @@ public class StudentJourneyLogEntity {
     @Column(name = "student_name")
     private String studentName;
 
-    @ApiModelProperty("回舟类型")
-    @Column(name = "type")
-    private RecordType type;
+    @ApiModelProperty("行程日志类型")
+    @Column(name = "record_type")
+    private RecordType recordType;
 
-    @ApiModelProperty("日志描述")
-    @Column(name = "log_desc")
-    private String logDesc;
+    @ApiModelProperty("工作状态")
+    @Column(name = "work_condition")
+    private Boolean workCondition;
 
-    @ApiModelProperty("日志时间")
-    @Column(name = "log_time")
-    private Date logTime;
+    @ApiModelProperty("工作地点")
+    @Column(name = "work_address")
+    private String workAddress;
 }

@@ -23,17 +23,9 @@ public class StudentJourneyLogDto {
     @ApiModelProperty("行程日志类型")
     private RecordType recordType;
 
-    @ApiModelProperty("学生属地编码")
-    private String areaCode;
+    @ApiModelProperty("工作状态")
+    private Boolean workCondition;
 
-    @ApiModelProperty("学生属地")
-    private String area;
-
-    @ApiModelProperty("行程日志描述")
-    private String logDesc;
-
-    @ApiModelProperty("行程日志时间")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date logTime;
+    @ApiModelProperty("工作地点")
+    private String workAddress;
 }

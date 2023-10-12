@@ -7,19 +7,26 @@ import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.data.jpa.SortField;
 import com.dx.easyspringweb.data.jpa.service.JpaPublicService;
 import com.dx.zjxz_gwjh.dto.*;
+import com.dx.zjxz_gwjh.entity.QStudentJourneyLogEntity;
 import com.dx.zjxz_gwjh.entity.StudentJourneyLogEntity;
 import com.dx.zjxz_gwjh.enums.DegreeType;
 import com.dx.zjxz_gwjh.filter.StudentJourneyLogEntityFilter;
 import com.dx.zjxz_gwjh.repository.StudentJourneyLogRepository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.DateTimePath;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLogEntity, String> implements StandardService<StudentJourneyLogEntity, StudentJourneyLogEntityFilter, String> {
 
@@ -28,19 +35,6 @@ public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLog
 
     public StudentJourneyLogService(StudentJourneyLogRepository repository) {
         super(repository);
-    }
-
-    @Override
-    public PagingData<StudentJourneyLogEntity> queryList(QueryRequest<StudentJourneyLogEntityFilter> query) throws ServiceException {
-        BooleanBuilder predicate = new BooleanBuilder();
-        StudentJourneyLogEntityFilter filter = query.getFilter();
-        if (filter == null) {
-            throw new ServiceException("查询条件不能为空");
-        }
-        if (query.getSorts() == null) {
-            query.setSorts(SortField.def());
-        }
-        return this.queryList(predicate, query.getPageInfo(), query.getSorts());
     }
 
     /**
@@ -149,11 +143,53 @@ public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLog
         }
     }
 
-    public StudentJourneyLogEntity createStudentJourneyLog(StudentJourneyLogDto studentJourneyLogDto) throws ServiceException {
-        StudentJourneyLogEntity studentJourneyLogEntity = new StudentJourneyLogEntity();
-        studentJourneyLogRepository.save(studentJourneyLogEntity);
-        return studentJourneyLogEntity;
+    /**
+     * 根据学子id查询学子回舟日志列表
+     *
+     * @param query 查询条件
+     * @return 查询结果
+     * @throws ServiceException 业务异常
+     */
+    @Override
+    public PagingData<StudentJourneyLogEntity> queryList(QueryRequest<StudentJourneyLogEntityFilter> query) throws ServiceException {
+        BooleanBuilder predicate = new BooleanBuilder();
+        StudentJourneyLogEntityFilter filter = query.getFilter();
+        if (filter == null) {
+            throw new ServiceException("查询条件不能为空");
+        }
+        QStudentJourneyLogEntity q = QStudentJourneyLogEntity.studentJourneyLogEntity;
+        //学生ID相等
+        String studentId = filter.getId();
+        if (studentId != null) {
+            predicate.and(q.studentId.eq(studentId));
+        }
+        Timestamp startTime = filter.getStartTime();
+        Timestamp endTime = filter.getEndTime();
+        if (startTime != null && endTime != null) {
+            predicate.and(q.updateAt.between(startTime, endTime));
+        }
+        if (query.getSorts() == null) {
+            query.setSorts(SortField.by("updateAt", true));
+        }
+        return this.queryList(predicate, query.getPageInfo(), query.getSorts());
     }
 
+    /**
+     * 创建学子回舟日志
+     *
+     * @param studentJourneyLogDto 学子回舟日志
+     * @return 学子回舟日志
+     * @throws ServiceException 业务异常
+     */
+    public StudentJourneyLogEntity createStudentJourneyLog(StudentJourneyLogDto studentJourneyLogDto) throws ServiceException {
+        StudentJourneyLogEntity studentJourneyLogEntity = new StudentJourneyLogEntity();
+        try {
+            studentJourneyLogRepository.save(studentJourneyLogEntity);
+            return studentJourneyLogEntity;
+        } catch (Exception ex) {
+            log.error("In StudentJourneyLogService createStudentJourneyLog 创建失败:" + ex.getMessage());
+        }
+        return studentJourneyLogEntity;
+    }
 
 }
