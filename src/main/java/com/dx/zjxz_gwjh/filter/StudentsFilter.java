@@ -64,5 +64,6 @@ public class StudentsFilter {
     @ApiModelProperty("高中ID")
     private String highSchoolId;
 
-
+    @ApiModelProperty("是否回舟")
+    private Boolean isBack;
 }

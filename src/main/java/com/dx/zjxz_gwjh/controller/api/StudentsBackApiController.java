@@ -3,13 +3,17 @@ package com.dx.zjxz_gwjh.controller.api;
 import com.dx.easyspringweb.api.annotation.*;
 import com.dx.easyspringweb.core.annotation.*;
 import com.dx.easyspringweb.core.exception.ServiceException;
+import com.dx.easyspringweb.core.model.PagingData;
 import com.dx.easyspringweb.core.model.QueryRequest;
-import com.dx.zjxz_gwjh.dto.StudentBackCountDto;
-import com.dx.zjxz_gwjh.dto.StudentBackCountQueryDto;
+import com.dx.zjxz_gwjh.dto.*;
+import com.dx.zjxz_gwjh.entity.StudentJourneyLogEntity;
+import com.dx.zjxz_gwjh.filter.StudentJourneyLogEntityFilter;
 import com.dx.zjxz_gwjh.model.RDUserSession;
 import com.dx.zjxz_gwjh.service.StudentJourneyLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @ApiModule("Students")
@@ -22,9 +26,31 @@ public class StudentsBackApiController {
     private StudentJourneyLogService studentJourneyLogService;
 
     @BindResource("students:api:count")
-    @Action(value = "查询学生列表")
+    @Action(value = "查询回舟学生数量")
     @PostMapping("/count")
     public StudentBackCountDto getStudentBackCount(@Session RDUserSession user, @RequestBody QueryRequest<StudentBackCountQueryDto> query) throws ServiceException {
         return studentJourneyLogService.queryStudentBackCount(query.getFilter());
     }
+
+    @BindResource("students:api:areaCount")
+    @Action(value = "查询回舟学生地区数量")
+    @PostMapping("/areaCount")
+    public List<StudentBackAreaCountDto> getStudentBackAreaCount(@Session RDUserSession user, @RequestBody QueryRequest<StudentBackCountQueryDto> query) throws ServiceException {
+        return studentJourneyLogService.queryStudentBackAreaCount(query.getFilter());
+    }
+
+    @BindResource("students:api:yearCount")
+    @Action(value = "查询回舟学生届次数量")
+    @PostMapping("/yearCount")
+    public List<StudentBackYearCountDto> getStudentBackYearCount(@Session RDUserSession user, @RequestBody QueryRequest<StudentBackCountQueryDto> query) throws ServiceException {
+        return studentJourneyLogService.queryStudentBackYearCount(query.getFilter());
+    }
+
+    @BindResource("students:api:logs")
+    @Action(value = "查询回舟学生日志列表")
+    @PostMapping("/logs")
+    public PagingData<StudentJourneyLogEntity> queryList(@Session RDUserSession user, @RequestBody QueryRequest<StudentJourneyLogEntityFilter> query) throws ServiceException {
+        return studentJourneyLogService.queryList(query);
+    }
+    
 }

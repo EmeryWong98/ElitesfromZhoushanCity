@@ -2,22 +2,28 @@ package com.dx.zjxz_gwjh.vo;
 
 import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModelProperty;
+import com.dx.zjxz_gwjh.enums.RecordType;
 import lombok.Data;
-
-import java.util.Date;
 
 @Data
 @ApiModel("学生行程日志VO")
 public class StudentJourneyLogVO {
-    @ApiModelProperty("日志ID")
+
+    @ApiModelProperty("ID")
     private String id;
+
+    @ApiModelProperty("学生ID")
+    private String studentId;
 
     @ApiModelProperty("学生姓名")
     private String studentName;
 
-    @ApiModelProperty("日志描述")
-    private String logDesc;
+    @ApiModelProperty("行程日志类型")
+    private RecordType recordType;
 
-    @ApiModelProperty("日志时间")
-    private Date logDate;
+    @ApiModelProperty("工作状态")
+    private Boolean workCondition;
+
+    @ApiModelProperty("工作地点")
+    private String workAddress;
 }
