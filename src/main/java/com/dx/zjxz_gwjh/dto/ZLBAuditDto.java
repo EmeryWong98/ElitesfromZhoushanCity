@@ -2,6 +2,7 @@ package com.dx.zjxz_gwjh.dto;
 
 import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModelProperty;
+import com.dx.zjxz_gwjh.enums.ZLBStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,9 +12,9 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Data
-@ApiModel("学子创建Dto")
+@ApiModel("浙里办学子审核Dto")
 @EqualsAndHashCode(callSuper = false)
-public class StudentsCreateDto {
+public class ZLBAuditDto {
 
     @NotNull(message = "学生姓名不能为空")
     @ApiModelProperty("学生姓名")
@@ -123,5 +124,11 @@ public class StudentsCreateDto {
 
     @ApiModelProperty("学联网格ID")
     private String UnionNetId;
+
+    @ApiModelProperty("审核状态")
+    private ZLBStatus status;
+
+    @ApiModelProperty("审核意见")
+    private String auditOpinion;
 
 }

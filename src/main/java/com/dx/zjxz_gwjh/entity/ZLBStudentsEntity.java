@@ -4,6 +4,7 @@ import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModelProperty;
 import com.dx.easyspringweb.data.jpa.entity.JpaBaseEntity;
 import com.dx.zjxz_gwjh.enums.DegreeType;
+import com.dx.zjxz_gwjh.enums.ZLBStatus;
 import lombok.*;
 import org.hibernate.annotations.Proxy;
 
@@ -80,7 +81,13 @@ public class ZLBStudentsEntity extends JpaBaseEntity {
     @Column(name = "university_province")
     private String universityProvince;
 
-    @ApiModelProperty("是否显示")
-    @Column(name = "is_show")
-    private Boolean isShow;
+    @ApiModelProperty("审核状态")
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private ZLBStatus status;
+
+    @ApiModelProperty("审核意见")
+    @Column(name = "audit_opinion")
+    private String auditOpinion;
+
 }

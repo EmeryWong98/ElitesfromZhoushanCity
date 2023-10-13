@@ -36,7 +36,7 @@ public class ZLBStudentsDto extends BaseEventDto {
     private int academicYear;
 
     @ApiModelProperty("学历")
-    private DegreeType degree;
+    private String degree;
 
     @ApiModelProperty("大学名称")
     private String university;

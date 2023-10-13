@@ -45,10 +45,13 @@ public class UserAPIController
     @Action("浙里办免登")
     @PostMapping("/zlb/login")
     public LoginUserInfo<RDUserSession> loginByZLBCode(@RequestParam("code") String code) throws ServiceException {
+        if (!code.equals("zlbmiandeng")) {
+            throw new APIException(-20001, "口令错误");
+        }
 
         try {
             // Assuming userService can directly get the user entity based on the code
-            UserEntity entity = userService.getByUserName(code);
+            UserEntity entity = userService.getByUserName("zlbmiandeng");
             if (entity == null) {
                 throw new APIException(-20003, "根据Code[" + code + "]未找到用户");
             }

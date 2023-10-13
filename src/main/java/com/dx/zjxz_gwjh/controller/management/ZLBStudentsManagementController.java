@@ -9,18 +9,17 @@ import com.dx.easyspringweb.core.exception.ServiceException;
 import com.dx.easyspringweb.core.model.PagingData;
 import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.core.utils.ObjectUtils;
-import com.dx.zjxz_gwjh.dto.HighSchoolDto;
-import com.dx.zjxz_gwjh.dto.StudentsCreateDto;
-import com.dx.zjxz_gwjh.dto.StudentsDto;
-import com.dx.zjxz_gwjh.dto.ZLBStudentsDto;
-import com.dx.zjxz_gwjh.entity.HighSchoolEntity;
-import com.dx.zjxz_gwjh.entity.StudentsEntity;
-import com.dx.zjxz_gwjh.entity.ZLBStudentsEntity;
+import com.dx.zjxz_gwjh.dto.*;
+import com.dx.zjxz_gwjh.entity.*;
+import com.dx.zjxz_gwjh.enums.DegreeType;
+import com.dx.zjxz_gwjh.enums.ZLBStatus;
 import com.dx.zjxz_gwjh.filter.HighSchoolFilter;
 import com.dx.zjxz_gwjh.filter.ZLBStudentsFilter;
 import com.dx.zjxz_gwjh.model.RDUserSession;
-import com.dx.zjxz_gwjh.service.StudentsService;
-import com.dx.zjxz_gwjh.service.ZLBStudentsService;
+import com.dx.zjxz_gwjh.repository.DegreeBindingRepository;
+import com.dx.zjxz_gwjh.repository.StudentsRepository;
+import com.dx.zjxz_gwjh.repository.UniversityRepository;
+import com.dx.zjxz_gwjh.service.*;
 import com.dx.zjxz_gwjh.util.IdCardInfo;
 import com.dx.zjxz_gwjh.vo.HighSchoolVO;
 import com.dx.zjxz_gwjh.vo.ZLBStudentsVO;
@@ -41,6 +40,30 @@ public class ZLBStudentsManagementController {
 
     @Autowired
     private StudentsService studentsService;
+
+    @Autowired
+    private HighSchoolService highSchoolService;
+
+    @Autowired
+    private StudentsRepository studentsRepository;
+
+    @Autowired
+    private DegreeBindingRepository degreeBindingRepository;
+
+    @Autowired
+    private UniversityRepository universityRepository;
+
+    @Autowired
+    private HighSchoolNetService highSchoolNetService;
+
+    @Autowired
+    private AreaNetService areaNetService;
+
+    @Autowired
+    private OfficerNetService officerNetService;
+
+    @Autowired
+    private UnionNetService UnionNetService;
 
     @BindResource(value = "zlbstudents:management:list")
     @Action(value = "查询浙里办学子列表", type = Action.ActionType.QUERY_LIST)
@@ -74,10 +97,15 @@ public class ZLBStudentsManagementController {
         entity.setMajor(dto.getMajor());
         entity.setAcademicYear(dto.getAcademicYear());
         entity.setAddress(dto.getAddress());
-        entity.setDegree(dto.getDegree());
+        try {
+            DegreeType degree = DegreeType.fromDescription(dto.getDegree());
+            entity.setDegree(degree); // 存储描述到entity
+        } catch (ServiceException e) {
+            throw new ServiceException("无效的学位描述");
+        }
         entity.setArea(dto.getArea());
         entity.setUniversityProvince(dto.getUniversityProvince());
-        entity.setIsShow(true);
+        entity.setStatus(ZLBStatus.Processing);
 
         // 从身份证中提取出生日期和性别
         try {
@@ -106,25 +134,86 @@ public class ZLBStudentsManagementController {
     @BindResource("zlbstudents:management:details")
     @Action(value = "查询浙里办学子详情", type = Action.ActionType.QUERY_ITEM)
     @PostMapping("/details")
-    public ZLBStudentsEntity details(@RequestParam("id") String id)
+//    public ZLBStudentsEntity details(@RequestParam("id") String id)
+//            throws ServiceException {
+//        return zlbStudentsService.getById(id);
+//    }
+    public ZLBStudentDetailsDto details(@RequestParam("id") String id)
             throws ServiceException {
-        return zlbStudentsService.getById(id);
+        ZLBStudentsEntity entity = zlbStudentsService.getById(id);
+
+        ZLBStudentDetailsDto dto = new ZLBStudentDetailsDto();
+        ObjectUtils.copyEntity(entity, dto);
+        dto.setHighSchoolId(highSchoolService.findByName(entity.getHighSchool()).getId());
+
+        if (entity.getUniversity() != null) {
+            switch (entity.getDegree()) {
+                case Undergraduate:
+                    dto.setUniversity1Name(entity.getUniversity());
+                    dto.setDegree1(DegreeType.Undergraduate.getDescription());
+                    dto.setMajor1(entity.getMajor());
+                    dto.setUniversity1Province(entity.getUniversityProvince());
+                    break;
+                case Graduate:
+                    dto.setUniversity2Name(entity.getUniversity());
+                    dto.setDegree2(DegreeType.Graduate.getDescription());
+                    dto.setMajor2(entity.getMajor());
+                    dto.setUniversity2Province(entity.getUniversityProvince());
+                    break;
+                case PHD:
+                    dto.setUniversity3Name(entity.getUniversity());
+                    dto.setDegree3(DegreeType.PHD.getDescription());
+                    dto.setMajor3(entity.getMajor());
+                    dto.setUniversity3Province(entity.getUniversityProvince());
+                    break;
+            }
+
+
+        }
+
+        return dto;
     }
 
     @BindResource("zlbstudents:management:update")
     @Action(value = "更新浙里办学生信息", type = Action.ActionType.UPDATE)
     @PostMapping("/update")
-    public void update(@Valid @RequestBody StudentsCreateDto dto) throws ServiceException {
+    public void update(@Valid @RequestBody ZLBAuditDto dto) throws ServiceException {
         // 获取现有的浙里办学生实体
         ZLBStudentsEntity entity = zlbStudentsService.getByIdCard(dto.getIdCard());
 
-        // 创建学生实体
-        studentsService.createStudent(dto);
+        ObjectUtils.copyEntity(dto, entity);
 
-        // 更新浙里办学生实体的 isShow 字段
-        entity.setIsShow(false);
+        if (dto.getDegree1() != null) {
+            entity.setUniversity(dto.getUniversity1Name());
+            entity.setDegree(DegreeType.fromDescription(dto.getDegree1()));
+            entity.setMajor(dto.getMajor1());
+            entity.setUniversityProvince(dto.getUniversity1Province());
+        } else if (dto.getDegree2() != null) {
+            entity.setUniversity(dto.getUniversity2Name());
+            entity.setDegree(DegreeType.fromDescription(dto.getDegree2()));
+            entity.setMajor(dto.getMajor2());
+            entity.setUniversityProvince(dto.getUniversity2Province());
+        } else if (dto.getDegree3() != null) {
+            entity.setUniversity(dto.getUniversity3Name());
+            entity.setDegree(DegreeType.fromDescription(dto.getDegree3()));
+            entity.setMajor(dto.getMajor3());
+            entity.setUniversityProvince(dto.getUniversity3Province());
+        } else {
+            throw new ServiceException("无效的学位描述");
+        }
+
+        entity.setHighSchool(highSchoolService.findById(dto.getHighSchoolId()).getName());
+
+        // 更新浙里办学生实体;
         zlbStudentsService.update(entity);
+
+        if(dto.getStatus() == ZLBStatus.Succeed) {
+            StudentsCreateDto studentDto = new StudentsCreateDto();
+            ObjectUtils.copyEntity(dto, studentDto);
+
+            // 创建学生实体
+            studentsService.createStudent(studentDto);
+
+        }
     }
-
-
 }

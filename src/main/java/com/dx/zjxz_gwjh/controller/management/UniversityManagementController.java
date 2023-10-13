@@ -92,7 +92,7 @@ public class UniversityManagementController {
     }
 
     @BindResource("university:management:lists")
-    @Action(value = "查询大学列表", type = Action.ActionType.QUERY_LIST)
+    @Action(value = "简单查询大学列表", type = Action.ActionType.QUERY_LIST)
     @PostMapping("/lists")
     public List<UniversityEntity> lists(){
         	return universityService.lists();

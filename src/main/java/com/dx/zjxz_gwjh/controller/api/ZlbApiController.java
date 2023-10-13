@@ -6,17 +6,22 @@ import com.dx.easyspringweb.core.annotation.Action;
 import com.dx.easyspringweb.core.annotation.BindResource;
 import com.dx.easyspringweb.core.annotation.Session;
 import com.dx.easyspringweb.core.exception.ServiceException;
+import com.dx.easyspringweb.core.model.PagingData;
+import com.dx.easyspringweb.core.model.QueryRequest;
+import com.dx.easyspringweb.core.utils.ObjectUtils;
 import com.dx.zjxz_gwjh.dto.*;
 import com.dx.zjxz_gwjh.entity.*;
+import com.dx.zjxz_gwjh.enums.DegreeType;
 import com.dx.zjxz_gwjh.enums.Status;
+import com.dx.zjxz_gwjh.enums.ZLBStatus;
+import com.dx.zjxz_gwjh.filter.DomesticAssistanceFilter;
 import com.dx.zjxz_gwjh.model.RDUserSession;
 import com.dx.zjxz_gwjh.service.*;
 import com.dx.zjxz_gwjh.util.IdCardInfo;
+import com.dx.zjxz_gwjh.util.Province;
+import com.dx.zjxz_gwjh.vo.DomesticAssistanceVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.text.ParseException;
@@ -78,8 +83,15 @@ public class ZlbApiController {
         return netService.getNetDetails(idCard);
     }
 
+    @BindResource("province:zlb:list")
+    @Action(value = "查询省份列表", type = Action.ActionType.QUERY_LIST)
+    @PostMapping("/provincelists")
+    public List<String> getProvinces() {
+        return Province.getAllProvinces();
+    }
+
     @BindResource("jsns:zlb:create")
-    @Action(value = "创建家事难事信息", type = Action.ActionType.CREATE)
+    @Action(value = "创建家事难事", type = Action.ActionType.CREATE)
     @PostMapping("/jsnscreate")
     public DomesticAssistanceEntity create(@Session RDUserSession user, @Valid @RequestBody DomesticAssistanceDto dto)
             throws ServiceException {
@@ -102,6 +114,27 @@ public class ZlbApiController {
         return entity;
     }
 
+    @BindResource("jsns:zlb:list")
+    @Action(value = "家事难事列表", type = Action.ActionType.QUERY_LIST)
+    @PostMapping("/jsnslist")
+    public PagingData<DomesticAssistanceVO> list(@Session RDUserSession user, @RequestBody QueryRequest<DomesticAssistanceFilter> query)
+            throws ServiceException {
+        if (query == null) {
+            query = QueryRequest.create(null);
+        }
+
+        PagingData<DomesticAssistanceEntity> result = domesticAssistanceService.queryList(query);
+        return result.map((entity) -> ObjectUtils.copyEntity(entity, DomesticAssistanceVO.class));
+    }
+
+    @BindResource("jsns:zlb:details")
+    @Action(value = "家事难事详情", type = Action.ActionType.QUERY_ITEM)
+    @PostMapping("/jsnsdetails")
+    public DomesticAssistanceEntity details(@RequestParam("id") String id)
+            throws ServiceException {
+        return domesticAssistanceService.getById(id);
+    }
+
     @BindResource(value = "zlbStudents:zlb:create")
     @Action(value = "创建浙里办学子信息", type = Action.ActionType.CREATE)
     @PostMapping("/create")
@@ -121,10 +154,15 @@ public class ZlbApiController {
         entity.setMajor(dto.getMajor());
         entity.setAcademicYear(dto.getAcademicYear());
         entity.setAddress(dto.getAddress());
-        entity.setDegree(dto.getDegree());
+        try {
+            DegreeType degree = DegreeType.fromDescription(dto.getDegree());
+            entity.setDegree(degree); // 存储描述到entity
+        } catch (ServiceException e) {
+            throw new ServiceException("无效的学位描述");
+        }
         entity.setArea(dto.getArea());
         entity.setUniversityProvince(dto.getUniversityProvince());
-        entity.setIsShow(true);
+        entity.setStatus(ZLBStatus.Processing);
 
         // 从身份证中提取出生日期和性别
         try {
