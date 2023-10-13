@@ -1,30 +1,16 @@
 package com.dx.zjxz_gwjh.repository;
 
-import com.dx.easyspringweb.core.model.PagingData;
 import com.dx.easyspringweb.data.jpa.JpaCommonRepository;
 import com.dx.zjxz_gwjh.entity.StudentJourneyLogEntity;
 import com.dx.zjxz_gwjh.enums.DegreeType;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 
 @Repository
 public interface StudentJourneyLogRepository extends JpaCommonRepository<StudentJourneyLogEntity, String> {
-    /**
-     * 查询已回舟学子的回舟记录
-     *
-     * @param studentId 学生id
-     * @return 回舟记录
-     */
-    @Query("SELECT s FROM StudentJourneyLogEntity s " +
-            "WHERE s.studentId = :studentId")
-    PagingData<StudentJourneyLogEntity> findByStudentNameAndTimeRange(@Param("studentId") String studentId);
-
     /**
      * 搜索已回舟的学子总数
      *

@@ -14,13 +14,11 @@ import com.dx.zjxz_gwjh.filter.StudentJourneyLogEntityFilter;
 import com.dx.zjxz_gwjh.repository.StudentJourneyLogRepository;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.dsl.DateTimePath;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -30,11 +28,13 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLogEntity, String> implements StandardService<StudentJourneyLogEntity, StudentJourneyLogEntityFilter, String> {
 
-    @Autowired
-    private StudentJourneyLogRepository studentJourneyLogRepository;
 
-    public StudentJourneyLogService(StudentJourneyLogRepository repository) {
+    private final StudentJourneyLogRepository studentJourneyLogRepository;
+
+    @Autowired
+    public StudentJourneyLogService(StudentJourneyLogRepository repository, StudentJourneyLogRepository studentJourneyLogRepository) {
         super(repository);
+        this.studentJourneyLogRepository = studentJourneyLogRepository;
     }
 
     /**
@@ -91,7 +91,7 @@ public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLog
         if (startYear > endYear) {
             throw new ServiceException("开始时间不能大于结束时间");
         }
-        List<StudentBackAreaCountDto> studentBackAreaCountDtoList = new ArrayList<StudentBackAreaCountDto>();
+        List<StudentBackAreaCountDto> studentBackAreaCountDtoList = new ArrayList<>();
         List<Object[]> list = studentJourneyLogRepository.countByTimeRangeAndAreaAndIsBack(startYear, endYear + 1);
         AtomicInteger allCount = new AtomicInteger();
         list.forEach(item -> {
@@ -100,9 +100,7 @@ public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLog
             allCount.addAndGet(count);
             studentBackAreaCountDtoList.add(new StudentBackAreaCountDto(count, 0, area));
         });
-        studentBackAreaCountDtoList.forEach(item -> {
-            item.setRate(getRate(item.getCount(), allCount));
-        });
+        studentBackAreaCountDtoList.forEach(item -> item.setRate(getRate(item.getCount(), allCount)));
         return studentBackAreaCountDtoList;
     }
 
@@ -120,7 +118,7 @@ public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLog
         if (startYear > endYear) {
             throw new ServiceException("开始时间不能大于结束时间");
         }
-        List<StudentBackYearCountDto> studentBackYearCountDtoList = new ArrayList<StudentBackYearCountDto>();
+        List<StudentBackYearCountDto> studentBackYearCountDtoList = new ArrayList<>();
         List<Object[]> list = studentJourneyLogRepository.countByTimeRangeAndAcademicYearAndIsBack(startYear, endYear + 1);
         AtomicInteger allCount = new AtomicInteger();
         list.forEach(item -> {
@@ -129,9 +127,7 @@ public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLog
             allCount.addAndGet(count);
             studentBackYearCountDtoList.add(new StudentBackYearCountDto(year, count, 0));
         });
-        studentBackYearCountDtoList.forEach(item -> {
-            item.setRate(getRate(item.getCount(), allCount));
-        });
+        studentBackYearCountDtoList.forEach(item -> item.setRate(getRate(item.getCount(), allCount)));
         return studentBackYearCountDtoList;
     }
 
@@ -185,9 +181,8 @@ public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLog
         StudentJourneyLogEntity studentJourneyLogEntity = new StudentJourneyLogEntity();
         try {
             studentJourneyLogRepository.save(studentJourneyLogEntity);
-            return studentJourneyLogEntity;
         } catch (Exception ex) {
-            log.error("In StudentJourneyLogService createStudentJourneyLog 创建失败:" + ex.getMessage());
+            throw new ServiceException(ex.getMessage());
         }
         return studentJourneyLogEntity;
     }
