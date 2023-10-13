@@ -15,9 +15,5 @@ public class UserVO extends UserEntity {
         return null;
     }
 
-    @Override
-    public List<Role<String>> getRoles() {
-        return null;
-    }
 
 }

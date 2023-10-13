@@ -16,4 +16,5 @@ public class UserDto extends BaseUserDto<String> {
 
     @ApiModelProperty("区域")
     private String township;
+
 }

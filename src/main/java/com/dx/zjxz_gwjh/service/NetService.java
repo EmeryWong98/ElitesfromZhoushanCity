@@ -53,16 +53,31 @@ public class NetService {
     public NetDetailsDto getNetDetails(String idCard) {
         StudentsEntity student = studentsRepository.findByIdCard(idCard);
 
-        Optional<HighSchoolNetEntity> highSchoolNet = highSchoolNetRepository.findById(student.getHighSchoolNetId());
-        Optional<AreaNetEntity> areaNet = areaNetRepository.findById(student.getAreaNetId());
-        Optional<OfficerNetEntity> officerNet = officerNetRepository.findById(student.getOfficerNetId());
-        Optional<UnionNetEntity> unionNet = unionNetRepository.findById(student.getUnionNetId());
+        HighSchoolNetEntity highSchoolNet = null;
+        if(student.getHighSchoolNetId() != null) {
+            highSchoolNet = highSchoolNetRepository.findById(student.getHighSchoolNetId()).orElse(null);
+        }
+
+        AreaNetEntity areaNet = null;
+        if(student.getAreaNetId() != null) {
+            areaNet = areaNetRepository.findById(student.getAreaNetId()).orElse(null);
+        }
+
+        OfficerNetEntity officerNet = null;
+        if(student.getOfficerNetId() != null) {
+            officerNet = officerNetRepository.findById(student.getOfficerNetId()).orElse(null);
+        }
+
+        UnionNetEntity unionNet = null;
+        if(student.getUnionNetId() != null) {
+            unionNet = unionNetRepository.findById(student.getUnionNetId()).orElse(null);
+        }
 
         NetDetailsDto netDetailsDto = new NetDetailsDto();
-        netDetailsDto.setHighSchoolNet(highSchoolNet.get());
-        netDetailsDto.setAreaNet(areaNet.get());
-        netDetailsDto.setOfficerNet(officerNet.get());
-        netDetailsDto.setUnionNet(unionNet.get());
+        netDetailsDto.setHighSchoolNet(highSchoolNet);
+        netDetailsDto.setAreaNet(areaNet);
+        netDetailsDto.setOfficerNet(officerNet);
+        netDetailsDto.setUnionNet(unionNet);
 
         return netDetailsDto;
 

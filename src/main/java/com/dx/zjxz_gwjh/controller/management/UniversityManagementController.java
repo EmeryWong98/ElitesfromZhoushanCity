@@ -91,7 +91,7 @@ public class UniversityManagementController {
         universityService.update(entity);
     }
 
-    @BindResource("university:management:list")
+    @BindResource("university:management:lists")
     @Action(value = "查询大学列表", type = Action.ActionType.QUERY_LIST)
     @PostMapping("/lists")
     public List<UniversityEntity> lists(){

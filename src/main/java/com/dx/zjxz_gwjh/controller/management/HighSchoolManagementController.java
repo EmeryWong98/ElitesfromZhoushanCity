@@ -85,7 +85,7 @@ public class HighSchoolManagementController {
         highSchoolService.update(entity);
     }
 
-    @BindResource("highschool:management:list")
+    @BindResource("highschool:management:lists")
     @Action(value = "查询高中列表", type = Action.ActionType.QUERY_LIST)
     @PostMapping("/lists")
     public List<HighSchoolEntity> lists(){
