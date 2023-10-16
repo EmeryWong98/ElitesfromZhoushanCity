@@ -11,7 +11,8 @@ import lombok.Getter;
 public enum NetType implements StandardEnum<Integer> {
     HIGH_SCHOOL_NET(0, "毕业中学网格"),
     AREA_NET(1, "家庭属地网格"),
-    OFFICER_NET(2, "党政干部网格");
+    OFFICER_NET(2, "党政干部网格"),
+    UNION_NET(3, "高校学联网格");
 
     private Integer value;
     private String description;

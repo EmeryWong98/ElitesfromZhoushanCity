@@ -58,6 +58,7 @@ api:
     - { name: Activity, description: 活动管理 }
     - { name: System, description: 系统管理 }
     - { name: IsElite, description: 是否重点学子批量处理 }
+    - { name: WeChat, description: 微信端API }
     - { name: API, description: API }
 
 rpc:

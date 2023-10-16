@@ -204,6 +204,7 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
                                            @Param("graduationYear") Integer graduationYear,
                                            @Param("netId") String netId);
 
+    int countByAreaNetId(String id);
 
 //    int countByUniversityId(String id);
 //
@@ -229,7 +230,6 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
                                                                              @Param("startYear") Integer startYear,
                                                                              @Param("endYear") Integer endYear);
 
-    List<StudentsEntity> findByUnionNetId(String id);
 
     long countByHighSchoolId(String id);
 
@@ -243,6 +243,7 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
                                           @Param("Graduate") DegreeType Graduate,
                                           @Param("PHD") DegreeType PHD);
 
+    int countByHighSchoolNetId(String id);
 
     @Query("SELECT s FROM StudentsEntity s WHERE s.id IN :ids")
     List<StudentsEntity> getStudentsByIds(String[] ids);
@@ -250,6 +251,13 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
 //    @Query("SELECT s FROM StudentsEntity s")
 //    Stream<StudentsEntity> streamAllStudents();
 
+    int countByUnionNetId(String id);
+
+    List<StudentsEntity> findByHighSchoolNetId(String userId);
+
+    List<StudentsEntity> findByAreaNetId(String userId);
+
+    List<StudentsEntity> findByUnionNetId(String id);
 
     // 自定义的查询和操作可以放在这里
 }

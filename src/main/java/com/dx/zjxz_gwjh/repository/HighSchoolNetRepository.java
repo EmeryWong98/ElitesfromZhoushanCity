@@ -24,4 +24,8 @@ public interface HighSchoolNetRepository extends JpaCommonRepository<HighSchoolN
     List<HighSchoolNetEntity> findByLocationOrderByNameDesc(String highSchoolName);
 
     long countByLocation(String name);
+
+    HighSchoolNetEntity findByUserId(String userId);
+
+    boolean existsByUserId(String userId);
 }

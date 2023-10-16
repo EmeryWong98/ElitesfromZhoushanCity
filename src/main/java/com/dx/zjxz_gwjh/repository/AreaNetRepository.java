@@ -46,4 +46,8 @@ public interface AreaNetRepository extends JpaCommonRepository<AreaNetEntity, St
                                            @Param("netId") String netId);
 
     List<AreaNetEntity> findByAreaCodeOrderByNameDesc(String areaCode);
+
+    AreaNetEntity findByUserId(String userId);
+
+    boolean existsByUserId(String userId);
 }
