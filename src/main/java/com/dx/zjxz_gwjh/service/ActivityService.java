@@ -4,6 +4,7 @@ import com.dx.easyspringweb.core.StandardService;
 import com.dx.easyspringweb.core.exception.ServiceException;
 import com.dx.easyspringweb.core.model.PagingData;
 import com.dx.easyspringweb.core.model.QueryRequest;
+import com.dx.easyspringweb.data.jpa.JpaCommonRepository;
 import com.dx.easyspringweb.data.jpa.SortField;
 import com.dx.easyspringweb.data.jpa.service.JpaPublicService;
 import com.dx.easyspringweb.storage.models.StorageObject;
@@ -24,23 +25,27 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ActivityService extends JpaPublicService<ActivityEntity, String> implements StandardService<ActivityEntity, ActivityFilter, String> {
 
-    private final ActivityRepository activityRepository;
-
-    private final AreaNetService areaNetService;
-
-    private final HighSchoolNetService highSchoolNetService;
+    @Autowired
+    private ActivityRepository activityRepository;
 
     @Autowired
-    public ActivityService(ActivityRepository repository, ActivityRepository activityRepository, AreaNetService areaNetService, HighSchoolNetService highSchoolNetService) {
+    private AreaNetService areaNetService;
+
+    @Autowired
+    private HighSchoolNetService highSchoolNetService;
+
+    @Autowired
+    private StudentsService studentsService;
+
+    public ActivityService(JpaCommonRepository<ActivityEntity, String> repository) {
         super(repository);
-        this.activityRepository = repository;
-        this.areaNetService = areaNetService;
-        this.highSchoolNetService = highSchoolNetService;
     }
+
 
     /**
      * 驾驶舱查询正在执行活动列表
@@ -76,19 +81,24 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
     public ActivityDetailVO getDetail(String id) throws ServiceException {
         ActivityEntity activityEntity = super.getById(id);
         String netName = "";
+        String[] participants = activityEntity.getParticipants().split(",");
         switch (activityEntity.getNetType()) {
             case AREA_NET -> {
                 AreaNetEntity areaNetEntity = areaNetService.getById(activityEntity.getNetId());
                 netName = areaNetEntity.getName();
-                return new ActivityDetailVO(activityEntity, netName);
             }
             case HIGH_SCHOOL_NET -> {
                 HighSchoolNetEntity highSchoolNetEntity = highSchoolNetService.getById(activityEntity.getNetId());
                 netName = highSchoolNetEntity.getName();
-                return new ActivityDetailVO(activityEntity, netName);
             }
             default -> throw new ServiceException("无效的网格类型: " + activityEntity.getNetType());
         }
+        ActivityDetailVO activityDetailVO = new ActivityDetailVO(activityEntity);
+        List<StudentsEntity> students = studentsService.getStudentsByIds(participants);
+        String studentNames = students.stream().map(StudentsEntity::getName).collect(Collectors.joining(","));
+        activityDetailVO.setNetName(netName);
+        activityDetailVO.setParticipants(studentNames);
+        return activityDetailVO;
     }
 
     /**

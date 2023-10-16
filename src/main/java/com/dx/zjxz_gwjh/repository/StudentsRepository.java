@@ -48,7 +48,7 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
                                                       @Param("endYear") int endYear);
 
 
-//    @Query("SELECT COUNT(DISTINCT s) FROM StudentsEntity s " +
+    //    @Query("SELECT COUNT(DISTINCT s) FROM StudentsEntity s " +
 //            "JOIN DegreeBindingEntity d ON s.id = d.studentId " +
 //            "JOIN UniversityEntity u ON d.universityId = u.id " +
 //            "WHERE u.province = :province " +
@@ -72,9 +72,6 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
                                             @Param("selectedAreaNames") List<String> selectedAreaNames);
 
 
-
-
-
     @Query("SELECT COUNT(DISTINCT u) FROM StudentsEntity s " +
             "JOIN DegreeBindingEntity d ON s.id = d.studentId " +
             "JOIN UniversityEntity u ON d.universityId = u.id " +
@@ -93,15 +90,13 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
                                            @Param("areaNames") List<String> areaNames);
 
 
-
-
     @Query("SELECT COUNT(s) FROM StudentsEntity s WHERE s.academicYear = :year AND s.area IN :areas")
     int countStudentsByYearAndAreas(@Param("year") int year, @Param("areas") List<String> areas);
 
 
     int countByAcademicYearBetweenAndAreaAndIsKeyContact(int startYear, int endYear, String name, boolean isKeyContact);
 
-//    @Query("SELECT COUNT(DISTINCT s) FROM StudentsEntity s " +
+    //    @Query("SELECT COUNT(DISTINCT s) FROM StudentsEntity s " +
 //            "JOIN DegreeBindingEntity d ON s.id = d.studentId " +
 //            "WHERE s.academicYear BETWEEN :startYear AND :endYear " +
 //            "AND s.area = :area " +
@@ -130,8 +125,7 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
                                                                   @Param("degreeT") DegreeType degreeT);
 
 
-
-//    @Query("SELECT COUNT(DISTINCT u) FROM StudentsEntity s " +
+    //    @Query("SELECT COUNT(DISTINCT u) FROM StudentsEntity s " +
 //            "JOIN DegreeBindingEntity d ON s.id = d.studentId " +
 //            "JOIN UniversityEntity u ON d.universityId = u.id " +
 //            "WHERE u.province = :province " +
@@ -160,7 +154,6 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
                                                @Param("endYear") int endYear,
                                                @Param("areaNames") List<String> areaNames,
                                                @Param("isKeyContact") boolean isKeyContact);
-
 
 
 //    @Query("SELECT COUNT(DISTINCT u) FROM StudentsEntity s " +
@@ -193,7 +186,8 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
 //                                              @Param("areaNames") List<String> areaNames,
 //                                              @Param("isKeyContact") boolean isKeyContact); // 使用重点学生参数
 
-    @Query("SELECT COUNT(s) FROM StudentsEntity s WHERE s.academicYear = :year AND s.area IN :areas AND s.isKeyContact = true") // 添加了重点学生筛选条件
+    @Query("SELECT COUNT(s) FROM StudentsEntity s WHERE s.academicYear = :year AND s.area IN :areas AND s.isKeyContact = true")
+        // 添加了重点学生筛选条件
     int countKeyStudentsByYearAndAreas(@Param("year") int year, @Param("areas") List<String> areas);
 
 
@@ -211,7 +205,6 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
                                            @Param("netId") String netId);
 
 
-
 //    int countByUniversityId(String id);
 //
 //    int countByUniversityIdAndIsSupremeAndIsKeyContact(String id, boolean b, boolean b1);
@@ -223,6 +216,7 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
     int countByUniversityIdAndAcademicYearBetween(@Param("universityId") String universityId,
                                                   @Param("startYear") Integer startYear,
                                                   @Param("endYear") Integer endYear);
+
     @Query("SELECT COUNT(DISTINCT s) FROM StudentsEntity s " +
             "JOIN DegreeBindingEntity d ON s.id = d.studentId " +
             "WHERE d.universityId = :universityId " +
@@ -230,10 +224,10 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
             "AND s.isKeyContact = :isKeyContact " +
             "AND s.academicYear BETWEEN :startYear AND :endYear")
     int countByUniversityIdAndIsSupremeAndIsKeyContactAndAcademicYearBetween(@Param("universityId") String universityId,
-                                                                                     @Param("isSupreme") boolean isSupreme,
-                                                                                     @Param("isKeyContact") boolean isKeyContact,
-                                                                                     @Param("startYear") Integer startYear,
-                                                                                     @Param("endYear") Integer endYear);
+                                                                             @Param("isSupreme") boolean isSupreme,
+                                                                             @Param("isKeyContact") boolean isKeyContact,
+                                                                             @Param("startYear") Integer startYear,
+                                                                             @Param("endYear") Integer endYear);
 
     List<StudentsEntity> findByUnionNetId(String id);
 
@@ -250,8 +244,8 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
                                           @Param("PHD") DegreeType PHD);
 
 
-
-
+    @Query("SELECT s FROM StudentsEntity s WHERE s.id IN :ids")
+    List<StudentsEntity> getStudentsByIds(String[] ids);
 
 //    @Query("SELECT s FROM StudentsEntity s")
 //    Stream<StudentsEntity> streamAllStudents();

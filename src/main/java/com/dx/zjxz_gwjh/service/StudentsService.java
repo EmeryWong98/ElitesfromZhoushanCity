@@ -623,6 +623,10 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         return result;
     }
 
+    public List<StudentsEntity> getStudentsByIds(String[] ids) throws ServiceException{
+        return studentsRepository.getStudentsByIds(ids);
+    }
+
     public List<YearlyStudentCountDto> getYearlyStudentCount(AcademicYearAndAreaDto academicYearAndAreaDto) throws ServiceException {
         int startYear = academicYearAndAreaDto.getStartYear();
         int endYear = academicYearAndAreaDto.getEndYear();
@@ -728,10 +732,6 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         }
         return count;
     }
-
-
-
-
 
 
 
