@@ -9,12 +9,11 @@ import com.dx.easyspringweb.data.jpa.service.JpaPublicService;
 import com.dx.easyspringweb.storage.models.StorageObject;
 import com.dx.zjxz_gwjh.dto.ActivityCreateDto;
 import com.dx.zjxz_gwjh.dto.ActivityStudentQueryDto;
-import com.dx.zjxz_gwjh.entity.ActivityEntity;
-import com.dx.zjxz_gwjh.entity.QActivityEntity;
-import com.dx.zjxz_gwjh.entity.StudentsEntity;
+import com.dx.zjxz_gwjh.entity.*;
 import com.dx.zjxz_gwjh.enums.NetType;
 import com.dx.zjxz_gwjh.filter.ActivityFilter;
 import com.dx.zjxz_gwjh.repository.ActivityRepository;
+import com.dx.zjxz_gwjh.vo.ActivityDetailVO;
 import com.dx.zjxz_gwjh.vo.ActivityStudentVO;
 import com.dx.zjxz_gwjh.vo.ActivityVO;
 import com.querydsl.core.BooleanBuilder;
@@ -31,10 +30,16 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
 
     private final ActivityRepository activityRepository;
 
+    private final AreaNetService areaNetService;
+
+    private final HighSchoolNetService highSchoolNetService;
+
     @Autowired
-    public ActivityService(ActivityRepository repository, ActivityRepository activityRepository) {
+    public ActivityService(ActivityRepository repository, ActivityRepository activityRepository, AreaNetService areaNetService, HighSchoolNetService highSchoolNetService) {
         super(repository);
         this.activityRepository = repository;
+        this.areaNetService = areaNetService;
+        this.highSchoolNetService = highSchoolNetService;
     }
 
     /**
@@ -59,6 +64,31 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
     public List<ActivityVO> getWaitActivityList(NetType netType) throws ServiceException {
         List<ActivityEntity> activityList = activityRepository.queryWaitActivity(netType, new Date());
         return parseActivityList(activityList);
+    }
+
+    /**
+     * 查询活动详情
+     *
+     * @param id 活动id
+     * @return 活动实体
+     * @throws ServiceException 业务异常
+     */
+    public ActivityDetailVO getDetail(String id) throws ServiceException {
+        ActivityEntity activityEntity = super.getById(id);
+        String netName = "";
+        switch (activityEntity.getNetType()) {
+            case AREA_NET -> {
+                AreaNetEntity areaNetEntity = areaNetService.getById(activityEntity.getNetId());
+                netName = areaNetEntity.getName();
+                return new ActivityDetailVO(activityEntity, netName);
+            }
+            case HIGH_SCHOOL_NET -> {
+                HighSchoolNetEntity highSchoolNetEntity = highSchoolNetService.getById(activityEntity.getNetId());
+                netName = highSchoolNetEntity.getName();
+                return new ActivityDetailVO(activityEntity, netName);
+            }
+            default -> throw new ServiceException("无效的网格类型: " + activityEntity.getNetType());
+        }
     }
 
     /**
