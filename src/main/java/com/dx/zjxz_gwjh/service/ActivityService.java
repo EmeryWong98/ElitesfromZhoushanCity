@@ -11,17 +11,16 @@ import com.dx.easyspringweb.storage.models.StorageObject;
 import com.dx.zjxz_gwjh.dto.ActivityCreateDto;
 import com.dx.zjxz_gwjh.dto.ActivityStudentQueryDto;
 import com.dx.zjxz_gwjh.entity.*;
-import com.dx.zjxz_gwjh.enums.NetType;
 import com.dx.zjxz_gwjh.filter.ActivityFilter;
 import com.dx.zjxz_gwjh.repository.ActivityRepository;
 import com.dx.zjxz_gwjh.vo.ActivityDetailVO;
 import com.dx.zjxz_gwjh.vo.ActivityStudentVO;
-import com.dx.zjxz_gwjh.vo.ActivityVO;
 import com.querydsl.core.BooleanBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,29 +45,63 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
         super(repository);
     }
 
-
     /**
-     * 驾驶舱查询正在执行活动列表
+     * 驾驶舱查询待执行活动列表
      *
-     * @param netType 网格类型
+     * @param query 查询条件
      * @return 活动列表
      * @throws ServiceException 业务异常
      */
-    public List<ActivityVO> getCurrActivityList(NetType netType) throws ServiceException {
-        List<ActivityEntity> activityList = activityRepository.queryCurrActivityBy(netType, new Date());
-        return parseActivityList(activityList);
+    public PagingData<ActivityDetailVO> getCurrActivityList(QueryRequest<ActivityFilter> query) throws ServiceException {
+        ActivityFilter filter = query.getFilter();
+        BooleanBuilder predicate = getQueryParams(filter);
+        Date now = new Date();
+        predicate.and(QActivityEntity.activityEntity.startTime.loe(now));
+        predicate.and(QActivityEntity.activityEntity.endTime.goe(now));
+        if (query.getSorts() == null) {
+            query.setSorts(SortField.by("updateAt", true));
+        }
+        PagingData<ActivityEntity> activityList = this.queryList(predicate, query.getPageInfo(), query.getSorts());
+        return getActivityDetailVOPagingData(activityList);
     }
+
 
     /**
      * 驾驶舱查询待执行活动列表
      *
-     * @param netType 网格类型
+     * @param query 查询条件
      * @return 活动列表
      * @throws ServiceException 业务异常
      */
-    public List<ActivityVO> getWaitActivityList(NetType netType) throws ServiceException {
-        List<ActivityEntity> activityList = activityRepository.queryWaitActivity(netType, new Date());
-        return parseActivityList(activityList);
+    public PagingData<ActivityDetailVO> getWaitActivityList(QueryRequest<ActivityFilter> query) throws ServiceException {
+        ActivityFilter filter = query.getFilter();
+        BooleanBuilder predicate = getQueryParams(filter);
+        Date now = new Date();
+        predicate.and(QActivityEntity.activityEntity.startTime.gt(now));
+        predicate.and(QActivityEntity.activityEntity.endTime.gt(now));
+        if (query.getSorts() == null) {
+            query.setSorts(SortField.by("updateAt", true));
+        }
+        PagingData<ActivityEntity> activityList = this.queryList(predicate, query.getPageInfo(), query.getSorts());
+        return getActivityDetailVOPagingData(activityList);
+    }
+
+    @NotNull
+    private PagingData<ActivityDetailVO> getActivityDetailVOPagingData(PagingData<ActivityEntity> activityList) {
+        List<ActivityEntity> activityEntityList = activityList.getData();
+        List<ActivityDetailVO> activityDetailVOS = new ArrayList<>();
+        activityEntityList.forEach(item -> {
+            try {
+                activityDetailVOS.add(parseInfo(item));
+            } catch (ServiceException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return new PagingData<ActivityDetailVO>(
+                activityList.getPageInfo(),
+                activityDetailVOS,
+                activityList.getSorts()
+        );
     }
 
     /**
@@ -80,42 +113,34 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
      */
     public ActivityDetailVO getDetail(String id) throws ServiceException {
         ActivityEntity activityEntity = super.getById(id);
+        return parseInfo(activityEntity);
+    }
+
+    private ActivityDetailVO parseInfo(ActivityEntity activityEntity) throws ServiceException {
         String netName = "";
         String[] participants = activityEntity.getParticipants().split(",");
-        switch (activityEntity.getNetType()) {
-            case AREA_NET -> {
-                AreaNetEntity areaNetEntity = areaNetService.getById(activityEntity.getNetId());
-                netName = areaNetEntity.getName();
+        try {
+            switch (activityEntity.getNetType()) {
+                case AREA_NET -> {
+                    AreaNetEntity areaNetEntity = areaNetService.getById(activityEntity.getNetId());
+                    netName = areaNetEntity.getName();
+                }
+                case HIGH_SCHOOL_NET -> {
+                    HighSchoolNetEntity highSchoolNetEntity = highSchoolNetService.getById(activityEntity.getNetId());
+                    netName = highSchoolNetEntity.getName();
+                }
+                default -> throw new ServiceException("无效的网格类型: " + activityEntity.getNetType());
             }
-            case HIGH_SCHOOL_NET -> {
-                HighSchoolNetEntity highSchoolNetEntity = highSchoolNetService.getById(activityEntity.getNetId());
-                netName = highSchoolNetEntity.getName();
-            }
-            default -> throw new ServiceException("无效的网格类型: " + activityEntity.getNetType());
+        } catch (ServiceException e) {
+            throw new ServiceException("没有找到对应的网格");
         }
+
         ActivityDetailVO activityDetailVO = new ActivityDetailVO(activityEntity);
         List<StudentsEntity> students = studentsService.getStudentsByIds(participants);
         String studentNames = students.stream().map(StudentsEntity::getName).collect(Collectors.joining(","));
         activityDetailVO.setNetName(netName);
         activityDetailVO.setParticipants(studentNames);
         return activityDetailVO;
-    }
-
-    /**
-     * 转换返回列表类型
-     *
-     * @param activityList 活动列表
-     * @return 活动视图列表
-     */
-    private List<ActivityVO> parseActivityList(List<ActivityEntity> activityList) {
-        List<ActivityVO> activityVOList = new ArrayList<>();
-        activityList.forEach(item -> {
-            ActivityVO activityVO = new ActivityVO();
-            activityVO.setName(item.getName());
-            activityVO.setBannerFiles(item.getBannerFiles());
-            activityVOList.add(activityVO);
-        });
-        return activityVOList;
     }
 
     /**
@@ -127,18 +152,8 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
      */
     @Override
     public PagingData<ActivityEntity> queryList(QueryRequest<ActivityFilter> query) throws ServiceException {
-        BooleanBuilder predicate = new BooleanBuilder();
         ActivityFilter filter = query.getFilter();
-        if (filter == null) throw new ServiceException("查询条件不能为空");
-        if (filter.getNetId() != null) {
-            predicate.and(QActivityEntity.activityEntity.netId.eq(filter.getNetId()));
-        }
-        if (filter.getUserId() != null) {
-            predicate.and(QActivityEntity.activityEntity.userId.eq(filter.getUserId()));
-        }
-        if (filter.getNetType() != null) {
-            predicate.and(QActivityEntity.activityEntity.netType.eq(filter.getNetType()));
-        }
+        BooleanBuilder predicate = getQueryParams(filter);
         if (filter.getStartTime() != null) {
             predicate.and(QActivityEntity.activityEntity.startTime.goe(filter.getStartTime()));
         }
@@ -149,6 +164,21 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
             query.setSorts(SortField.by("updateAt", true));
         }
         return this.queryList(predicate, query.getPageInfo(), query.getSorts());
+    }
+
+    private BooleanBuilder getQueryParams(ActivityFilter filter) throws ServiceException {
+        BooleanBuilder predicate = new BooleanBuilder();
+        if (filter == null) throw new ServiceException("查询条件不能为空");
+        if (filter.getNetId() != null) {
+            predicate.and(QActivityEntity.activityEntity.netId.eq(filter.getNetId()));
+        }
+        if (filter.getUserId() != null) {
+            predicate.and(QActivityEntity.activityEntity.userId.eq(filter.getUserId()));
+        }
+        if (filter.getNetType() != null) {
+            predicate.and(QActivityEntity.activityEntity.netType.eq(filter.getNetType()));
+        }
+        return predicate;
     }
 
     /**

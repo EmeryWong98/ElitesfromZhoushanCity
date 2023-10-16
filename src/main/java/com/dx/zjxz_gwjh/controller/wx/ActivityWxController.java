@@ -14,6 +14,7 @@ import com.dx.zjxz_gwjh.entity.ActivityEntity;
 import com.dx.zjxz_gwjh.filter.ActivityFilter;
 import com.dx.zjxz_gwjh.model.RDUserSession;
 import com.dx.zjxz_gwjh.service.ActivityService;
+import com.dx.zjxz_gwjh.vo.ActivityDetailVO;
 import com.dx.zjxz_gwjh.vo.ActivityStudentVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,23 +35,47 @@ public class ActivityWxController {
     private ActivityService activityService;
 
     @BindResource("activity:wx:list")
-    @Action(value = "查询网格活动列表", type = Action.ActionType.QUERY_LIST)
+    @Action(value = "查询当前用户的网格活动列表", type = Action.ActionType.QUERY_LIST)
     @PostMapping("/list")
     public PagingData<ActivityEntity> queryList(@Session RDUserSession user, @RequestBody QueryRequest<ActivityFilter> query) throws ServiceException {
+        ActivityFilter filter = query.getFilter();
+        filter.setUserId(user.getUserId());
         return activityService.queryList(query);
+    }
+
+    @BindResource("activity:wx:curr-list")
+    @Action(value = "查询当前用户的正在执行网格活动列表", type = Action.ActionType.QUERY_LIST)
+    @PostMapping("/currList")
+    public PagingData<ActivityDetailVO> queryCurrList(@Session RDUserSession user, @RequestBody QueryRequest<ActivityFilter> query) throws ServiceException {
+        ActivityFilter filter = query.getFilter();
+        filter.setUserId(user.getUserId());
+        return activityService.getCurrActivityList(query);
+    }
+
+    @BindResource("activity:wx:wait-list")
+    @Action(value = "查询当前用户的待执行网格活动列表", type = Action.ActionType.QUERY_LIST)
+    @PostMapping("/waitList")
+    public PagingData<ActivityDetailVO> queryWaitList(@Session RDUserSession user, @RequestBody QueryRequest<ActivityFilter> query) throws ServiceException {
+        ActivityFilter filter = query.getFilter();
+        filter.setUserId(user.getUserId());
+        return activityService.getWaitActivityList(query);
     }
 
     @BindResource("activity:wx:netBindStudent")
     @Action(value = "根据网格员ID或者网格ID查询学生列表")
     @PostMapping("/netBindStudent")
     public List<ActivityStudentVO> queryStudentByNetUserId(@Session RDUserSession user, @RequestBody ActivityStudentQueryDto activityStudentQueryDto) throws ServiceException {
-        return activityService.queryStudentByNetUserId(activityStudentQueryDto);
+        ActivityStudentQueryDto dto = new ActivityStudentQueryDto(activityStudentQueryDto);
+        dto.setUserId(user.getUserId());
+        return activityService.queryStudentByNetUserId(dto);
     }
 
     @BindResource("activity:wx:create")
     @Action(value = "创建网格活动", type = Action.ActionType.CREATE)
     @PostMapping("/create")
-    public ActivityEntity create(@Session RDUserSession user, @Valid @RequestBody ActivityCreateDto dto) throws ServiceException {
+    public ActivityEntity create(@Session RDUserSession user, @Valid @RequestBody ActivityCreateDto activityCreateDto) throws ServiceException {
+        ActivityCreateDto dto = new ActivityCreateDto(activityCreateDto);
+        dto.setUserId(user.getUserId());
         return activityService.create(dto);
     }
 

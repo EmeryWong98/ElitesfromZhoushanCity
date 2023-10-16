@@ -54,4 +54,17 @@ public class ActivityCreateDto {
     @ApiModelProperty(value = "活动剪影图片")
     @NotNull(message = "活动剪影图片不能为空")
     private List<StorageObject> files;
+
+    public ActivityCreateDto(ActivityCreateDto dto) {
+        this.userId = dto.userId;
+        this.netId = dto.netId;
+        this.netType = dto.netType;
+        this.name = dto.name;
+        this.startTime = dto.startTime;
+        this.endTime = dto.endTime;
+        this.participants = dto.participants;
+        this.content = dto.content;
+        this.BannerFiles = dto.BannerFiles;
+        this.files = dto.files;
+    }
 }

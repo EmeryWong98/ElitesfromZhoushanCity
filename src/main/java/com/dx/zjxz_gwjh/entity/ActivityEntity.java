@@ -66,7 +66,7 @@ public class ActivityEntity extends JpaBaseEntity {
     private Date endTime;
 
     @ApiModelProperty("活动参与人员")
-    @Column(name = "participants")
+    @Column(name = "participants", columnDefinition = "text")
     @NotNull(message = "活动参与人员不能为空")
     private String participants;
 
@@ -86,17 +86,4 @@ public class ActivityEntity extends JpaBaseEntity {
     @Column(name = "files", columnDefinition = "json")
     @NotNull(message = "活动剪影图片不能为空")
     private List<StorageObject> files;
-
-    public ActivityEntity(ActivityEntity activityEntity) {
-        this.userId = activityEntity.getUserId();
-        this.netId = activityEntity.getNetId();
-        this.netType = activityEntity.getNetType();
-        this.name = activityEntity.getName();
-        this.startTime = activityEntity.getStartTime();
-        this.endTime = activityEntity.getEndTime();
-        this.participants = activityEntity.getParticipants();
-        this.content = activityEntity.getContent();
-        this.BannerFiles = activityEntity.getBannerFiles();
-        this.files = activityEntity.getFiles();
-    }
 }

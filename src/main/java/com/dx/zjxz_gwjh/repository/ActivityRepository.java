@@ -60,8 +60,9 @@ public interface ActivityRepository extends JpaCommonRepository<ActivityEntity, 
     @Query("SELECT a FROM ActivityEntity a " +
             "WHERE a.netType = :netType " +
             "AND a.startTime <= :nowDate " +
-            "AND a.endTime >= :nowDate")
-    List<ActivityEntity> queryCurrActivityBy(@Param("netType") NetType netType, @Param("nowDate") Date nowDate);
+            "AND a.endTime >= :nowDate " +
+            "AND a.id = :userId ")
+    List<ActivityEntity> queryCurrActivityBy(@Param("userId") String userId, @Param("netType") NetType netType, @Param("nowDate") Date nowDate);
 
     /**
      * 根据当前时间查询还未开始的活动
@@ -72,6 +73,7 @@ public interface ActivityRepository extends JpaCommonRepository<ActivityEntity, 
     @Query("SELECT a FROM ActivityEntity a " +
             "WHERE a.netType = :netType " +
             "AND a.startTime > :nowDate " +
-            "AND a.endTime > :nowDate")
-    List<ActivityEntity> queryWaitActivity(@Param("netType") NetType netType, @Param("nowDate") Date nowDate);
+            "AND a.endTime > :nowDate " +
+            "AND a.id = :userId ")
+    List<ActivityEntity> queryWaitActivity(@Param("userId") String userId, @Param("netType") NetType netType, @Param("nowDate") Date nowDate);
 }
