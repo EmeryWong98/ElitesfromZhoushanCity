@@ -35,7 +35,7 @@ public class ActivityWxController {
     private ActivityService activityService;
 
     @BindResource("activity:wx:list")
-    @Action(value = "查询当前用户的网格活动列表", type = Action.ActionType.QUERY_LIST)
+    @Action(value = "网格活动列表", type = Action.ActionType.QUERY_LIST)
     @PostMapping("/list")
     public PagingData<ActivityEntity> queryList(@Session RDUserSession user, @RequestBody QueryRequest<ActivityFilter> query) throws ServiceException {
         ActivityFilter filter = query.getFilter();
@@ -44,7 +44,7 @@ public class ActivityWxController {
     }
 
     @BindResource("activity:wx:curr-list")
-    @Action(value = "查询当前用户的正在执行网格活动列表", type = Action.ActionType.QUERY_LIST)
+    @Action(value = "进行网格活动列表", type = Action.ActionType.QUERY_LIST)
     @PostMapping("/currList")
     public PagingData<ActivityDetailVO> queryCurrList(@Session RDUserSession user, @RequestBody QueryRequest<ActivityFilter> query) throws ServiceException {
         ActivityFilter filter = query.getFilter();
@@ -53,7 +53,7 @@ public class ActivityWxController {
     }
 
     @BindResource("activity:wx:wait-list")
-    @Action(value = "查询当前用户的待执行网格活动列表", type = Action.ActionType.QUERY_LIST)
+    @Action(value = "计划网格活动列表", type = Action.ActionType.QUERY_LIST)
     @PostMapping("/waitList")
     public PagingData<ActivityDetailVO> queryWaitList(@Session RDUserSession user, @RequestBody QueryRequest<ActivityFilter> query) throws ServiceException {
         ActivityFilter filter = query.getFilter();
@@ -61,9 +61,9 @@ public class ActivityWxController {
         return activityService.getWaitActivityList(query);
     }
 
-    @BindResource("activity:wx:netBindStudent")
-    @Action(value = "根据网格员ID或者网格ID查询学生列表")
-    @PostMapping("/netBindStudent")
+    @BindResource("activity:wx:netStudent")
+    @Action(value = "网格学生列表")
+    @PostMapping("/netStudent")
     public List<ActivityStudentVO> queryStudentByNetUserId(@Session RDUserSession user, @RequestBody ActivityStudentQueryDto activityStudentQueryDto) throws ServiceException {
         ActivityStudentQueryDto dto = new ActivityStudentQueryDto(activityStudentQueryDto);
         dto.setUserId(user.getUserId());
@@ -82,14 +82,14 @@ public class ActivityWxController {
     @BindResource("activity:api:update")
     @Action(value = "更新网格活动", type = Action.ActionType.UPDATE)
     @PostMapping("/update")
-    public ActivityEntity update(@Session RDUserSession user, @Valid @RequestBody ActivityEntity entity) throws ServiceException {
+    public ActivityEntity update(@Valid @RequestBody ActivityEntity entity) throws ServiceException {
         return activityService.update(entity);
     }
 
     @BindResource("activity:api:delete")
     @Action(value = "删除网格活动", type = Action.ActionType.DELETE)
     @PostMapping("/delete")
-    public void delete(@Session RDUserSession user, @RequestBody String id) throws ServiceException {
+    public void delete(@RequestBody String id) throws ServiceException {
         activityService.deleteById(id);
     }
 }

@@ -45,6 +45,16 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
         super(repository);
     }
 
+    public PagingData<ActivityDetailVO> getActivityList(QueryRequest<ActivityFilter> query) throws ServiceException {
+        ActivityFilter filter = query.getFilter();
+        BooleanBuilder predicate = getQueryParams(filter);
+        if (query.getSorts() == null) {
+            query.setSorts(SortField.by("startTime", true));
+        }
+        PagingData<ActivityEntity> activityList = this.queryList(predicate, query.getPageInfo(), query.getSorts());
+        return getActivityDetailVOPagingData(activityList);
+    }
+
     /**
      * 驾驶舱查询待执行活动列表
      *
@@ -59,7 +69,7 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
         predicate.and(QActivityEntity.activityEntity.startTime.loe(now));
         predicate.and(QActivityEntity.activityEntity.endTime.goe(now));
         if (query.getSorts() == null) {
-            query.setSorts(SortField.by("updateAt", true));
+            query.setSorts(SortField.by("startTime", true));
         }
         PagingData<ActivityEntity> activityList = this.queryList(predicate, query.getPageInfo(), query.getSorts());
         return getActivityDetailVOPagingData(activityList);
@@ -80,7 +90,7 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
         predicate.and(QActivityEntity.activityEntity.startTime.gt(now));
         predicate.and(QActivityEntity.activityEntity.endTime.gt(now));
         if (query.getSorts() == null) {
-            query.setSorts(SortField.by("updateAt", true));
+            query.setSorts(SortField.by("startTime", true));
         }
         PagingData<ActivityEntity> activityList = this.queryList(predicate, query.getPageInfo(), query.getSorts());
         return getActivityDetailVOPagingData(activityList);
@@ -161,7 +171,7 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
             predicate.and(QActivityEntity.activityEntity.endTime.loe(filter.getEndTime()));
         }
         if (query.getSorts() == null) {
-            query.setSorts(SortField.by("updateAt", true));
+            query.setSorts(SortField.by("startTime", true));
         }
         return this.queryList(predicate, query.getPageInfo(), query.getSorts());
     }
