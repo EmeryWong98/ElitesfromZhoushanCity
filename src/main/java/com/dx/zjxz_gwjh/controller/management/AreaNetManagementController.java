@@ -83,8 +83,8 @@ public class AreaNetManagementController {
         areaNetService.update(entity);
     }
 
-    @BindResource("areaNet:management:list")
-    @Action(value = "查询属地网格列表", type = Action.ActionType.QUERY_LIST)
+    @BindResource("areaNet:management:lists")
+    @Action(value = "属地网格列表", type = Action.ActionType.QUERY_LIST)
     @PostMapping("/lists")
     public List<AreaNetEntity> lists(){
         	return areaNetService.lists();

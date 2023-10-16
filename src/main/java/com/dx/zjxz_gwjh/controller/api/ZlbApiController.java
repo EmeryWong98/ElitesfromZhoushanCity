@@ -15,11 +15,13 @@ import com.dx.zjxz_gwjh.enums.DegreeType;
 import com.dx.zjxz_gwjh.enums.Status;
 import com.dx.zjxz_gwjh.enums.ZLBStatus;
 import com.dx.zjxz_gwjh.filter.DomesticAssistanceFilter;
+import com.dx.zjxz_gwjh.filter.ZLBStudentsFilter;
 import com.dx.zjxz_gwjh.model.RDUserSession;
 import com.dx.zjxz_gwjh.service.*;
 import com.dx.zjxz_gwjh.util.IdCardInfo;
 import com.dx.zjxz_gwjh.util.Province;
 import com.dx.zjxz_gwjh.vo.DomesticAssistanceVO;
+import com.dx.zjxz_gwjh.vo.ZLBStudentsVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -136,8 +138,8 @@ public class ZlbApiController {
     }
 
     @BindResource(value = "zlbStudents:zlb:create")
-    @Action(value = "创建浙里办学子信息", type = Action.ActionType.CREATE)
-    @PostMapping("/create")
+    @Action(value = "创建浙里办学子", type = Action.ActionType.CREATE)
+    @PostMapping("/screate")
     public ZLBStudentsEntity create(@Session RDUserSession user, @Valid @RequestBody ZLBStudentsDto dto)
             throws ServiceException {
         StudentsEntity student = studentsService.findByIdCard(dto.getIdCard());
@@ -180,6 +182,60 @@ public class ZlbApiController {
 
         return entity;
     }
+
+    @BindResource(value = "zlbstudents:zlb:list")
+    @Action(value = "浙里办学子列表", type = Action.ActionType.QUERY_LIST)
+    @PostMapping("/slist")
+    public PagingData<ZLBStudentsVO> zlbStudentsList(@Session RDUserSession user, @RequestBody QueryRequest<ZLBStudentsFilter> query)
+            throws ServiceException {
+        if (query == null) {
+            query = QueryRequest.create(null);
+        }
+
+        PagingData<ZLBStudentsEntity> result = zlbStudentsService.queryList(query);
+        return result.map((entity) -> ObjectUtils.copyEntity(entity, ZLBStudentsVO.class));
+    }
+
+    @BindResource("zlbstudents:zlb:details")
+    @Action(value = "浙里办学子详情", type = Action.ActionType.QUERY_ITEM)
+    @PostMapping("/sdetails")
+    public ZLBStudentDetailsDto zlbStudentsDetails(@RequestParam("id") String id)
+            throws ServiceException {
+        ZLBStudentsEntity entity = zlbStudentsService.getById(id);
+
+        ZLBStudentDetailsDto dto = new ZLBStudentDetailsDto();
+        ObjectUtils.copyEntity(entity, dto);
+        dto.setHighSchoolId(highSchoolService.findByName(entity.getHighSchool()).getId());
+
+        if (entity.getUniversity() != null) {
+            switch (entity.getDegree()) {
+                case Undergraduate:
+                    dto.setUniversity1Name(entity.getUniversity());
+                    dto.setDegree1(DegreeType.Undergraduate.getDescription());
+                    dto.setMajor1(entity.getMajor());
+                    dto.setUniversity1Province(entity.getUniversityProvince());
+                    break;
+                case Graduate:
+                    dto.setUniversity2Name(entity.getUniversity());
+                    dto.setDegree2(DegreeType.Graduate.getDescription());
+                    dto.setMajor2(entity.getMajor());
+                    dto.setUniversity2Province(entity.getUniversityProvince());
+                    break;
+                case PHD:
+                    dto.setUniversity3Name(entity.getUniversity());
+                    dto.setDegree3(DegreeType.PHD.getDescription());
+                    dto.setMajor3(entity.getMajor());
+                    dto.setUniversity3Province(entity.getUniversityProvince());
+                    break;
+            }
+
+
+        }
+
+        return dto;
+    }
+
+
 
 
 

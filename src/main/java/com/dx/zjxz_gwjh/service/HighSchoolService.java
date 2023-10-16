@@ -42,7 +42,7 @@ public class HighSchoolService extends JpaPublicService<HighSchoolEntity, String
         }
 
             if (query.getSorts() == null) {
-                query.setSorts(SortField.def());
+                query.setSorts(SortField.by("createAt", true));
             }
 
             return this.queryList(predicate, query.getPageInfo(), query.getSorts());

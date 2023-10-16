@@ -83,8 +83,8 @@ public class OfficerNetManagementController {
         officerNetService.update(entity);
     }
 
-    @BindResource("officerNet:management:list")
-    @Action(value = "查询党政领导网格列表", type = Action.ActionType.QUERY_LIST)
+    @BindResource("officerNet:management:lists")
+    @Action(value = "党政领导网格列表", type = Action.ActionType.QUERY_LIST)
     @PostMapping("/lists")
     public List<OfficerNetEntity> lists(){
         return officerNetService.lists();

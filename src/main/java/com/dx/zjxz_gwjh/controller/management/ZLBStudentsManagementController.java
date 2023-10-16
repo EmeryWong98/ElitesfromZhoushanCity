@@ -134,10 +134,6 @@ public class ZLBStudentsManagementController {
     @BindResource("zlbstudents:management:details")
     @Action(value = "查询浙里办学子详情", type = Action.ActionType.QUERY_ITEM)
     @PostMapping("/details")
-//    public ZLBStudentsEntity details(@RequestParam("id") String id)
-//            throws ServiceException {
-//        return zlbStudentsService.getById(id);
-//    }
     public ZLBStudentDetailsDto details(@RequestParam("id") String id)
             throws ServiceException {
         ZLBStudentsEntity entity = zlbStudentsService.getById(id);

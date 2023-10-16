@@ -83,8 +83,8 @@ public class HighSchoolNetController {
         highSchoolNetService.update(entity);
     }
 
-    @BindResource("highSchoolNet:management:list")
-    @Action(value = "查询高中网格列表", type = Action.ActionType.QUERY_LIST)
+    @BindResource("highSchoolNet:management:lists")
+    @Action(value = "高中网格列表", type = Action.ActionType.QUERY_LIST)
     @PostMapping("/lists")
     public List<HighSchoolNetEntity> lists(){
         return highSchoolNetService.lists();

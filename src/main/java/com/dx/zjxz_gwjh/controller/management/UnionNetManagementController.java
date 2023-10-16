@@ -83,8 +83,8 @@ public class UnionNetManagementController {
         unionNetService.update(entity);
     }
 
-    @BindResource("unionNet:management:list")
-    @Action(value = "查询学联网格列表", type = Action.ActionType.QUERY_LIST)
+    @BindResource("unionNet:management:lists")
+    @Action(value = "学联网格列表", type = Action.ActionType.QUERY_LIST)
     @PostMapping("/lists")
     public List<UnionNetEntity> lists(){
         return unionNetService.lists();

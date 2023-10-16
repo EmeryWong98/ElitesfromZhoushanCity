@@ -2,7 +2,10 @@ package com.dx.zjxz_gwjh.vo;
 
 import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModelProperty;
+import com.dx.easyspringweb.storage.models.StorageObject;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @ApiModel("学联网格VO")
@@ -30,6 +33,12 @@ public class UnionNetVO {
 
     @ApiModelProperty("纬度")
     private Float lat;
+
+    @ApiModelProperty("排序")
+    private Integer xorder;
+
+    @ApiModelProperty("图标")
+    private List<StorageObject> files;
 
 
 }

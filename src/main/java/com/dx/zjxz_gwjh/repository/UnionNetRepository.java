@@ -20,4 +20,7 @@ public interface UnionNetRepository extends JpaCommonRepository<UnionNetEntity, 
             "FROM UnionNetEntity n " +
             "ORDER BY n.score DESC")
     List<NetActivityDto> getUnionNetActivityRanking();
+
+
+
 }
