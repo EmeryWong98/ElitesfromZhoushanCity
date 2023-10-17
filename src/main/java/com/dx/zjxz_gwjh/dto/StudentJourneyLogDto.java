@@ -13,7 +13,7 @@ import java.util.Date;
 @Data
 @ApiModel("学生行程日志DTO")
 @EqualsAndHashCode(callSuper = false)
-public class StudentJourneyLogDto {
+public class StudentJourneyLogDto extends BaseEventDto{
     @ApiModelProperty("学生id")
     private String studentId;
 

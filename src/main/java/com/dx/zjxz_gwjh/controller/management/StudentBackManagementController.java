@@ -9,7 +9,6 @@ import com.dx.easyspringweb.core.model.PagingData;
 import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.core.utils.ObjectUtils;
 import com.dx.zjxz_gwjh.dto.StudentJourneyLogDto;
-import com.dx.zjxz_gwjh.entity.ActivityEntity;
 import com.dx.zjxz_gwjh.entity.StudentJourneyLogEntity;
 import com.dx.zjxz_gwjh.filter.StudentJourneyLogEntityFilter;
 import com.dx.zjxz_gwjh.service.StudentJourneyLogService;
@@ -63,7 +62,7 @@ public class StudentBackManagementController {
     @BindResource("studentBack:management:update")
     @Action(value = "更新学子工作记录", type = Action.ActionType.UPDATE)
     @PostMapping("/update")
-    public void update(@Valid @RequestBody ActivityEntity dto) throws ServiceException {
+    public void update(@Valid @RequestBody StudentJourneyLogDto dto) throws ServiceException {
         StudentJourneyLogEntity entity = studentJourneyLogService.getById(dto.getId());
         ObjectUtils.copyEntity(dto, entity);
         studentJourneyLogService.update(entity);
