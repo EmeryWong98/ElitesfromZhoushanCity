@@ -53,4 +53,8 @@ public class DomesticAssistanceEntity extends JpaBaseEntity {
     @NotNull(message = "状态不能为空")
     private Status status;
 
+    @ApiModelProperty("备注")
+    @Column(name = "remark")
+    private String remark;
+
 }

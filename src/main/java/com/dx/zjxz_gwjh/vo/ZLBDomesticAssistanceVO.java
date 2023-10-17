@@ -1,6 +1,5 @@
 package com.dx.zjxz_gwjh.vo;
 
-
 import com.dx.easyspringweb.api.annotation.ApiModel;
 import com.dx.easyspringweb.api.annotation.ApiModelProperty;
 import com.dx.zjxz_gwjh.enums.Status;
@@ -8,7 +7,7 @@ import lombok.Data;
 
 @Data
 @ApiModel("家事难事VO")
-public class DomesticAssistanceVO {
+public class ZLBDomesticAssistanceVO {
     @ApiModelProperty("家事难事ID")
     private String id;
 
@@ -29,8 +28,5 @@ public class DomesticAssistanceVO {
 
     @ApiModelProperty("状态")
     private Status status;
-
-    @ApiModelProperty("备注")
-    private String remark;
 
 }

@@ -40,5 +40,8 @@ public class UnionNetVO {
     @ApiModelProperty("图标")
     private List<StorageObject> files;
 
+    @ApiModelProperty("网格状态")
+    private Boolean status;
+
 
 }

@@ -7,7 +7,6 @@ import com.dx.easyspringweb.core.annotation.BindResource;
 import com.dx.easyspringweb.core.exception.ServiceException;
 import com.dx.zjxz_gwjh.dto.WeChatNetDetailsDto;
 import com.dx.zjxz_gwjh.dto.WeChatStudentsDetailsDto;
-import com.dx.zjxz_gwjh.entity.UniversityEntity;
 import com.dx.zjxz_gwjh.service.WeChatService;
 import com.dx.zjxz_gwjh.vo.WeChatNetDetailsVO;
 import org.springframework.beans.factory.annotation.Autowired;
