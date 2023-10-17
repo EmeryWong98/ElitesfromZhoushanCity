@@ -43,6 +43,13 @@ public class ActivityWxController {
         return activityService.queryList(query);
     }
 
+    @BindResource("activity:wx:detail")
+    @Action(value = "网格活动详情", type = Action.ActionType.QUERY_ITEM)
+    @PostMapping("/detail")
+    public ActivityDetailVO queryItem(@RequestBody String id) throws ServiceException {
+        return activityService.getDetail(id);
+    }
+
     @BindResource("activity:wx:curr-list")
     @Action(value = "进行网格活动列表", type = Action.ActionType.QUERY_LIST)
     @PostMapping("/currList")
