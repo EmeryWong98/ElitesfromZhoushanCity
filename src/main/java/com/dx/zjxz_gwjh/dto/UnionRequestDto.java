@@ -16,6 +16,7 @@ public class UnionRequestDto {
     private Float lat;
     private Integer xorder;
     private List<StorageObject> files;
+    private Boolean status;
 
 
 }

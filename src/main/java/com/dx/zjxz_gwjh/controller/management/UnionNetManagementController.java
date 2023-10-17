@@ -89,4 +89,5 @@ public class UnionNetManagementController {
     public List<UnionNetEntity> lists(){
         return unionNetService.lists();
     }
+
 }

@@ -34,4 +34,7 @@ public class UnionNetDto extends BaseEventDto{
 
     @ApiModelProperty("图标")
     private List<StorageObject> files;
+
+    @ApiModelProperty("网格状态")
+    private Boolean status;
 }

@@ -27,6 +27,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UnionNetEntity extends JpaBaseEntity {
+
     @ApiModelProperty("网格名称")
     @Column(name = "name")
     private String name;
@@ -67,5 +68,9 @@ public class UnionNetEntity extends JpaBaseEntity {
     @Column(name = "logo", columnDefinition = "json")
     @Type(type = "json")
     private List<StorageObject> files;
+
+    @ApiModelProperty("网格状态")
+    @Column(name = "status")
+    private Boolean status;
 
 }

@@ -31,4 +31,7 @@ public class DomesticAssistanceDto extends BaseEventDto{
 
     @ApiModelProperty("状态")
     private Status status;
+
+    @ApiModelProperty("备注")
+    private String remark;
 }
