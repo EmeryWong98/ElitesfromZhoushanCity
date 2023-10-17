@@ -12,6 +12,5 @@ import java.util.Optional;
 public interface HighSchoolRepository extends JpaCommonRepository<HighSchoolEntity, String> {
     HighSchoolEntity findByName(String highSchoolName);
 
-    List<HighSchoolEntity> findByIsShowTrue();
-    // 自定义的查询和操作可以放在这里
+    List<HighSchoolEntity> findByIsShowTrueOrderByXorder();
 }

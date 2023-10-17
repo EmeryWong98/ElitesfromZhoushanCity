@@ -18,5 +18,6 @@ public class HighSchoolNetOverviewDto {
     private long netCount;
     private long studentCount;
     private long eliteStudentCount;
+    private int xorder;
 }
 

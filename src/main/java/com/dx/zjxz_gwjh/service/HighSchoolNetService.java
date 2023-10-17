@@ -125,7 +125,7 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
     }
 
     public List<HighSchoolNetOverviewDto> getHighSchoolNetOverview() {
-        List<HighSchoolEntity> highSchools = highSchoolRepository.findByIsShowTrue();
+        List<HighSchoolEntity> highSchools = highSchoolRepository.findByIsShowTrueOrderByXorder();
         List<HighSchoolNetOverviewDto> result = new ArrayList<>();
 
         for(HighSchoolEntity hs : highSchools){
@@ -135,6 +135,7 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
             dto.setLon(hs.getLon());
             dto.setLat(hs.getLat());
             dto.setFiles(hs.getFiles());
+            dto.setXorder(hs.getXorder());
 
             // Calculate netCount
             long netCount = highSchoolNetRepository.countByLocation(hs.getName());
@@ -160,13 +161,14 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
     }
 
     public List<HighSchoolNetSimpleOverviewDto> getHighSchoolNetSimpleOverview() {
-        List<HighSchoolEntity> highSchools = highSchoolRepository.findByIsShowTrue();
+        List<HighSchoolEntity> highSchools = highSchoolRepository.findByIsShowTrueOrderByXorder();
         List<HighSchoolNetSimpleOverviewDto> result = new ArrayList<>();
 
         for(HighSchoolEntity hs : highSchools){
             HighSchoolNetSimpleOverviewDto dto = new HighSchoolNetSimpleOverviewDto();
             dto.setHighSchoolId(hs.getId());
             dto.setHighSchoolName(hs.getName());
+            dto.setXorder(hs.getXorder());
 
             // Calculate netCount
             long netCount = highSchoolNetRepository.countByLocation(hs.getName());
