@@ -32,6 +32,7 @@ public class StudentJourneyLogEntity extends JpaBaseEntity {
     private String studentName;
 
     @ApiModelProperty("行程日志类型")
+    @Enumerated(EnumType.STRING)
     @Column(name = "record_type")
     private RecordType recordType;
 

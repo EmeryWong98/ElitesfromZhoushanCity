@@ -126,7 +126,7 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
         return parseInfo(activityEntity);
     }
 
-    private ActivityDetailVO parseInfo(ActivityEntity activityEntity) throws ServiceException {
+    public ActivityDetailVO parseInfo(ActivityEntity activityEntity) throws ServiceException {
         String netName = "";
         String[] participants = activityEntity.getParticipants().split(",");
         try {

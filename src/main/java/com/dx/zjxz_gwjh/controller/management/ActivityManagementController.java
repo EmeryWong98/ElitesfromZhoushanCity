@@ -34,10 +34,10 @@ public class ActivityManagementController {
     public PagingData<ActivityDetailVO> getCurrActivityList(@RequestBody QueryRequest<ActivityFilter> query) throws ServiceException {
         if (query == null) query = QueryRequest.create(null);
         PagingData<ActivityEntity> result = activityService.queryList(query);
-        return result.map((entity) -> ObjectUtils.copyEntity(entity, ActivityDetailVO.class));
+        return result.map((entity) -> activityService.parseInfo(entity));
     }
 
-    @BindResource(value = "activity:management:create")
+    @BindResource("activity:management:create")
     @Action(value = "创建活动", type = Action.ActionType.CREATE)
     @PostMapping("/create")
     public ActivityEntity create(@Valid @RequestBody ActivityCreateDto dto) throws ServiceException {
@@ -63,7 +63,7 @@ public class ActivityManagementController {
     @BindResource("activity:management:update")
     @Action(value = "更新活动", type = Action.ActionType.UPDATE)
     @PostMapping("/update")
-    public void update(@Valid @RequestBody ActivityEntity dto) throws ServiceException {
+    public void update(@Valid @RequestBody ActivityCreateDto dto) throws ServiceException {
         ActivityEntity entity = activityService.getById(dto.getId());
         ObjectUtils.copyEntity(dto, entity);
         activityService.update(entity);

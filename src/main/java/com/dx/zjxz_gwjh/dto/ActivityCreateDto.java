@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @ApiModel("创建活动Dto")
 @EqualsAndHashCode(callSuper = false)
-public class ActivityCreateDto {
+public class ActivityCreateDto extends BaseEventDto{
     @ApiModelProperty(value = "用户ID")
     @NotNull(message = "用户ID不能为空")
     private String userId;
