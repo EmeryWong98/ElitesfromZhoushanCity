@@ -1,5 +1,6 @@
 package com.dx.zjxz_gwjh.controller.management;
 
+import com.alibaba.excel.EasyExcel;
 import com.dx.easyspringweb.api.annotation.Api;
 import com.dx.easyspringweb.api.annotation.ApiModule;
 import com.dx.easyspringweb.core.annotation.Action;
@@ -29,10 +30,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ApiModule("Students")
 @Api(name = "StudentsManagement", description = "学子管理")
@@ -80,6 +84,42 @@ public class StudentsManagementController {
             vo.setMajor(degreeBindingService.findHighestDegreeMajorByStudentId(entity.getId()));
             return vo;
         });
+    }
+
+    @BindResource(value = "students:management:export")
+    @Action(value = "导出学生列表")
+    @PostMapping("/export")
+    public void export(@Session RDUserSession user, @RequestBody QueryRequest<StudentsFilter> query, HttpServletResponse response)
+            throws ServiceException, IOException {
+        if (user.isStaff()) {
+            StudentsFilter filter = query.getFilter();
+            if (filter == null) {
+                filter = new StudentsFilter();
+            }
+            filter.setArea(user.getTownship());
+            query.setFilter(filter);
+        }
+
+        List<StudentsEntity> result = studentsService.findAll();
+
+        List<StudentsVO> voList = result.stream().map((entity) -> {
+            StudentsVO vo = null;
+            try {
+                vo = ObjectUtils.copyEntity(entity, StudentsVO.class);
+            } catch (ServiceException e) {
+                throw new RuntimeException(e);
+            }
+            vo.setUniversityName(degreeBindingService.findHighestDegreeUniversityNameByStudentId(entity.getId()));
+            vo.setUniversityProvince(degreeBindingService.findHighestDegreeUniversityProvinceByStudentId(entity.getId()));
+            vo.setDegree(degreeBindingService.findHighestDegreeByStudentId(entity.getId()));
+            vo.setMajor(degreeBindingService.findHighestDegreeMajorByStudentId(entity.getId()));
+            return vo;
+        }).collect(Collectors.toList());
+
+        String fileName = "学子列表.xlsx";
+        response.setContentType("application/vnd.ms-excel");
+        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
+        EasyExcel.write(response.getOutputStream(), StudentsVO.class).sheet("学子列表").doWrite(voList);
     }
 
 
