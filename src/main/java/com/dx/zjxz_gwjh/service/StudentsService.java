@@ -670,26 +670,26 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         return names;
     }
 
-    private List<String> getProvincesInAreaAndYearRange(AreaCodeDto area, int startYear, int endYear) {
-        // 步骤1: 收集区域IDs
-        List<String> areaIds = collectAreaIds(area);
+//    private List<String> getProvincesInAreaAndYearRange(AreaCodeDto area, int startYear, int endYear) {
+//        // 步骤1: 收集区域IDs
+//        List<String> areaIds = collectAreaIds(area);
+//
+//        // 步骤2: 查询数据库
+//        List<String> areaNames = areaCodeService.findNamesByIds(areaIds);
+//        List<String> provinces = studentsRepository.findProvincesByAreaNamesAndYearRange(areaNames, startYear, endYear);
+//
+//        // 返回省份列表
+//        return provinces;
+//    }
 
-        // 步骤2: 查询数据库
-        List<String> areaNames = areaCodeService.findNamesByIds(areaIds);
-        List<String> provinces = studentsRepository.findProvincesByAreaNamesAndYearRange(areaNames, startYear, endYear);
-
-        // 返回省份列表
-        return provinces;
-    }
-
-    private List<String> collectAreaIds(AreaCodeDto area) {
-        List<String> ids = new ArrayList<>();
-        ids.add(area.getId()); // 添加自己的ID
-        for(AreaCodeDto child : area.getChildren()) {
-            ids.addAll(collectAreaIds(child)); // 递归添加子区域的ID
-        }
-        return ids;
-    }
+//    private List<String> collectAreaIds(AreaCodeDto area) {
+//        List<String> ids = new ArrayList<>();
+//        ids.add(area.getId()); // 添加自己的ID
+//        for(AreaCodeDto child : area.getChildren()) {
+//            ids.addAll(collectAreaIds(child)); // 递归添加子区域的ID
+//        }
+//        return ids;
+//    }
 
     private List<AreaCodeDto> findSelectedAndChildAreas(List<AreaCodeDto> allAreas, String areaId) {
         for (AreaCodeDto area : allAreas) {

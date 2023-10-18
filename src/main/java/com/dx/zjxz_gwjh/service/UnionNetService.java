@@ -142,6 +142,7 @@ public class UnionNetService extends JpaPublicService<UnionNetEntity, String> im
             unionRequestDto.setXorder(unionNetEntity.getXorder());
             unionRequestDto.setFiles(unionNetEntity.getFiles());
             unionRequestDto.setStatus(unionNetEntity.getStatus());
+            unionRequestDto.setCreateTime(unionNetEntity.getCreateTime());
             unionRequestDtos.add(unionRequestDto);
         }
         return unionRequestDtos;

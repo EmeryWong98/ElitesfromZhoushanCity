@@ -6,6 +6,7 @@ import com.dx.easyspringweb.storage.models.StorageObject;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -37,4 +38,7 @@ public class UnionNetDto extends BaseEventDto{
 
     @ApiModelProperty("网格状态")
     private Boolean status;
+
+    @ApiModelProperty("创立时间")
+    private Date createTime;
 }

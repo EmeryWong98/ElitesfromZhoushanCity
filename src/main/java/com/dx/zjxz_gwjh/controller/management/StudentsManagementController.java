@@ -86,41 +86,41 @@ public class StudentsManagementController {
         });
     }
 
-    @BindResource(value = "students:management:export")
-    @Action(value = "导出学生列表")
-    @PostMapping("/export")
-    public void export(@Session RDUserSession user, @RequestBody QueryRequest<StudentsFilter> query, HttpServletResponse response)
-            throws ServiceException, IOException {
-        if (user.isStaff()) {
-            StudentsFilter filter = query.getFilter();
-            if (filter == null) {
-                filter = new StudentsFilter();
-            }
-            filter.setArea(user.getTownship());
-            query.setFilter(filter);
-        }
-
-        List<StudentsEntity> result = studentsService.findAll();
-
-        List<StudentsVO> voList = result.stream().map((entity) -> {
-            StudentsVO vo = null;
-            try {
-                vo = ObjectUtils.copyEntity(entity, StudentsVO.class);
-            } catch (ServiceException e) {
-                throw new RuntimeException(e);
-            }
-            vo.setUniversityName(degreeBindingService.findHighestDegreeUniversityNameByStudentId(entity.getId()));
-            vo.setUniversityProvince(degreeBindingService.findHighestDegreeUniversityProvinceByStudentId(entity.getId()));
-            vo.setDegree(degreeBindingService.findHighestDegreeByStudentId(entity.getId()));
-            vo.setMajor(degreeBindingService.findHighestDegreeMajorByStudentId(entity.getId()));
-            return vo;
-        }).collect(Collectors.toList());
-
-        String fileName = "学子列表.xlsx";
-        response.setContentType("application/vnd.ms-excel");
-        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
-        EasyExcel.write(response.getOutputStream(), StudentsVO.class).sheet("学子列表").doWrite(voList);
-    }
+//    @BindResource(value = "students:management:export")
+//    @Action(value = "导出学生列表")
+//    @PostMapping("/export")
+//    public void export(@Session RDUserSession user, @RequestBody QueryRequest<StudentsFilter> query, HttpServletResponse response)
+//            throws ServiceException, IOException {
+//        if (user.isStaff()) {
+//            StudentsFilter filter = query.getFilter();
+//            if (filter == null) {
+//                filter = new StudentsFilter();
+//            }
+//            filter.setArea(user.getTownship());
+//            query.setFilter(filter);
+//        }
+//
+//        List<StudentsEntity> result = studentsService.findAll();
+//
+//        List<StudentsVO> voList = result.stream().map((entity) -> {
+//            StudentsVO vo = null;
+//            try {
+//                vo = ObjectUtils.copyEntity(entity, StudentsVO.class);
+//            } catch (ServiceException e) {
+//                throw new RuntimeException(e);
+//            }
+//            vo.setUniversityName(degreeBindingService.findHighestDegreeUniversityNameByStudentId(entity.getId()));
+//            vo.setUniversityProvince(degreeBindingService.findHighestDegreeUniversityProvinceByStudentId(entity.getId()));
+//            vo.setDegree(degreeBindingService.findHighestDegreeByStudentId(entity.getId()));
+//            vo.setMajor(degreeBindingService.findHighestDegreeMajorByStudentId(entity.getId()));
+//            return vo;
+//        }).collect(Collectors.toList());
+//
+//        String fileName = "学子列表.xlsx";
+//        response.setContentType("application/vnd.ms-excel");
+//        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
+//        EasyExcel.write(response.getOutputStream(), StudentsVO.class).sheet("学子列表").doWrite(voList);
+//    }
 
 
     @BindResource(value = "students:management:create")

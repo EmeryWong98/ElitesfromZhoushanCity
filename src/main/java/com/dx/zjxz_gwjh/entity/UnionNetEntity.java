@@ -12,6 +12,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -72,5 +73,9 @@ public class UnionNetEntity extends JpaBaseEntity {
     @ApiModelProperty("网格状态")
     @Column(name = "status")
     private Boolean status;
+
+    @ApiModelProperty("创立时间")
+    @Column(name = "create_time")
+    private Date createTime;
 
 }

@@ -5,6 +5,7 @@ import com.dx.easyspringweb.api.annotation.ApiModelProperty;
 import com.dx.easyspringweb.storage.models.StorageObject;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -17,6 +18,7 @@ public class UnionRequestDto {
     private Integer xorder;
     private List<StorageObject> files;
     private Boolean status;
+    private Date createTime;
 
 
 }

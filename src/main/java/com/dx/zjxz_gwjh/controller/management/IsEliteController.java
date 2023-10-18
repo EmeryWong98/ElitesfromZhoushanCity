@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +30,6 @@ import static com.dx.zjxz_gwjh.util.UniversityMajorDictionary.MAJOR_DICTIONARY;
 public class IsEliteController {
 
     private static final String UPLOADED_EXCEL_PATH = "C:\\Users\\emryw\\Downloads\\是否重点学子导入模板.xlsx";
-    private static final String ORIGINAL_EXCEL_PATH = "C:\\Users\\emryw\\Downloads\\是否重点学子导入.xlsx";
-    private static final String MODIFIED_EXCEL_PATH = "C:\\Users\\emryw\\Downloads\\是否重点学子导出.xlsx";
     private static final List<String> TOP_SCHOOLS = Arrays.asList("北京大学", "清华大学", "中国人民大学", "北京航空航天大学", "北京理工大学",
             "中国农业大学", "北京师范大学", "中央民族大学", "南开大学", "天津大学",
             "大连理工大学", "吉林大学", "哈尔滨工业大学", "复旦大学", "同济大学",
@@ -110,13 +105,24 @@ public class IsEliteController {
         }
     }
 
-    @PostMapping("/import")
-    public String importExcel(@RequestParam MultipartFile file) throws IOException {
-        // 保存上传的文件
-        file.transferTo(new File(ORIGINAL_EXCEL_PATH));
+    @PostMapping("/processAndExport")
+    public void processAndExportExcel(@RequestParam MultipartFile file, HttpServletResponse response) throws IOException {
+        Workbook workbook = processExcel(file);
 
-        FileInputStream fis = new FileInputStream(ORIGINAL_EXCEL_PATH);
-        Workbook workbook = new XSSFWorkbook(fis);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        workbook.write(bos);
+        byte[] bytes = bos.toByteArray();
+        bos.close();
+        workbook.close();
+
+        response.setContentType("application/vnd.ms-excel");
+        response.setHeader("Content-Disposition", "attachment; filename=是否重点学子导出.xlsx");
+        response.getOutputStream().write(bytes);
+        response.flushBuffer();
+    }
+
+    private Workbook processExcel(MultipartFile file) throws IOException {
+        Workbook workbook = new XSSFWorkbook(file.getInputStream());
         Sheet sheet = workbook.getSheetAt(0);
 
         // 遍历所有行并处理数据
@@ -146,23 +152,7 @@ public class IsEliteController {
             talentCell.setCellValue(isTalentUpdated(row));
         }
 
-        workbook.write(new FileOutputStream(MODIFIED_EXCEL_PATH));
-        fis.close();
-        workbook.close();
-
-        return "Data processed and saved successfully!";
-    }
-
-    @PostMapping("/export")
-    public void exportExcel(HttpServletResponse response) throws IOException {
-        FileInputStream fis = new FileInputStream(MODIFIED_EXCEL_PATH);
-        byte[] bytes = fis.readAllBytes();
-        fis.close();
-
-        response.setContentType("application/vnd.ms-excel");
-        response.setHeader("Content-Disposition", "attachment; filename=是否重点学子导出.xlsx");
-        response.getOutputStream().write(bytes);
-        response.flushBuffer();
+        return workbook;
     }
 
     @PostMapping("/download-template")
