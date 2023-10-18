@@ -75,6 +75,8 @@ services:
     environment:
       MINIO_ACCESS_KEY: minio
       MINIO_SECRET_KEY: dx123456
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: dx123456
     ports:
       - 9000:9000
       - 9010:9010
