@@ -9,11 +9,11 @@ import lombok.Data;
 public class StudentBackYearCountDto {
 
     @ApiModelProperty("回舟学子的届次")
-    private int year;
+    private Integer year;
     @ApiModelProperty("回舟学子的比例")
-    private float rate;
+    private Float rate;
     @ApiModelProperty("回舟学子的数量")
-    private int count;
+    private Integer count;
 
     public StudentBackYearCountDto(int year, int count, float rate) {
         this.count = count;

@@ -78,12 +78,10 @@ public class ActivityEntity extends JpaBaseEntity {
     @ApiModelProperty("活动封面图片")
     @Type(type = "json")
     @Column(name = "banner_files", columnDefinition = "json")
-    @NotNull(message = "活动封面图片不能为空")
     private List<StorageObject> BannerFiles;
 
     @ApiModelProperty("活动剪影图片")
     @Type(type = "json")
     @Column(name = "files", columnDefinition = "json")
-    @NotNull(message = "活动剪影图片不能为空")
     private List<StorageObject> files;
 }

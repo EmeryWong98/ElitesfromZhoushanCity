@@ -10,6 +10,8 @@ import org.springframework.security.core.parameters.P;
 public class OfficerNetVO {
     @ApiModelProperty("网格ID")
     private String id;
+    @ApiModelProperty("网格联系人ID")
+    private String userId;
     @ApiModelProperty("领导姓名")
     private String userName;
     @ApiModelProperty("领导职务")

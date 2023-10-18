@@ -8,6 +8,7 @@ import com.dx.easyspringweb.core.annotation.Session;
 import com.dx.easyspringweb.core.exception.ServiceException;
 import com.dx.easyspringweb.core.model.PagingData;
 import com.dx.easyspringweb.core.model.QueryRequest;
+import com.dx.easyspringweb.core.utils.ObjectUtils;
 import com.dx.zjxz_gwjh.dto.ActivityCreateDto;
 import com.dx.zjxz_gwjh.dto.ActivityStudentQueryDto;
 import com.dx.zjxz_gwjh.entity.ActivityEntity;
@@ -72,24 +73,29 @@ public class ActivityWxController {
     @Action(value = "网格学生列表")
     @PostMapping("/netStudent")
     public List<ActivityStudentVO> queryStudentByNetUserId(@Session RDUserSession user, @RequestBody ActivityStudentQueryDto activityStudentQueryDto) throws ServiceException {
-        ActivityStudentQueryDto dto = new ActivityStudentQueryDto(activityStudentQueryDto);
-        dto.setUserId(user.getUserId());
-        return activityService.queryStudentByNetUserId(dto);
+        if (activityStudentQueryDto.getUserId() == null) {
+            activityStudentQueryDto.setUserId(user.getUserId());
+        }
+        return activityService.queryStudentByNetUserId(activityStudentQueryDto);
     }
 
     @BindResource("activity:wx:create")
     @Action(value = "创建网格活动", type = Action.ActionType.CREATE)
     @PostMapping("/create")
-    public ActivityEntity create(@Session RDUserSession user, @Valid @RequestBody ActivityCreateDto activityCreateDto) throws ServiceException {
-        ActivityCreateDto dto = new ActivityCreateDto(activityCreateDto);
-        dto.setUserId(user.getUserId());
-        return activityService.create(dto);
+    public ActivityEntity create(@Session RDUserSession user, @Valid @RequestBody ActivityCreateDto dto) throws ServiceException {
+        if (dto.getUserId() == null) {
+            dto.setUserId(user.getUserId());
+        }
+        ActivityEntity entity = activityService.newEntity(dto);
+        return activityService.create(entity);
     }
 
     @BindResource("activity:api:update")
     @Action(value = "更新网格活动", type = Action.ActionType.UPDATE)
     @PostMapping("/update")
-    public ActivityEntity update(@Valid @RequestBody ActivityEntity entity) throws ServiceException {
+    public ActivityEntity update(@Valid @RequestBody ActivityCreateDto dto) throws ServiceException {
+        ActivityEntity entity = activityService.getById(dto.getId());
+        ObjectUtils.copyEntity(dto, entity);
         return activityService.update(entity);
     }
 

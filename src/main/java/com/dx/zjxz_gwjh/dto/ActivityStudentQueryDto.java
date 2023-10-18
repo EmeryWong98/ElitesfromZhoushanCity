@@ -13,9 +13,4 @@ public class ActivityStudentQueryDto {
 
     @ApiModelProperty("网格ID")
     private String netId;
-
-    public ActivityStudentQueryDto(ActivityStudentQueryDto dto) {
-        this.userId = dto.userId;
-        this.netId = dto.netId;
-    }
 }

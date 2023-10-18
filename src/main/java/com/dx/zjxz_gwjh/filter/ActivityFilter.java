@@ -13,6 +13,9 @@ public class ActivityFilter {
     @ApiModelProperty("网格ID")
     private String netId;
 
+    @ApiModelProperty("活动名称")
+    private String name;
+
     @ApiModelProperty("网格类型")
     private NetType netType;
 

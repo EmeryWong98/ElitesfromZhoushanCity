@@ -17,6 +17,9 @@ public class UnionNetVO {
     @ApiModelProperty("网格名称")
     private String name;
 
+    @ApiModelProperty("网格联系人ID")
+    private String userId;
+
     @ApiModelProperty("网格联系人姓名")
     private String userName;
 

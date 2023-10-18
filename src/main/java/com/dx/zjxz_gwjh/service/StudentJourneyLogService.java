@@ -72,8 +72,8 @@ public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLog
         int bCount = studentJourneyLogRepository.CountByTimeRangeAndDegreeAndIsBack(startYear, endYear + 1, DegreeType.PHD);
 
         studentBackCountDto.setCount(count);
-        studentBackCountDto.setSCount(sCount);
-        studentBackCountDto.setBCount(bCount);
+        studentBackCountDto.setScount(sCount);
+        studentBackCountDto.setBcount(bCount);
         return studentBackCountDto;
     }
 
@@ -127,8 +127,24 @@ public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLog
             allCount.addAndGet(count);
             studentBackYearCountDtoList.add(new StudentBackYearCountDto(year, count, 0));
         });
-        studentBackYearCountDtoList.forEach(item -> item.setRate(getRate(item.getCount(), allCount)));
-        return studentBackYearCountDtoList;
+        List<StudentBackYearCountDto> yearList = new ArrayList<>();
+        for (int year = studentBackCountQueryDto.getEndYear(); year >= studentBackCountQueryDto.getStartYear(); year--) {
+            StudentBackYearCountDto existItem = null;
+            for (StudentBackYearCountDto studentBackYearCountDto : studentBackYearCountDtoList) {
+                if (studentBackYearCountDto.getYear() == year) {
+                    existItem = studentBackYearCountDto;
+                    break;
+                }
+            }
+            if (existItem == null) {
+                yearList.add(new StudentBackYearCountDto(year, 0, 0));
+            } else {
+                existItem.setRate(getRate(existItem.getCount(), allCount));
+                yearList.add(existItem);
+            }
+        }
+
+        return yearList;
     }
 
     private float getRate(int count, AtomicInteger allCount) {

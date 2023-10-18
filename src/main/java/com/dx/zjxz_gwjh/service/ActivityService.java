@@ -179,6 +179,9 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
     private BooleanBuilder getQueryParams(ActivityFilter filter) throws ServiceException {
         BooleanBuilder predicate = new BooleanBuilder();
         if (filter == null) throw new ServiceException("查询条件不能为空");
+        if (filter.getName() != null) {
+            predicate.and(QActivityEntity.activityEntity.name.like(filter.getName()));
+        }
         if (filter.getNetId() != null) {
             predicate.and(QActivityEntity.activityEntity.netId.eq(filter.getNetId()));
         }
@@ -217,15 +220,15 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
     /**
      * 创建活动
      *
-     * @param activityCreateDto 活动实体
+     * @param entity 活动实体
      * @return 活动实体
      * @throws ServiceException 业务异常
      */
-    public ActivityEntity create(ActivityCreateDto activityCreateDto) throws ServiceException {
-        Date startTime = activityCreateDto.getStartTime();
-        Date endTime = activityCreateDto.getEndTime();
-        List<StorageObject> files = activityCreateDto.getFiles();
-        List<StorageObject> bannerFiles = activityCreateDto.getBannerFiles();
+    public ActivityEntity create(ActivityEntity entity) throws ServiceException {
+        Date startTime = entity.getStartTime();
+        Date endTime = entity.getEndTime();
+        List<StorageObject> files = entity.getFiles();
+        List<StorageObject> bannerFiles = entity.getBannerFiles();
         if (startTime.compareTo(endTime) > 0) {
             throw new ServiceException("活动开始时间不能大于结束时间");
         }
@@ -235,7 +238,6 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
         if (bannerFiles.isEmpty()) {
             throw new ServiceException("活动封面不能为空");
         }
-        ActivityEntity entity = super.newEntity(activityCreateDto);
         return super.create(entity);
     }
 
