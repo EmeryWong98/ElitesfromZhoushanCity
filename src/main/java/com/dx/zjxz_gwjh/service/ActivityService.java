@@ -8,11 +8,11 @@ import com.dx.easyspringweb.data.jpa.JpaCommonRepository;
 import com.dx.easyspringweb.data.jpa.SortField;
 import com.dx.easyspringweb.data.jpa.service.JpaPublicService;
 import com.dx.easyspringweb.storage.models.StorageObject;
-import com.dx.zjxz_gwjh.dto.ActivityCreateDto;
 import com.dx.zjxz_gwjh.dto.ActivityStudentQueryDto;
 import com.dx.zjxz_gwjh.entity.*;
 import com.dx.zjxz_gwjh.filter.ActivityFilter;
 import com.dx.zjxz_gwjh.repository.ActivityRepository;
+import com.dx.zjxz_gwjh.repository.StudentsRepository;
 import com.dx.zjxz_gwjh.vo.ActivityDetailVO;
 import com.dx.zjxz_gwjh.vo.ActivityStudentVO;
 import com.querydsl.core.BooleanBuilder;
@@ -31,6 +31,9 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
 
     @Autowired
     private ActivityRepository activityRepository;
+
+    @Autowired
+    private StudentsRepository studentsRepository;
 
     @Autowired
     private AreaNetService areaNetService;
@@ -227,16 +230,27 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
     public ActivityEntity create(ActivityEntity entity) throws ServiceException {
         Date startTime = entity.getStartTime();
         Date endTime = entity.getEndTime();
-        List<StorageObject> files = entity.getFiles();
-        List<StorageObject> bannerFiles = entity.getBannerFiles();
         if (startTime.compareTo(endTime) > 0) {
             throw new ServiceException("活动开始时间不能大于结束时间");
         }
+        List<StorageObject> files = entity.getFiles();
         if (files.isEmpty()) {
             throw new ServiceException("活动剪影不能为空");
         }
+        List<StorageObject> bannerFiles = entity.getBannerFiles();
         if (bannerFiles.isEmpty()) {
             throw new ServiceException("活动封面不能为空");
+        }
+        String participants = entity.getParticipants();
+        if (!participants.isEmpty()) {
+            String[] participantsArray = participants.split(",");
+            for (String participant : participantsArray) {
+                if (participant.isEmpty()) {
+                    continue;
+                }
+                //查询学生是否存在
+                studentsRepository.findById(participant).orElseThrow(() -> new ServiceException("学生不存在"));
+            }
         }
         return super.create(entity);
     }
