@@ -123,7 +123,6 @@ public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLog
             throw new ServiceException("开始时间不能大于结束时间");
         }
         List<StudentBackYearCountDto> studentBackYearCountDtoList = new ArrayList<>();
-        int allCount = studentsRepository.CountByTimeRange(startYear, endYear + 1);
         List<Object[]> list = studentJourneyLogRepository.countByTimeRangeAndAcademicYearAndIsBack(startYear, endYear + 1);
         list.forEach(item -> {
             int year = Integer.parseInt(item[0].toString());
@@ -142,6 +141,7 @@ public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLog
             if (existItem == null) {
                 yearList.add(new StudentBackYearCountDto(year, 0, 0));
             } else {
+                int allCount = studentsRepository.CountByTimeRange(year, year);
                 existItem.setRate(getRate(existItem.getCount(), allCount));
                 yearList.add(existItem);
             }
