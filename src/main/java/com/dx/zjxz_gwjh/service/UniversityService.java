@@ -88,7 +88,7 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
 
 
         if (CollectionUtils.isEmpty(query.getSorts())) {
-            query.setSorts(SortField.by("updateAt", true));
+            query.setSorts(SortField.by("xorder", false));
         }
 
         return this.queryList(predicate, query.getPageInfo(), query.getSorts());
