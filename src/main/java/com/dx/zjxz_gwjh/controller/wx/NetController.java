@@ -6,7 +6,6 @@ import com.dx.easyspringweb.core.annotation.Action;
 import com.dx.easyspringweb.core.annotation.BindResource;
 import com.dx.easyspringweb.core.annotation.Session;
 import com.dx.easyspringweb.core.exception.ServiceException;
-import com.dx.easyspringweb.core.model.PageInfo;
 import com.dx.easyspringweb.core.model.PagingData;
 import com.dx.easyspringweb.core.model.QueryRequest;
 import com.dx.easyspringweb.core.utils.ObjectUtils;
@@ -16,11 +15,11 @@ import com.dx.zjxz_gwjh.entity.StudentsEntity;
 import com.dx.zjxz_gwjh.entity.UnionNetEntity;
 import com.dx.zjxz_gwjh.enums.NetType;
 import com.dx.zjxz_gwjh.filter.StudentsFilter;
+import com.dx.zjxz_gwjh.filter.WechatStudentsFilter;
 import com.dx.zjxz_gwjh.model.RDUserSession;
 import com.dx.zjxz_gwjh.service.*;
 import com.dx.zjxz_gwjh.vo.StudentsVO;
 import com.dx.zjxz_gwjh.vo.WechatNetDetailVO;
-import com.dx.zjxz_gwjh.vo.WechatNetStudentVO;
 import com.dx.zjxz_gwjh.vo.WechatNetVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -106,8 +105,8 @@ public class NetController {
         WechatNetDetailVO vo = new WechatNetDetailVO();
         String netId = (String) request.get("netId");
         String netType = (String) request.get("netType");
-        if(netId == null) throw new ServiceException("网格ID不能为空");
-        if(netType == null) throw new ServiceException("网格类型不能为空");
+        if (netId == null) throw new ServiceException("网格ID不能为空");
+        if (netType == null) throw new ServiceException("网格类型不能为空");
         switch (netType) {
             case "AREA_NET":
                 AreaNetEntity netEntity = areaNetService.findById(netId);
@@ -130,30 +129,32 @@ public class NetController {
         }
         return vo;
     }
+
     @BindResource("net:wx:student-list")
     @Action(value = "网格学子列表")
     @PostMapping("/studentList")
-    public PagingData<StudentsVO> queryStudentByNetId(@RequestBody Map<String, Object> request) throws ServiceException{
-        String netId = (String) request.get("netId");
-        String netType = (String) request.get("netType");
-        if(netId == null) throw new ServiceException("网格ID不能为空");
-        if(netType == null) throw new ServiceException("网格类型不能为空");
+    public PagingData<StudentsVO> queryStudentByNetId(@RequestBody QueryRequest<WechatStudentsFilter> query) throws ServiceException {
+        String netId = query.getFilter().getNetId();
+        NetType netType = query.getFilter().getNetType();
+        if (netId == null) throw new ServiceException("网格ID不能为空");
+        if (netType == null) throw new ServiceException("网格类型不能为空");
         QueryRequest<StudentsFilter> queryRequest = new QueryRequest<>();
         StudentsFilter filter = new StudentsFilter();
         switch (netType) {
-            case "AREA_NET":
+            case AREA_NET:
                 AreaNetEntity netEntity = areaNetService.findById(netId);
                 filter.setAreaNetId(netEntity.getId());
                 break;
-            case "HIGH_SCHOOL_NET":
+            case HIGH_SCHOOL_NET:
                 HighSchoolNetEntity highSchoolNetEntity = highSchoolNetService.findById(netId);
                 filter.setHighSchoolNetId(highSchoolNetEntity.getId());
                 break;
-            case "UNION_NET":
+            case UNION_NET:
                 UnionNetEntity unionNetEntity = unionNetService.findById(netId);
                 filter.setUnionNetId(unionNetEntity.getId());
                 break;
         }
+        queryRequest.setPageInfo(query.getPageInfo());
         queryRequest.setFilter(filter);
         PagingData<StudentsEntity> result = studentsService.queryList(queryRequest);
         PagingData<StudentsVO> studentsVOPagingData = result.map((entity) -> {

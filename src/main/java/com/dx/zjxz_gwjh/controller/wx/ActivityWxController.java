@@ -90,7 +90,10 @@ public class ActivityWxController {
     @BindResource("activity:api:update")
     @Action(value = "更新网格活动", type = Action.ActionType.UPDATE)
     @PostMapping("/update")
-    public ActivityEntity update(@Valid @RequestBody ActivityCreateDto dto) throws ServiceException {
+    public ActivityEntity update(@Session RDUserSession user, @Valid @RequestBody ActivityCreateDto dto) throws ServiceException {
+        if (dto.getUserId() == null) {
+            dto.setUserId(user.getUserId());
+        }
         ActivityEntity entity = activityService.getById(dto.getId());
         ObjectUtils.copyEntity(dto, entity);
         return activityService.update(entity);

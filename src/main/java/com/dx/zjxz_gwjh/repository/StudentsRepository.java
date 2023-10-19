@@ -253,6 +253,18 @@ public interface StudentsRepository extends JpaCommonRepository<StudentsEntity, 
 
     int countByUnionNetId(String id);
 
+    /**
+     * 搜索已回舟的学子总数
+     *
+     * @param startTime 学年开始时间
+     * @param endTime   学年结束时间
+     * @return 已回舟的学子总数
+     */
+    @Query("SELECT COUNT(s) FROM StudentsEntity s " +
+            "WHERE s.academicYear BETWEEN :startTime AND :endTime ")
+    int CountByTimeRange(@Param("startTime") int startTime,
+                         @Param("endTime") int endTime);
+
     List<StudentsEntity> findByHighSchoolNetId(String userId);
 
     List<StudentsEntity> findByAreaNetId(String userId);

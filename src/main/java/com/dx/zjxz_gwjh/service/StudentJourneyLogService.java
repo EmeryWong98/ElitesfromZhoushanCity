@@ -13,6 +13,7 @@ import com.dx.zjxz_gwjh.enums.DegreeType;
 import com.dx.zjxz_gwjh.filter.StudentJourneyLogEntityFilter;
 import com.dx.zjxz_gwjh.repository.StudentJourneyLogRepository;
 
+import com.dx.zjxz_gwjh.repository.StudentsRepository;
 import com.querydsl.core.BooleanBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,9 @@ public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLog
 
 
     private final StudentJourneyLogRepository studentJourneyLogRepository;
+
+    @Autowired
+    private StudentsRepository studentsRepository;
 
     @Autowired
     public StudentJourneyLogService(StudentJourneyLogRepository repository, StudentJourneyLogRepository studentJourneyLogRepository) {
@@ -119,7 +123,7 @@ public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLog
             throw new ServiceException("开始时间不能大于结束时间");
         }
         List<StudentBackYearCountDto> studentBackYearCountDtoList = new ArrayList<>();
-        int allCount = studentJourneyLogRepository.CountByTimeRange(startYear, endYear + 1);
+        int allCount = studentsRepository.CountByTimeRange(startYear, endYear + 1);
         List<Object[]> list = studentJourneyLogRepository.countByTimeRangeAndAcademicYearAndIsBack(startYear, endYear + 1);
         list.forEach(item -> {
             int year = Integer.parseInt(item[0].toString());
@@ -183,6 +187,10 @@ public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLog
             query.setSorts(SortField.by("updateAt", true));
         }
         return this.queryList(predicate, query.getPageInfo(), query.getSorts());
+    }
+
+    public List<StudentJourneyLogEntity> queryByStudentId(String studentId) throws ServiceException {
+        return studentJourneyLogRepository.queryByStudentId(studentId);
     }
 
     /**

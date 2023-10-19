@@ -69,4 +69,9 @@ public interface StudentJourneyLogRepository extends JpaCommonRepository<Student
             "ORDER BY s.academicYear DESC ")
     List<Object[]> countByTimeRangeAndAcademicYearAndIsBack(@Param("startTime") int startTime,
                                                             @Param("endTime") int endTime);
+
+    @Query("SELECT s FROM StudentJourneyLogEntity s " +
+            "WHERE s.studentId = :StudentId " +
+            "ORDER BY s.createAt DESC")
+    List<StudentJourneyLogEntity> queryByStudentId(@Param("StudentId") String studentId);
 }
