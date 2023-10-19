@@ -50,8 +50,9 @@ public class HighSchoolService extends JpaPublicService<HighSchoolEntity, String
         }
 
 
+            // 如果没有指定排序，则设置默认排序
         if (CollectionUtils.isEmpty(query.getSorts())) {
-            query.setSorts(SortField.by("updateAt", true));
+            query.setSorts(SortField.by("xorder", false));
         }
 
         return this.queryList(predicate, query.getPageInfo(), query.getSorts());
