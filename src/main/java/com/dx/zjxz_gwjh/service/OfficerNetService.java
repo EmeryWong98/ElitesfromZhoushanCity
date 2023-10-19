@@ -89,6 +89,10 @@ public class OfficerNetService extends JpaPublicService<OfficerNetEntity, String
         return officerNetEntity;
     }
 
+    public List<OfficerNetEntity> findByUserId(String userId) {
+        return officerNetRepository.findByUserId(userId);
+    }
+
     public OfficerNetEntity findOrCreateByNameAndTitle(String officerNetName, String officerNetPosition) {
         if (StringUtils.isBlank(officerNetName)) {
             return null;

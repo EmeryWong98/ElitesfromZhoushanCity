@@ -32,7 +32,6 @@ public class ActivityEntity extends JpaBaseEntity {
 
     @ApiModelProperty("用户ID")
     @Column(name = "user_id")
-    @NotNull(message = "用户ID不能为空")
     private String userId;
 
     @ApiModelProperty("网格ID")
@@ -78,7 +77,7 @@ public class ActivityEntity extends JpaBaseEntity {
     @ApiModelProperty("活动封面图片")
     @Type(type = "json")
     @Column(name = "banner_files", columnDefinition = "json")
-    private List<StorageObject> BannerFiles;
+    private List<StorageObject> bannerFiles;
 
     @ApiModelProperty("活动剪影图片")
     @Type(type = "json")

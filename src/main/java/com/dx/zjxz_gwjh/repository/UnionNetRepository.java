@@ -22,7 +22,7 @@ public interface UnionNetRepository extends JpaCommonRepository<UnionNetEntity, 
     List<NetActivityDto> getUnionNetActivityRanking();
 
 
-    UnionNetEntity findByUserId(String userId);
+    List<UnionNetEntity> findByUserId(String userId);
 
     boolean existsByUserId(String userId);
 }

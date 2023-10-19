@@ -18,10 +18,7 @@ import com.dx.zjxz_gwjh.service.ActivityService;
 import com.dx.zjxz_gwjh.vo.ActivityDetailVO;
 import com.dx.zjxz_gwjh.vo.ActivityStudentVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -47,7 +44,7 @@ public class ActivityWxController {
     @BindResource("activity:wx:detail")
     @Action(value = "网格活动详情", type = Action.ActionType.QUERY_ITEM)
     @PostMapping("/detail")
-    public ActivityDetailVO queryItem(@RequestBody String id) throws ServiceException {
+    public ActivityDetailVO queryItem(@RequestParam("id") String id) throws ServiceException {
         return activityService.getDetail(id);
     }
 

@@ -13,6 +13,9 @@ import java.util.List;
 @ApiModel("活动详情VO")
 public class ActivityDetailVO extends ActivityEntity {
 
+    @ApiModelProperty("活动id")
+    private String id;
+
     @ApiModelProperty("网格名称")
     private String netName;
 
@@ -38,6 +41,7 @@ public class ActivityDetailVO extends ActivityEntity {
     private List<StorageObject> files;
 
     public ActivityDetailVO(ActivityEntity activityEntity) {
+        this.id = activityEntity.getId();
         this.startTime = activityEntity.getStartTime();
         this.endTime = activityEntity.getEndTime();
         this.name = activityEntity.getName();

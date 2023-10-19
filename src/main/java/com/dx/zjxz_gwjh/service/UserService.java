@@ -84,4 +84,11 @@ public class UserService extends JpaBaseUserService<RDUserSession, UserEntity, U
 
         return this.repository.findAll(predicate);
     }
+
+    public UserEntity getByWechatId(String wechatId) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        QUserEntity q = QUserEntity.userEntity;
+        predicate.and(q.wechatId.eq(wechatId));
+        return this.repository.findOne(predicate).orElse(null);
+    }
 }

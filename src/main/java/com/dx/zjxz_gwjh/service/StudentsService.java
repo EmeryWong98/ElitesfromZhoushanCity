@@ -189,6 +189,15 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
                 predicate.and(q.unionNet.id.eq(unionNetId));
             }
 
+            String areaNetId = filter.getAreaNetId();
+            if (StringUtils.hasText(areaNetId)) {
+                predicate.and(q.areaNet.id.eq(areaNetId));
+            }
+
+            String highSchoolNetId = filter.getHighSchoolNetId();
+            if(StringUtils.hasText(highSchoolNetId)) {
+                predicate.and(q.highSchoolNet.id.eq(highSchoolNetId));
+            }
 
             // 是否重点学子
             Boolean isKeyContact = filter.getIsKeyContact();

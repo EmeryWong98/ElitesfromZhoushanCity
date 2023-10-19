@@ -47,7 +47,8 @@ public interface AreaNetRepository extends JpaCommonRepository<AreaNetEntity, St
 
     List<AreaNetEntity> findByAreaCodeOrderByNameDesc(String areaCode);
 
-    AreaNetEntity findByUserId(String userId);
+    @Query("SELECT a FROM AreaNetEntity a WHERE a.userId = :userId")
+    List<AreaNetEntity> findByUserId(String userId);
 
     boolean existsByUserId(String userId);
 }

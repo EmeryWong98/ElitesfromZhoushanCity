@@ -47,4 +47,7 @@ public class StudentsVO {
     @ApiModelProperty("毕业高中")
     private String highSchoolName;
 
+    @ApiModelProperty("是否回舟")
+    private Boolean isBack;
+
 }

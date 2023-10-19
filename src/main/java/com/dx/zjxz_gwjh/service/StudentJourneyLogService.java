@@ -100,7 +100,7 @@ public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLog
             allCount.addAndGet(count);
             studentBackAreaCountDtoList.add(new StudentBackAreaCountDto(count, 0, area));
         });
-        studentBackAreaCountDtoList.forEach(item -> item.setRate(getRate(item.getCount(), allCount)));
+        studentBackAreaCountDtoList.forEach(item -> item.setRate(getRate(item.getCount(), allCount.get())));
         return studentBackAreaCountDtoList;
     }
 
@@ -119,12 +119,11 @@ public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLog
             throw new ServiceException("开始时间不能大于结束时间");
         }
         List<StudentBackYearCountDto> studentBackYearCountDtoList = new ArrayList<>();
+        int allCount = studentJourneyLogRepository.CountByTimeRange(startYear, endYear + 1);
         List<Object[]> list = studentJourneyLogRepository.countByTimeRangeAndAcademicYearAndIsBack(startYear, endYear + 1);
-        AtomicInteger allCount = new AtomicInteger();
         list.forEach(item -> {
             int year = Integer.parseInt(item[0].toString());
             int count = Integer.parseInt(item[1].toString());
-            allCount.addAndGet(count);
             studentBackYearCountDtoList.add(new StudentBackYearCountDto(year, count, 0));
         });
         List<StudentBackYearCountDto> yearList = new ArrayList<>();
@@ -147,11 +146,11 @@ public class StudentJourneyLogService extends JpaPublicService<StudentJourneyLog
         return yearList;
     }
 
-    private float getRate(int count, AtomicInteger allCount) {
-        if (allCount.get() == 0) {
+    private float getRate(int count, int allCount) {
+        if (allCount == 0) {
             return 0;
         } else {
-            return (float) Math.round((count * 100.0 / allCount.get()) * 100) / 100;
+            return (float) Math.round((count * 100.0 / allCount) * 100) / 100;
         }
     }
 

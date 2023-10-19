@@ -146,6 +146,10 @@ public class AreaNetService extends JpaPublicService<AreaNetEntity, String> impl
 
     }
 
+    public List<AreaNetEntity> findByUserId(String userId) throws ServiceException {
+        return areaNetRepository.findByUserId(userId);
+    }
+
     public AreaNetEntity findOrCreateByNameAndContactorAndPhoneAndAreaCodeAndLocation(String areaNetName, String areaNetContactor, String areaNetContactorMobile, String areaNetAreaCode, String areaNetLocation) {
         if (StringUtils.isBlank(areaNetName)) {
             return null;
@@ -153,7 +157,7 @@ public class AreaNetService extends JpaPublicService<AreaNetEntity, String> impl
         AreaNetEntity areaNetEntity = areaNetRepository.findByName(areaNetName);
         if (areaNetEntity != null) {
             areaNetEntity.setName(areaNetName);
-            areaNetEntity.setUserName(areaNetContactor) ;
+            areaNetEntity.setUserName(areaNetContactor);
             areaNetEntity.setPhoneNumber(areaNetContactorMobile);
             areaNetEntity.setAreaCode(areaNetAreaCode);
             areaNetEntity.setLocation(areaNetLocation);
@@ -161,7 +165,7 @@ public class AreaNetService extends JpaPublicService<AreaNetEntity, String> impl
         } else {
             areaNetEntity = new AreaNetEntity();
             areaNetEntity.setName(areaNetName);
-            areaNetEntity.setUserName(areaNetContactor) ;
+            areaNetEntity.setUserName(areaNetContactor);
             areaNetEntity.setPhoneNumber(areaNetContactorMobile);
             areaNetEntity.setAreaCode(areaNetAreaCode);
             areaNetEntity.setLocation(areaNetLocation);

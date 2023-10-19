@@ -99,6 +99,9 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
         return highSchoolNetEntity.getName();
     }
 
+    public List<HighSchoolNetEntity> findByUserId(String userId) {
+        return highSchoolNetRepository.findByUserId(userId);
+    }
 
     public HighSchoolNetEntity findOrCreateByNameAndContactorAndPhoneAndAreaCodeAndLocation(String highSchoolNetName, String highSchoolNetContactor, String highSchoolNetContactorMobile, String highSchoolNetAreaCode, String highSchoolNetLocation) {
         if (StringUtils.isBlank(highSchoolNetName)) {

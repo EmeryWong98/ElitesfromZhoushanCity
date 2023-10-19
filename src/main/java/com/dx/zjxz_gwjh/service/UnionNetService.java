@@ -161,6 +161,10 @@ public class UnionNetService extends JpaPublicService<UnionNetEntity, String> im
         return unionNetEntity;
     }
 
+    public List<UnionNetEntity> findByUserId(String userId) throws ServiceException {
+        return unionNetRepository.findByUserId(userId);
+    }
+
     public UnionNetEntity findOrCreateByNameAndContactorAndPhoneAndLocation(String unionNetName, String unionNetContactor, String unionNetContactorMobile, String unionNetLocation) {
         if (StringUtils.isBlank(unionNetName)) {
             return null;
