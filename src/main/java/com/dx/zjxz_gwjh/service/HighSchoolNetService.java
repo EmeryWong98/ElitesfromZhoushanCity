@@ -17,6 +17,7 @@ import com.querydsl.core.BooleanBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,8 +68,8 @@ public class HighSchoolNetService extends JpaPublicService<HighSchoolNetEntity, 
             }
         }
 
-        if (query.getSorts() == null) {
-            query.setSorts(SortField.def());
+        if (CollectionUtils.isEmpty(query.getSorts())) {
+            query.setSorts(SortField.by("updateAt", true));
         }
 
         return this.queryList(predicate, query.getPageInfo(), query.getSorts());

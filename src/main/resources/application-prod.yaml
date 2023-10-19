@@ -48,3 +48,6 @@ minio:
   access-key: minio
   secret-key: dx123456
   bucket: zjxz-gwjh
+
+download:
+  excel-path: http://60.163.159.240:10002/zjxz-gwjh/files/202310/a57ffbd229ac47d4a0d9eb4f412f5f2f.xlsx

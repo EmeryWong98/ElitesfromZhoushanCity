@@ -2,9 +2,11 @@ package com.dx.zjxz_gwjh;
 
 import java.util.TimeZone;
 
+import com.dx.zjxz_gwjh.controller.config.DownloadConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import com.dx.easyspringweb.api.EnableEasyApiModule;
@@ -28,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @EnableEasyDataModule
 @EnableResourceServer
 @EnableStorageServer
+@EnableConfigurationProperties(DownloadConfig.class)
 public class ZjxzGwjhApplication {
     public static void main(String[] args) {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+8"));

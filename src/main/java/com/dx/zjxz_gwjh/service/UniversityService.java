@@ -27,6 +27,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -86,8 +87,8 @@ public class UniversityService extends JpaPublicService<UniversityEntity, String
 
 
 
-        if (query.getSorts() == null) {
-            query.setSorts(SortField.by("xorder", true));
+        if (CollectionUtils.isEmpty(query.getSorts())) {
+            query.setSorts(SortField.by("updateAt", true));
         }
 
         return this.queryList(predicate, query.getPageInfo(), query.getSorts());

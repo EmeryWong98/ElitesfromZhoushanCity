@@ -10,11 +10,19 @@ import com.dx.zjxz_gwjh.entity.*;
 import com.dx.zjxz_gwjh.filter.HighSchoolFilter;
 import com.dx.zjxz_gwjh.repository.HighSchoolRepository;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import com.querydsl.core.types.OrderSpecifier;
 
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class HighSchoolService extends JpaPublicService<HighSchoolEntity, String> implements StandardService<HighSchoolEntity, HighSchoolFilter, String> {
@@ -41,11 +49,12 @@ public class HighSchoolService extends JpaPublicService<HighSchoolEntity, String
             }
         }
 
-            if (query.getSorts() == null) {
-                query.setSorts(SortField.by("createAt", true));
-            }
 
-            return this.queryList(predicate, query.getPageInfo(), query.getSorts());
+        if (CollectionUtils.isEmpty(query.getSorts())) {
+            query.setSorts(SortField.by("updateAt", true));
+        }
+
+        return this.queryList(predicate, query.getPageInfo(), query.getSorts());
     }
 
     public HighSchoolEntity findByName(String name) throws ServiceException {

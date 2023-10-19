@@ -2,18 +2,24 @@ package com.dx.zjxz_gwjh.controller.management;
 
 import com.dx.easyspringweb.api.annotation.Api;
 import com.dx.easyspringweb.api.annotation.ApiModule;
+import com.dx.easyspringweb.core.annotation.Action;
 import com.dx.easyspringweb.core.annotation.BindResource;
+import com.dx.zjxz_gwjh.controller.config.DownloadConfig;
 import com.dx.zjxz_gwjh.util.UniversityMajorDictionary;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -28,8 +34,13 @@ import static com.dx.zjxz_gwjh.util.UniversityMajorDictionary.MAJOR_DICTIONARY;
 @RequestMapping("/management/IsElite")
 @BindResource(value = "IsElite:management")
 public class IsEliteController {
+    private final DownloadConfig downloadConfig;
 
-    private static final String UPLOADED_EXCEL_PATH = "C:\\Users\\emryw\\Downloads\\是否重点学子导入模板.xlsx";
+    @Autowired
+    public IsEliteController(DownloadConfig downloadConfig) {
+        this.downloadConfig = downloadConfig;
+    }
+
     private static final List<String> TOP_SCHOOLS = Arrays.asList("北京大学", "清华大学", "中国人民大学", "北京航空航天大学", "北京理工大学",
             "中国农业大学", "北京师范大学", "中央民族大学", "南开大学", "天津大学",
             "大连理工大学", "吉林大学", "哈尔滨工业大学", "复旦大学", "同济大学",
@@ -106,6 +117,8 @@ public class IsEliteController {
     }
 
     @PostMapping("/processAndExport")
+    @BindResource(value = "IsElite:management:processAndExport")
+    @Action(value = "处理并导出", type = Action.ActionType.QUERY_LIST)
     public void processAndExportExcel(@RequestParam MultipartFile file, HttpServletResponse response) throws IOException {
         Workbook workbook = processExcel(file);
 
@@ -155,15 +168,19 @@ public class IsEliteController {
         return workbook;
     }
 
-    @PostMapping("/download-template")
-    public void downloadTemplate(HttpServletResponse response) throws IOException {
-        FileInputStream fis = new FileInputStream(UPLOADED_EXCEL_PATH);
-        byte[] bytes = fis.readAllBytes();
-        fis.close();
+//    @PostMapping("/download-template")
+//    @BindResource(value = "IsElite:management:download-template")
+//    @Action(value = "模板下载", type = Action.ActionType.QUERY_LIST)
+//    public void downloadTemplate(ServerHttpResponse response) throws IOException {
+//        response.setStatusCode(HttpStatus.MOVED_PERMANENTLY);
+//        response.getHeaders().set("Location", DOWNLOAD_EXCEL_PATH);
+//    }
 
-        response.setContentType("application/vnd.ms-excel");
-        response.setHeader("Content-Disposition", "attachment; filename=是否重点学子导入模板.xlsx");
-        response.getOutputStream().write(bytes);
-        response.flushBuffer();
+
+    @PostMapping("/download-template")
+    @BindResource(value = "IsElite:management:download-template")
+    @Action(value = "模板下载", type = Action.ActionType.QUERY_LIST)
+    public RedirectView downloadTemplate() {
+        return new RedirectView(downloadConfig.getExcelPath());
     }
 }

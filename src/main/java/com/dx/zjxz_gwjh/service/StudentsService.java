@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.awt.print.Pageable;
@@ -214,8 +215,8 @@ public class StudentsService extends JpaPublicService<StudentsEntity, String> im
         }
 
 
-        if (query.getSorts() == null) {
-            query.setSorts(SortField.def());
+        if (CollectionUtils.isEmpty(query.getSorts())) {
+            query.setSorts(SortField.by("updateAt", true));
         }
 
         return this.queryList(predicate, query.getPageInfo(), query.getSorts());

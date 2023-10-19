@@ -19,6 +19,7 @@ import com.dx.zjxz_gwjh.vo.ZLBDomesticAssistanceVO;
 import com.querydsl.core.BooleanBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,8 +51,8 @@ public class DomesticAssistanceService extends JpaPublicService<DomesticAssistan
             }
         }
 
-        if (query.getSorts() == null) {
-            query.setSorts(SortField.def());
+        if (CollectionUtils.isEmpty(query.getSorts())) {
+            query.setSorts(SortField.by("updateAt", true));
         }
 
         return this.queryList(predicate, query.getPageInfo(), query.getSorts());
