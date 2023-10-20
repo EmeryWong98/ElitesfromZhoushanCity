@@ -11,7 +11,7 @@ import java.util.List;
 
 @Data
 @ApiModel("活动详情VO")
-public class ActivityDetailVO extends ActivityEntity {
+public class ActivityDetailVO {
 
     @ApiModelProperty("活动id")
     private String id;
@@ -29,7 +29,7 @@ public class ActivityDetailVO extends ActivityEntity {
     private String name;
 
     @ApiModelProperty("活动人员")
-    private String participants;
+    private List<StudentDetailsVO> participants;
 
     @ApiModelProperty("活动内容")
     private String content;

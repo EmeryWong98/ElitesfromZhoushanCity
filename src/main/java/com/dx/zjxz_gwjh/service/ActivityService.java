@@ -4,6 +4,7 @@ import com.dx.easyspringweb.core.StandardService;
 import com.dx.easyspringweb.core.exception.ServiceException;
 import com.dx.easyspringweb.core.model.PagingData;
 import com.dx.easyspringweb.core.model.QueryRequest;
+import com.dx.easyspringweb.core.utils.ObjectUtils;
 import com.dx.easyspringweb.data.jpa.JpaCommonRepository;
 import com.dx.easyspringweb.data.jpa.SortField;
 import com.dx.easyspringweb.data.jpa.service.JpaPublicService;
@@ -16,6 +17,7 @@ import com.dx.zjxz_gwjh.repository.StudentsRepository;
 import com.dx.zjxz_gwjh.util.CalcDate;
 import com.dx.zjxz_gwjh.vo.ActivityDetailVO;
 import com.dx.zjxz_gwjh.vo.ActivityStudentVO;
+import com.dx.zjxz_gwjh.vo.StudentDetailsVO;
 import com.querydsl.core.BooleanBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -173,9 +175,16 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
 
         ActivityDetailVO activityDetailVO = new ActivityDetailVO(activityEntity);
         List<StudentsEntity> students = studentsService.getStudentsByIds(participants);
-        String studentNames = students.stream().map(StudentsEntity::getName).collect(Collectors.joining(","));
+        List<StudentDetailsVO> studentDetailsVOS = new ArrayList<>();
+        students.forEach(item -> {
+            try {
+                studentDetailsVOS.add(ObjectUtils.copyEntity(item, StudentDetailsVO.class));
+            } catch (ServiceException e) {
+                throw new RuntimeException(e);
+            }
+        });
         activityDetailVO.setNetName(netName);
-        activityDetailVO.setParticipants(studentNames);
+        activityDetailVO.setParticipants(studentDetailsVOS);
         return activityDetailVO;
     }
 
