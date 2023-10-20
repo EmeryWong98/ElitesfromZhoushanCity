@@ -25,6 +25,13 @@ public class ActivityController {
     @Autowired
     private ActivityService activityService;
 
+    @BindResource("activity:api:history-list")
+    @Action("查询历史活动列表")
+    @PostMapping("/historyList")
+    public PagingData<ActivityDetailVO> getHistoryActivityList(@RequestBody QueryRequest<ActivityFilter> query) throws ServiceException {
+        return activityService.getHistoryActivityList(query);
+    }
+
     @BindResource("activity:api:curr-list")
     @Action("查询进行活动列表")
     @PostMapping("/currList")
