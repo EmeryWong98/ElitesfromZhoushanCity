@@ -13,6 +13,7 @@ import com.dx.zjxz_gwjh.entity.*;
 import com.dx.zjxz_gwjh.filter.ActivityFilter;
 import com.dx.zjxz_gwjh.repository.ActivityRepository;
 import com.dx.zjxz_gwjh.repository.StudentsRepository;
+import com.dx.zjxz_gwjh.util.CalcDate;
 import com.dx.zjxz_gwjh.vo.ActivityDetailVO;
 import com.dx.zjxz_gwjh.vo.ActivityStudentVO;
 import com.querydsl.core.BooleanBuilder;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,16 +62,17 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
 
     /**
      * 驾驶舱查询历史活动列表
+     *
      * @param query 查询条件
      * @return 活动列表
      * @throws ServiceException 业务异常
      */
-    public PagingData<ActivityDetailVO> getHistoryActivityList(QueryRequest<ActivityFilter> query)throws ServiceException {
+    public PagingData<ActivityDetailVO> getHistoryActivityList(QueryRequest<ActivityFilter> query) throws ServiceException {
         ActivityFilter filter = query.getFilter();
         BooleanBuilder predicate = getQueryParams(filter);
-        Date now = new Date();
-        predicate.and(QActivityEntity.activityEntity.startTime.loe(now));
-        predicate.and(QActivityEntity.activityEntity.endTime.loe(now));
+        Date yesterday = new CalcDate().getYesterdayZero(new Date());
+        predicate.and(QActivityEntity.activityEntity.startTime.lt(yesterday));
+        predicate.and(QActivityEntity.activityEntity.endTime.lt(yesterday));
         if (query.getSorts() == null) {
             query.setSorts(SortField.by("startTime", true));
         }
@@ -78,7 +81,7 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
     }
 
     /**
-     * 驾驶舱查询待执行活动列表
+     * 驾驶舱查询正在执行的活动列表
      *
      * @param query 查询条件
      * @return 活动列表
@@ -87,9 +90,10 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
     public PagingData<ActivityDetailVO> getCurrActivityList(QueryRequest<ActivityFilter> query) throws ServiceException {
         ActivityFilter filter = query.getFilter();
         BooleanBuilder predicate = getQueryParams(filter);
-        Date now = new Date();
-        predicate.and(QActivityEntity.activityEntity.startTime.loe(now));
-        predicate.and(QActivityEntity.activityEntity.endTime.goe(now));
+        Date startDate = new CalcDate().getTodayZero(new Date());
+        Date endDate = new CalcDate().getTomorrowZero(new Date());
+        predicate.and(QActivityEntity.activityEntity.startTime.loe(startDate));
+        predicate.and(QActivityEntity.activityEntity.endTime.goe(endDate));
         if (query.getSorts() == null) {
             query.setSorts(SortField.by("startTime", true));
         }
@@ -108,9 +112,9 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
     public PagingData<ActivityDetailVO> getWaitActivityList(QueryRequest<ActivityFilter> query) throws ServiceException {
         ActivityFilter filter = query.getFilter();
         BooleanBuilder predicate = getQueryParams(filter);
-        Date now = new Date();
-        predicate.and(QActivityEntity.activityEntity.startTime.gt(now));
-        predicate.and(QActivityEntity.activityEntity.endTime.gt(now));
+        Date tomorrow = new CalcDate().getTomorrowZero(new Date());
+        predicate.and(QActivityEntity.activityEntity.startTime.gt(tomorrow));
+        predicate.and(QActivityEntity.activityEntity.endTime.gt(tomorrow));
         if (query.getSorts() == null) {
             query.setSorts(SortField.by("startTime", true));
         }
@@ -249,6 +253,10 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
     public ActivityEntity create(ActivityEntity entity) throws ServiceException {
         Date startTime = entity.getStartTime();
         Date endTime = entity.getEndTime();
+        startTime = new CalcDate().getTodayZero(startTime);
+        endTime = new CalcDate().getTodayLast(endTime);
+        entity.setStartTime(startTime);
+        entity.setEndTime(endTime);
         if (startTime.compareTo(endTime) > 0) {
             throw new ServiceException("活动开始时间不能大于结束时间");
         }
