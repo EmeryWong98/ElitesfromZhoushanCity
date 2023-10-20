@@ -102,7 +102,7 @@ public class ActivityWxController {
     @BindResource("activity:api:delete")
     @Action(value = "删除网格活动", type = Action.ActionType.DELETE)
     @PostMapping("/delete")
-    public void delete(@RequestBody String id) throws ServiceException {
+    public void delete(@RequestParam String id) throws ServiceException {
         activityService.deleteById(id);
     }
 }

@@ -59,6 +59,25 @@ public class ActivityService extends JpaPublicService<ActivityEntity, String> im
     }
 
     /**
+     * 驾驶舱查询历史活动列表
+     * @param query 查询条件
+     * @return 活动列表
+     * @throws ServiceException 业务异常
+     */
+    public PagingData<ActivityDetailVO> getHistoryActivityList(QueryRequest<ActivityFilter> query)throws ServiceException {
+        ActivityFilter filter = query.getFilter();
+        BooleanBuilder predicate = getQueryParams(filter);
+        Date now = new Date();
+        predicate.and(QActivityEntity.activityEntity.startTime.loe(now));
+        predicate.and(QActivityEntity.activityEntity.endTime.loe(now));
+        if (query.getSorts() == null) {
+            query.setSorts(SortField.by("startTime", true));
+        }
+        PagingData<ActivityEntity> activityList = this.queryList(predicate, query.getPageInfo(), query.getSorts());
+        return getActivityDetailVOPagingData(activityList);
+    }
+
+    /**
      * 驾驶舱查询待执行活动列表
      *
      * @param query 查询条件
