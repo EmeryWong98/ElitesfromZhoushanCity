@@ -64,14 +64,14 @@ public class ZlbApiController {
 //    public List<UniversityEntity> getUniversitylist(){
 //        return universityService.lists();
 //    }
-//
+
 //    @BindResource("area:zlb:list")
 //    @Action(value = "查询地区列表", type = Action.ActionType.QUERY_LIST)
 //    @PostMapping("/areacodelists")
 //    public List<SimpleAreaCodeDto> getAreaCodeList() {
 //        return areaCodeService.getSimpleAreaCodeList();
 //    }
-//
+
 //    @BindResource("highschool:zlb:list")
 //    @Action(value = "查询高中列表", type = Action.ActionType.QUERY_LIST)
 //    @PostMapping("/highschoollists")
